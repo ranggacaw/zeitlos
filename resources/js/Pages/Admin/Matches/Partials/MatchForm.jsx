@@ -23,17 +23,17 @@ const fields = [
 
 export default function MatchForm({ data, setData, errors, submit, submitLabel }) {
     return (
-        <form onSubmit={submit} className="space-y-6 bg-white p-6 shadow sm:rounded-lg">
+        <form onSubmit={submit} className="space-y-6 bg-card p-6 text-card-foreground shadow sm:rounded-lg">
             <div className="grid gap-6 sm:grid-cols-2">
                 {fields.map((field) => (
                     <div key={field.name} className={field.span ? 'sm:col-span-2' : ''}>
-                        <label className="block text-sm font-medium text-gray-700">{field.label}</label>
+                        <label className="block text-sm font-medium text-foreground">{field.label}</label>
                         {field.type === 'textarea' ? (
                             <textarea
                                 value={data[field.name] ?? ''}
                                 onChange={(e) => setData(field.name, e.target.value)}
                                 rows={3}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                className="mt-1 block w-full rounded-md border-border bg-input text-foreground shadow-sm focus:border-ring focus:ring-ring"
                             />
                         ) : (
                             <input
@@ -41,7 +41,7 @@ export default function MatchForm({ data, setData, errors, submit, submitLabel }
                                 step={field.type === 'number' ? '0.01' : undefined}
                                 value={data[field.name] ?? ''}
                                 onChange={(e) => setData(field.name, e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                className="mt-1 block w-full rounded-md border-border bg-input text-foreground shadow-sm focus:border-ring focus:ring-ring"
                             />
                         )}
                         <InputError className="mt-2" message={errors[field.name]} />
@@ -49,11 +49,11 @@ export default function MatchForm({ data, setData, errors, submit, submitLabel }
                 ))}
 
                 <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700">Status</label>
+                    <label className="block text-sm font-medium text-foreground">Status</label>
                     <select
                         value={data.status}
                         onChange={(e) => setData('status', e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        className="mt-1 block w-full rounded-md border-border bg-input text-foreground shadow-sm focus:border-ring focus:ring-ring"
                     >
                         <option value="scheduled">Scheduled</option>
                         <option value="finished">Finished</option>
@@ -64,7 +64,7 @@ export default function MatchForm({ data, setData, errors, submit, submitLabel }
 
             <div className="flex items-center gap-4">
                 <PrimaryButton disabled={false}>{submitLabel}</PrimaryButton>
-                <Link href={route('admin.matches.index')} className="text-sm text-gray-600 underline hover:text-gray-900">
+                <Link href={route('admin.matches.index')} className="text-sm text-muted-foreground underline hover:text-foreground">
                     Cancel
                 </Link>
             </div>

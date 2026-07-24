@@ -10,7 +10,7 @@ export default function Dashboard({ playerCount = 0, matchCount = 0 }) {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                <h2 className="text-xl font-semibold leading-tight text-foreground">
                     Team Admin
                 </h2>
             }
@@ -24,15 +24,15 @@ export default function Dashboard({ playerCount = 0, matchCount = 0 }) {
                             <Link
                                 key={card.label}
                                 href={card.href}
-                                className="block rounded-lg border border-gray-200 bg-white p-6 shadow transition hover:border-indigo-400 hover:shadow-md"
+                                className="block rounded-lg border border-border bg-card p-6 text-card-foreground shadow transition hover:border-primary hover:shadow-md"
                             >
-                                <p className="text-sm font-medium uppercase tracking-wide text-gray-500">
+                                <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
                                     {card.label}
                                 </p>
-                                <p className="mt-2 text-4xl font-bold text-gray-900">
+                                <p className="mt-2 text-4xl font-bold text-foreground">
                                     {card.count}
                                 </p>
-                                <p className="mt-3 text-sm font-medium text-indigo-600">
+                                <p className="mt-3 text-sm font-medium text-primary">
                                     Manage {card.label.toLowerCase()} &rarr;
                                 </p>
                             </Link>

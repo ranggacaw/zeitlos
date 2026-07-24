@@ -4,6 +4,9 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 
+const labelClass = 'block text-sm font-medium text-foreground';
+const fieldClass = 'mt-1 block w-full rounded-md border-border bg-input text-foreground shadow-sm focus:border-ring focus:ring-ring';
+
 export default function Roster({ match, rosterEntries = [], availablePlayers = [], whatsappText = '' }) {
     const { data, setData, post, delete: destroy, errors } = useForm({
         player_id: '',
@@ -42,7 +45,7 @@ export default function Roster({ match, rosterEntries = [], availablePlayers = [
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                <h2 className="text-xl font-semibold leading-tight text-foreground">
                     Roster &mdash; Zeitlos vs {match.opponent}
                 </h2>
             }
@@ -52,15 +55,15 @@ export default function Roster({ match, rosterEntries = [], availablePlayers = [
             <div className="py-12">
                 <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
                     <div className="grid gap-6 lg:grid-cols-2">
-                        <section className="bg-white p-6 shadow sm:rounded-lg">
-                            <h3 className="text-lg font-medium text-gray-900">Add roster entry</h3>
+                        <section className="bg-card p-6 text-card-foreground shadow sm:rounded-lg">
+                            <h3 className="text-lg font-medium text-foreground">Add roster entry</h3>
                             <form onSubmit={submit} className="mt-4 space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Existing player</label>
+                                    <label className={labelClass}>Existing player</label>
                                     <select
                                         value={data.player_id}
                                         onChange={(e) => setData('player_id', e.target.value)}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        className={fieldClass}
                                     >
                                         <option value="">Guest (enter name below)</option>
                                         {availablePlayers.map((player) => (
@@ -72,22 +75,22 @@ export default function Roster({ match, rosterEntries = [], availablePlayers = [
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Guest name</label>
+                                    <label className={labelClass}>Guest name</label>
                                     <input
                                         value={data.guest_name}
                                         onChange={(e) => setData('guest_name', e.target.value)}
                                         placeholder="Leave blank if an existing player is selected"
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        className={fieldClass}
                                     />
                                     <InputError className="mt-2" message={errors.player_id || errors.guest_name} />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Role</label>
+                                    <label className={labelClass}>Role</label>
                                     <select
                                         value={data.role}
                                         onChange={(e) => setData('role', e.target.value)}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        className={fieldClass}
                                     >
                                         <option value="player">Player</option>
                                         <option value="goalkeeper">Goalkeeper</option>
@@ -99,23 +102,23 @@ export default function Roster({ match, rosterEntries = [], availablePlayers = [
                             </form>
                         </section>
 
-                        <section className="bg-white p-6 shadow sm:rounded-lg">
-                            <h3 className="text-lg font-medium text-gray-900">Current roster</h3>
-                            <ul className="mt-4 divide-y divide-gray-100">
+                        <section className="bg-card p-6 text-card-foreground shadow sm:rounded-lg">
+                            <h3 className="text-lg font-medium text-foreground">Current roster</h3>
+                            <ul className="mt-4 divide-y divide-border">
                                 {rosterEntries.length === 0 ? (
-                                    <li className="py-3 text-sm text-gray-500">No roster entries yet.</li>
+                                    <li className="py-3 text-sm text-muted-foreground">No roster entries yet.</li>
                                 ) : rosterEntries.map((entry) => (
                                     <li key={entry.id} className="flex items-center justify-between py-3">
                                         <div>
-                                            <p className="text-sm font-medium text-gray-900">{entry.name}</p>
-                                            <p className="text-xs uppercase tracking-wide text-gray-500">
+                                            <p className="text-sm font-medium text-foreground">{entry.name}</p>
+                                            <p className="text-xs uppercase tracking-wide text-muted-foreground">
                                                 {entry.role}{entry.is_guest ? ' · guest' : ''}
                                             </p>
                                         </div>
                                         <button
                                             type="button"
                                             onClick={() => remove(entry)}
-                                            className="text-sm text-red-600 hover:text-red-900"
+                                            className="text-sm text-destructive hover:text-destructive"
                                         >
                                             Remove
                                         </button>
@@ -125,22 +128,22 @@ export default function Roster({ match, rosterEntries = [], availablePlayers = [
                         </section>
                     </div>
 
-                    <section className="bg-white p-6 shadow sm:rounded-lg">
+                    <section className="bg-card p-6 text-card-foreground shadow sm:rounded-lg">
                         <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-medium text-gray-900">WhatsApp roster text</h3>
+                            <h3 className="text-lg font-medium text-foreground">WhatsApp roster text</h3>
                             <button
                                 type="button"
                                 onClick={copyText}
-                                className="inline-flex items-center rounded-md border border-transparent bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700"
+                                className="inline-flex items-center rounded-md border border-transparent bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary"
                             >
                                 {copied ? 'Copied!' : 'Copy'}
                             </button>
                         </div>
-                        <pre className="mt-4 whitespace-pre-wrap rounded-md bg-gray-50 p-4 text-sm text-gray-700">{whatsappText}</pre>
+                        <pre className="mt-4 whitespace-pre-wrap rounded-md bg-muted p-4 text-sm text-muted-foreground">{whatsappText}</pre>
                     </section>
 
                     <div>
-                        <Link href={route('admin.matches.index')} className="text-sm text-gray-600 underline hover:text-gray-900">
+                        <Link href={route('admin.matches.index')} className="text-sm text-muted-foreground underline hover:text-foreground">
                             &larr; Back to matches
                         </Link>
                     </div>

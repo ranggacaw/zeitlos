@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import InstallPrompt from '../Components/InstallPrompt';
+import ThemeToggle from '../Components/ThemeToggle';
 
 const navItems = [
     ['public.home', 'Dashboard', 'dashboard'],
@@ -37,23 +38,23 @@ export default function PublicLayout({ children }) {
     const auth = usePage().props.auth;
 
     return (
-        <div className="relative min-h-screen bg-slate-950 text-slate-100">
+        <div className="relative min-h-screen bg-background text-foreground">
             <div
                 aria-hidden="true"
-                className="pointer-events-none fixed inset-x-0 top-0 h-72 bg-gradient-to-br from-amber-500/20 via-emerald-400/10 to-transparent"
+                className="pointer-events-none fixed inset-x-0 top-0 h-72 bg-gradient-to-br from-primary via-chart-2 to-transparent opacity-20"
             />
 
             <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] sm:px-6 lg:max-w-7xl lg:px-8">
-                <header className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-3 shadow-lg shadow-black/30 backdrop-blur sm:rounded-3xl sm:p-4">
+                <header className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-3 text-card-foreground shadow-lg backdrop-blur sm:p-4">
                     <Link href={route('public.home')} className="group flex items-center gap-2">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-300 text-sm font-black text-slate-950 sm:h-10 sm:w-10">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-black text-primary-foreground sm:h-10 sm:w-10">
                             Z
                         </span>
                         <span className="leading-tight">
-                            <span className="block text-[0.6rem] font-bold uppercase tracking-[0.4em] text-amber-300">
+                            <span className="block text-[0.6rem] font-bold uppercase tracking-[0.4em] text-primary">
                                 FC Zeitlos
                             </span>
-                            <span className="block text-base font-black tracking-tight text-white sm:text-lg">
+                            <span className="block text-base font-black tracking-tight text-foreground sm:text-lg">
                                 Team Hub
                             </span>
                         </span>
@@ -66,8 +67,8 @@ export default function PublicLayout({ children }) {
                                 href={route(name)}
                                 className={`rounded-full px-4 py-2 transition ${
                                     route().current(name)
-                                        ? 'bg-amber-300 text-slate-950'
-                                        : 'bg-white/10 text-slate-200 hover:bg-white/20'
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'bg-accent text-accent-foreground hover:bg-accent'
                                 }`}
                             >
                                 {label}
@@ -76,32 +77,34 @@ export default function PublicLayout({ children }) {
                         {auth?.user ? (
                             <Link
                                 href={route('dashboard')}
-                                className="rounded-full bg-emerald-300 px-4 py-2 text-slate-950 transition hover:bg-emerald-200"
+                                className="rounded-full bg-secondary px-4 py-2 text-secondary-foreground transition hover:bg-secondary"
                             >
                                 Admin
                             </Link>
                         ) : (
                             <Link
                                 href={route('login')}
-                                className="rounded-full border border-white/20 px-4 py-2 text-slate-200 transition hover:bg-white/10"
+                                className="rounded-full border border-border px-4 py-2 text-foreground transition hover:bg-accent"
                             >
                                 Log in
                             </Link>
                         )}
+                        <ThemeToggle className="rounded-full border border-border px-4 py-2" />
                     </nav>
 
-                    <div className="sm:hidden">
+                    <div className="flex items-center gap-3 sm:hidden">
+                        <ThemeToggle />
                         {auth?.user ? (
                             <Link
                                 href={route('dashboard')}
-                                className="rounded-full bg-emerald-300 px-4 py-2 text-xs font-bold text-slate-950"
+                                className="rounded-full bg-secondary px-4 py-2 text-xs font-bold text-secondary-foreground"
                             >
                                 Admin
                             </Link>
                         ) : (
                             <Link
                                 href={route('login')}
-                                className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-slate-200"
+                                className="rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground"
                             >
                                 Log in
                             </Link>
@@ -115,7 +118,7 @@ export default function PublicLayout({ children }) {
             <nav
                 aria-label="Public navigation"
                 data-public-nav
-                className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-slate-950/95 pb-safe-bottom backdrop-blur sm:hidden"
+                className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background pb-safe-bottom backdrop-blur sm:hidden"
             >
                 <div className="mx-auto flex max-w-5xl items-stretch">
                     {navItems.map(([name, label, icon]) => {
@@ -126,7 +129,7 @@ export default function PublicLayout({ children }) {
                                 href={route(name)}
                                 aria-current={active ? 'page' : undefined}
                                 className={`flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[0.65rem] font-semibold transition ${
-                                    active ? 'text-amber-300' : 'text-slate-400 hover:text-slate-200'
+                                    active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                                 }`}
                             >
                                 <TabIcon name={icon} className="h-6 w-6" />

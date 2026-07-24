@@ -55,11 +55,11 @@ export default function InstallPrompt() {
             role="dialog"
             aria-label="Install Zeitlos app"
             data-install-prompt
-            className="fixed inset-x-0 bottom-28 z-50 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-white/10 bg-slate-900/95 p-4 shadow-2xl shadow-black/50 backdrop-blur sm:bottom-6"
+            className="fixed inset-x-0 bottom-28 z-50 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-border bg-card p-4 text-card-foreground shadow-2xl backdrop-blur sm:bottom-6"
         >
             <div className="flex-1">
-                <p className="text-sm font-bold text-white">Install Zeitlos</p>
-                <p className="text-xs text-slate-300">
+                <p className="text-sm font-bold text-foreground">Install Zeitlos</p>
+                <p className="text-xs text-muted-foreground">
                     Add the team hub to your home screen for quick, app-like access.
                 </p>
             </div>
@@ -67,7 +67,7 @@ export default function InstallPrompt() {
                 <button
                     type="button"
                     onClick={install}
-                    className="rounded-full bg-amber-300 px-5 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-amber-200"
+                    className="rounded-full bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground transition hover:bg-primary"
                 >
                     Install
                 </button>
@@ -75,7 +75,7 @@ export default function InstallPrompt() {
                     type="button"
                     onClick={dismiss}
                     aria-label="Dismiss install prompt"
-                    className="rounded-full border border-white/15 px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
+                    className="rounded-full border border-border px-4 py-2.5 text-xs font-semibold text-foreground transition hover:bg-accent"
                 >
                     Not now
                 </button>

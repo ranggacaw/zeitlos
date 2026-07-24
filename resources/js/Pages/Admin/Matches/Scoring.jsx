@@ -3,6 +3,9 @@ import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import { Head, Link, useForm } from '@inertiajs/react';
 
+const labelClass = 'block text-sm font-medium text-foreground';
+const fieldClass = 'mt-1 block w-full rounded-md border-border bg-input text-foreground shadow-sm focus:border-ring focus:ring-ring';
+
 export default function Scoring({ match, scoringPlayers = [], events = [] }) {
     const goalForm = useForm({
         scorer_id: '',
@@ -43,7 +46,7 @@ export default function Scoring({ match, scoringPlayers = [], events = [] }) {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                <h2 className="text-xl font-semibold leading-tight text-foreground">
                     Scoring &mdash; Zeitlos vs {match.opponent}
                 </h2>
             }
@@ -53,15 +56,15 @@ export default function Scoring({ match, scoringPlayers = [], events = [] }) {
             <div className="py-12">
                 <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
                     <div className="grid gap-6 lg:grid-cols-2">
-                        <section className="bg-white p-6 shadow sm:rounded-lg">
-                            <h3 className="text-lg font-medium text-gray-900">Record goal</h3>
+                        <section className="bg-card p-6 text-card-foreground shadow sm:rounded-lg">
+                            <h3 className="text-lg font-medium text-foreground">Record goal</h3>
                             <form onSubmit={submitGoal} className="mt-4 space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Scorer</label>
+                                    <label className={labelClass}>Scorer</label>
                                     <select
                                         value={goalForm.data.scorer_id}
                                         onChange={(e) => goalForm.setData('scorer_id', e.target.value)}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        className={fieldClass}
                                     >
                                         <option value="">Select scorer</option>
                                         {scoringPlayers.map((player) => (
@@ -74,11 +77,11 @@ export default function Scoring({ match, scoringPlayers = [], events = [] }) {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Assist (optional)</label>
+                                    <label className={labelClass}>Assist (optional)</label>
                                     <select
                                         value={goalForm.data.assist_player_id}
                                         onChange={(e) => goalForm.setData('assist_player_id', e.target.value)}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        className={fieldClass}
                                     >
                                         <option value="">No assist</option>
                                         {scoringPlayers.map((player) => (
@@ -91,14 +94,14 @@ export default function Scoring({ match, scoringPlayers = [], events = [] }) {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Minute (optional)</label>
+                                    <label className={labelClass}>Minute (optional)</label>
                                     <input
                                         type="number"
                                         min="0"
                                         value={goalForm.data.minute}
                                         onChange={(e) => goalForm.setData('minute', e.target.value)}
                                         placeholder="e.g. 23"
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        className={fieldClass}
                                     />
                                     <InputError className="mt-2" message={goalForm.errors.minute} />
                                 </div>
@@ -107,28 +110,28 @@ export default function Scoring({ match, scoringPlayers = [], events = [] }) {
                             </form>
                         </section>
 
-                        <section className="bg-white p-6 shadow sm:rounded-lg">
-                            <h3 className="text-lg font-medium text-gray-900">Recorded goals</h3>
-                            <ul className="mt-4 divide-y divide-gray-100">
+                        <section className="bg-card p-6 text-card-foreground shadow sm:rounded-lg">
+                            <h3 className="text-lg font-medium text-foreground">Recorded goals</h3>
+                            <ul className="mt-4 divide-y divide-border">
                                 {events.length === 0 ? (
-                                    <li className="py-3 text-sm text-gray-500">No goals recorded yet.</li>
+                                    <li className="py-3 text-sm text-muted-foreground">No goals recorded yet.</li>
                                 ) : events.map((event) => (
                                     <li key={event.id} className="flex items-center justify-between py-3">
                                         <div>
-                                            <p className="text-sm font-medium text-gray-900">
+                                            <p className="text-sm font-medium text-foreground">
                                                 {event.scorer ?? 'Unknown'}
                                                 {event.minute !== null && event.minute !== '' && (
-                                                    <span className="ml-2 text-xs text-gray-500">{event.minute}'</span>
+                                                    <span className="ml-2 text-xs text-muted-foreground">{event.minute}'</span>
                                                 )}
                                             </p>
-                                            <p className="text-xs text-gray-500">
+                                            <p className="text-xs text-muted-foreground">
                                                 {event.assist ? `Assist: ${event.assist}` : 'No assist'}
                                             </p>
                                         </div>
                                         <button
                                             type="button"
                                             onClick={() => removeEvent(event)}
-                                            className="text-sm text-red-600 hover:text-red-900"
+                                            className="text-sm text-destructive hover:text-destructive"
                                         >
                                             Remove
                                         </button>
@@ -138,29 +141,29 @@ export default function Scoring({ match, scoringPlayers = [], events = [] }) {
                         </section>
                     </div>
 
-                    <section className="bg-white p-6 shadow sm:rounded-lg">
-                        <h3 className="text-lg font-medium text-gray-900">Final score</h3>
+                    <section className="bg-card p-6 text-card-foreground shadow sm:rounded-lg">
+                        <h3 className="text-lg font-medium text-foreground">Final score</h3>
                         <form onSubmit={submitFinal} className="mt-4 space-y-4">
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Zeitlos score</label>
+                                    <label className={labelClass}>Zeitlos score</label>
                                     <input
                                         type="number"
                                         min="0"
                                         value={finalForm.data.zeitlos_score}
                                         onChange={(e) => finalForm.setData('zeitlos_score', e.target.value)}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        className={fieldClass}
                                     />
                                     <InputError className="mt-2" message={finalForm.errors.zeitlos_score} />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Opponent score</label>
+                                    <label className={labelClass}>Opponent score</label>
                                     <input
                                         type="number"
                                         min="0"
                                         value={finalForm.data.opponent_score}
                                         onChange={(e) => finalForm.setData('opponent_score', e.target.value)}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        className={fieldClass}
                                     />
                                     <InputError className="mt-2" message={finalForm.errors.opponent_score} />
                                 </div>
@@ -168,14 +171,14 @@ export default function Scoring({ match, scoringPlayers = [], events = [] }) {
                             <div className="flex items-center gap-4">
                                 <PrimaryButton disabled={finalForm.processing}>Finalize match</PrimaryButton>
                                 {match.status === 'finished' && (
-                                    <span className="text-sm text-emerald-600">Match is marked finished.</span>
+                                    <span className="text-sm text-chart-2">Match is marked finished.</span>
                                 )}
                             </div>
                         </form>
                     </section>
 
                     <div>
-                        <Link href={route('admin.matches.index')} className="text-sm text-gray-600 underline hover:text-gray-900">
+                        <Link href={route('admin.matches.index')} className="text-sm text-muted-foreground underline hover:text-foreground">
                             &larr; Back to matches
                         </Link>
                     </div>
