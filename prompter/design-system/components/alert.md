@@ -6,7 +6,7 @@ status: inferred
 variants: [default, destructive]
 sizes: [md]
 tokens: [--background, --foreground, --destructive, --destructive-foreground, --border, --radius-lg, --spacing]
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # Alert

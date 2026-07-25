@@ -6,7 +6,7 @@ status: inferred
 variants: [default, invalid, disabled]
 sizes: [md]
 tokens: [--input, --foreground, --muted-foreground, --border, --ring, --destructive, --radius-md, --spacing]
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # Input

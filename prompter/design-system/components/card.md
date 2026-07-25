@@ -6,7 +6,7 @@ status: inferred
 variants: [default, muted]
 sizes: [md]
 tokens: [--card, --card-foreground, --muted, --muted-foreground, --border, --radius-lg, --shadow]
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # Card

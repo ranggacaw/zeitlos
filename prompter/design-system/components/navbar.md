@@ -6,7 +6,7 @@ status: inferred
 variants: [default, muted]
 sizes: [responsive]
 tokens: [--background, --foreground, --border, --accent, --accent-foreground, --ring, --shadow-sm]
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # Navbar

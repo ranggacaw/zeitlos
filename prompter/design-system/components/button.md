@@ -6,7 +6,7 @@ status: inferred
 variants: [primary, secondary, destructive, outline, ghost, link]
 sizes: [sm, md, lg, icon]
 tokens: [--primary, --primary-foreground, --secondary, --secondary-foreground, --destructive, --destructive-foreground, --background, --foreground, --border, --ring, --radius-md, --spacing]
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # Button

@@ -3,7 +3,7 @@ name: shadows
 type: token
 category: shadows
 status: source
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # Shadow Tokens

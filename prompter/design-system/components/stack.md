@@ -6,7 +6,7 @@ status: inferred
 variants: [vertical, horizontal]
 sizes: [sm, md, lg]
 tokens: [--spacing]
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # Stack

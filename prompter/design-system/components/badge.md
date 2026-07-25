@@ -6,7 +6,7 @@ status: inferred
 variants: [default, secondary, destructive, outline]
 sizes: [sm]
 tokens: [--primary, --primary-foreground, --secondary, --secondary-foreground, --destructive, --destructive-foreground, --border, --foreground, --radius-sm]
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # Badge

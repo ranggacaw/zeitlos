@@ -6,7 +6,7 @@ status: inferred
 variants: [default, invalid, disabled]
 sizes: [md]
 tokens: [--foreground, --muted-foreground, --destructive, --spacing]
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # FormField

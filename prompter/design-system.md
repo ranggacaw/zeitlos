@@ -3,7 +3,7 @@ name: index
 type: index
 project: zeitlos
 source: index.css shadcn/tweakcn CSS variables
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # zeitlos Design System Wiki

@@ -6,7 +6,7 @@ status: inferred
 variants: [default]
 sizes: [responsive]
 tokens: [--sidebar, --sidebar-foreground, --sidebar-primary, --sidebar-primary-foreground, --sidebar-accent, --sidebar-accent-foreground, --sidebar-border, --sidebar-ring]
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # Sidebar

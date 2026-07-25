@@ -3,7 +3,7 @@ name: dark-mode
 type: token
 category: dark-mode
 status: source
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # Dark Mode Tokens
@@ -35,6 +35,11 @@ Used by: [[components/button]] · [[components/card]] · [[components/input]] ·
 | `--border` | `oklch(0.2674 0.0047 248.0045)` | `#242628` | Dark border | source |
 | `--input` | `oklch(0.3020 0.0288 244.8244)` | `#22303c` | Dark input background | source |
 | `--ring` | `oklch(0.6818 0.1584 243.3540)` | `#1da1f2` | Dark focus ring | source |
+| `--chart-1` | `oklch(0.6723 0.1606 244.9955)` | `#1e9df1` | Dark chart series 1 | source |
+| `--chart-2` | `oklch(0.6907 0.1554 160.3454)` | `#00b87a` | Dark chart series 2 | source |
+| `--chart-3` | `oklch(0.8214 0.1600 82.5337)` | `#f7b928` | Dark chart series 3 | source |
+| `--chart-4` | `oklch(0.7064 0.1822 151.7125)` | `#17bf63` | Dark chart series 4 | source |
+| `--chart-5` | `oklch(0.5919 0.2186 10.5826)` | `#e0245e` | Dark chart series 5 | source |
 | `--sidebar` | `oklch(0.2097 0.0080 274.5332)` | `#17181c` | Dark sidebar surface | source |
 | `--sidebar-foreground` | `oklch(0.8853 0 0)` | `#d9d9d9` | Dark sidebar text | source |
 | `--sidebar-primary` | `oklch(0.6818 0.1584 243.3540)` | `#1da1f2` | Dark sidebar selected item | source |
@@ -63,4 +68,4 @@ Used by: [[components/button]] · [[components/card]] · [[components/input]] ·
 ## Notes
 
 - The theme uses class-based dark mode: `.dark { ... }`.
-- Chart tokens are unchanged between light and dark in the provided source.
+- Chart tokens are repeated in `.dark` with the same values as light mode.

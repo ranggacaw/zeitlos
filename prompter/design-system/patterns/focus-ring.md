@@ -2,7 +2,7 @@
 name: focus-ring
 type: pattern
 status: inferred
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # Focus Ring

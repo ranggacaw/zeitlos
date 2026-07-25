@@ -3,7 +3,7 @@ name: borders
 type: token
 category: borders
 status: source
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # Border And Radius Tokens

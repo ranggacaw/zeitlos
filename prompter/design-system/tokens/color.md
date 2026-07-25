@@ -3,7 +3,7 @@ name: color
 type: token
 category: color
 status: source
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # Color Tokens

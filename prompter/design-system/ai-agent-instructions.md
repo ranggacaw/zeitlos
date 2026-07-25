@@ -2,7 +2,7 @@
 name: ai-agent-instructions
 type: contract
 version: 1.0
-updated: 2026-07-24
+updated: 2026-07-25
 ---
 
 # AI Agent Instructions
