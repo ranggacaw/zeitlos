@@ -77,7 +77,11 @@ class MatchController extends Controller
             'payment_due_at' => ['nullable', 'date'],
             'payment_instructions' => ['nullable', 'string'],
             'whatsapp_announcement' => ['nullable', 'string'],
-            'status' => ['required', Rule::in([FootballMatch::STATUS_SCHEDULED, FootballMatch::STATUS_FINISHED])],
+            'status' => ['required', Rule::in([
+                FootballMatch::STATUS_SCHEDULED,
+                FootballMatch::STATUS_LIVE,
+                FootballMatch::STATUS_FINISHED,
+            ])],
             'zeitlos_score' => ['nullable', 'integer', 'min:0'],
             'opponent_score' => ['nullable', 'integer', 'min:0'],
         ]);

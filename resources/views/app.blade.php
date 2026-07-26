@@ -12,7 +12,7 @@
 
         <!-- PWA -->
         <link rel="manifest" href="/manifest.webmanifest">
-        <meta name="theme-color" content="#000000">
+        <meta name="theme-color" content="#020617">
         <meta name="color-scheme" content="light dark">
         <link rel="icon" href="/icons/icon-192.png" type="image/png">
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">

@@ -22,7 +22,7 @@ The system SHALL persist football player records with name, optional photo, jers
 - **THEN** the player record includes identity, jersey, position, active state, and optional photo information
 
 ### Requirement: Match Schedule Data
-The system SHALL persist match records with opponent, date, time, venue, maps URL, ticket, dress code, facilities, notes, payment details, status, and score fields required by public schedule, roster, live scoring, and WhatsApp announcement workflows.
+The system SHALL persist match records with opponent, date, time, venue, maps URL, ticket, dress code, facilities, notes, payment details, status, and score fields required by public schedule, roster, live scoring, and WhatsApp announcement workflows. Match status SHALL support scheduled, live, and finished values.
 
 #### Scenario: Upcoming match includes announcement fields
 - **WHEN** an upcoming match is stored
@@ -31,6 +31,10 @@ The system SHALL persist match records with opponent, date, time, venue, maps UR
 #### Scenario: Finished match includes score fields
 - **WHEN** a match is finished
 - **THEN** the match can store Zeitlos and opponent final scores
+
+#### Scenario: Live match status is stored
+- **WHEN** an admin marks a match as live
+- **THEN** the match status can be persisted without requiring final scores
 
 ### Requirement: Match Roster Data
 The system SHALL persist match roster entries for goalkeepers and players, allowing each entry to reference an existing player or store a guest/substitute name.
@@ -60,4 +64,3 @@ The system SHALL seed data sufficient to demonstrate the Zeitlos domain foundati
 #### Scenario: Demo seed data exists after seeding
 - **WHEN** the database seeder runs
 - **THEN** the database contains a demo admin, players, matches, roster entries, and match events
-

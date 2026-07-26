@@ -56,6 +56,7 @@ export default function MatchForm({ data, setData, errors, submit, submitLabel }
                         className="mt-1 block w-full rounded-md border-border bg-input text-foreground shadow-sm focus:border-ring focus:ring-ring"
                     >
                         <option value="scheduled">Scheduled</option>
+                        <option value="live">Live</option>
                         <option value="finished">Finished</option>
                     </select>
                     <InputError className="mt-2" message={errors.status} />

@@ -15,6 +15,8 @@ class FootballMatch extends Model
 
     public const STATUS_SCHEDULED = 'scheduled';
 
+    public const STATUS_LIVE = 'live';
+
     public const STATUS_FINISHED = 'finished';
 
     protected $table = 'matches';
@@ -59,6 +61,11 @@ class FootballMatch extends Model
     public function scopeFinished(Builder $query): Builder
     {
         return $query->where('status', self::STATUS_FINISHED);
+    }
+
+    public function scopeLive(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_LIVE);
     }
 
     public function rosterEntries(): HasMany

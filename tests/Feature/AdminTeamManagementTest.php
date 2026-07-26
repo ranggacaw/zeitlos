@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\FootballMatch;
+use App\Models\MatchEvent;
 use App\Models\MatchRoster;
 use App\Models\Player;
 use App\Models\User;
@@ -51,7 +52,52 @@ class AdminTeamManagementTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Admin/Dashboard')
                 ->where('playerCount', 0)
+                ->where('activePlayerCount', 0)
                 ->where('matchCount', 0)
+                ->where('liveMatch', null)
+                ->where('nextMatch', null)
+                ->where('recentResult', null)
+                ->has('topScorers', 0)
+                ->has('topAssists', 0)
+                ->has('recentMatches', 0)
+            );
+    }
+
+    public function test_admin_dashboard_exposes_cms_overview_data(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $player = Player::factory()->create(['name' => 'Scorer Star', 'is_active' => true]);
+        FootballMatch::factory()->create([
+            'opponent' => 'Live FC',
+            'status' => FootballMatch::STATUS_LIVE,
+        ]);
+        FootballMatch::factory()->create([
+            'opponent' => 'Next FC',
+            'status' => FootballMatch::STATUS_SCHEDULED,
+            'match_date' => now()->addDay(),
+        ]);
+        FootballMatch::factory()->finished()->create(['opponent' => 'Past FC']);
+
+        MatchEvent::create([
+            'match_id' => FootballMatch::first()->id,
+            'scorer_id' => $player->id,
+            'event_type' => MatchEvent::TYPE_GOAL,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Admin/Dashboard')
+                ->where('playerCount', 1)
+                ->where('activePlayerCount', 1)
+                ->where('matchCount', 3)
+                ->where('liveMatch.opponent', 'Live FC')
+                ->where('nextMatch.opponent', 'Next FC')
+                ->where('recentResult.opponent', 'Past FC')
+                ->where('topScorers.0.name', 'Scorer Star')
+                ->where('topScorers.0.goals', 1)
+                ->has('recentMatches', 3)
             );
     }
 
@@ -126,6 +172,47 @@ class AdminTeamManagementTest extends TestCase
         $this->assertSame('North Field', $match->venue);
         $this->assertSame('finished', $match->status);
         $this->assertSame(2, $match->zeitlos_score);
+    }
+
+    public function test_admin_can_open_and_update_leaderboard_corrections(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $player = Player::factory()->create([
+            'name' => 'Correction Player',
+            'goals_adjustment' => 0,
+            'assists_adjustment' => 0,
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.leaderboard.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Admin/Leaderboard/Index')
+                ->has('players', 1)
+                ->where('players.0.name', 'Correction Player')
+                ->where('players.0.goals', 0)
+                ->where('players.0.assists', 0)
+            );
+
+        $this->actingAs($admin)
+            ->patch(route('admin.leaderboard.update', $player), [
+                'goals_adjustment' => 4,
+                'assists_adjustment' => 2,
+            ])
+            ->assertRedirect(route('admin.leaderboard.index'));
+
+        $player->refresh();
+        $this->assertSame(4, $player->goals_adjustment);
+        $this->assertSame(2, $player->assists_adjustment);
+
+        $this->get(route('public.leaderboard'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('leaders.0.name', 'Correction Player')
+                ->where('leaders.0.goals', 4)
+                ->where('leaders.0.assists', 2)
+            );
     }
 
     public function test_admin_can_add_roster_entries_for_player_and_guest(): void

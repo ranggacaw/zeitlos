@@ -1,7 +1,7 @@
 # admin-team-management Specification
 
 ## Purpose
-Authenticated admin workflows for managing Zeitlos football domain data: players, matches, match rosters (players and guests), and copyable WhatsApp roster text, protected behind an admin-only route group.
+Authenticated admin CMS workflows for managing Zeitlos football domain data: players, matches, match rosters (players and guests), leaderboard corrections, dashboard overview data, and copyable WhatsApp roster text, protected behind an admin-only route group.
 ## Requirements
 ### Requirement: Admin Access Control
 The system SHALL restrict team management pages and mutations to authenticated admin users.
@@ -17,6 +17,13 @@ The system SHALL restrict team management pages and mutations to authenticated a
 #### Scenario: Admin user accesses team management
 - **WHEN** an authenticated admin user opens an admin team management route
 - **THEN** the system renders the requested admin management page
+
+### Requirement: Admin CMS Dashboard
+The system SHALL provide admins with a CMS dashboard that summarizes team management status and links to primary management workflows.
+
+#### Scenario: Admin views CMS overview
+- **WHEN** an admin opens the admin dashboard
+- **THEN** the page includes player and match counts, live or next match context, recent result context, top scorer and assist summaries, and quick links to management pages
 
 ### Requirement: Player Management
 The system SHALL allow admins to list, create, update, and delete football player records with roster identity, status, photo, join date, and stat correction fields.
@@ -58,3 +65,9 @@ The system SHALL provide admins with copyable WhatsApp roster text generated fro
 - **WHEN** an admin opens roster management for a match with roster entries
 - **THEN** the page includes copyable WhatsApp text containing match details and grouped roster names
 
+### Requirement: Leaderboard Correction Management
+The system SHALL allow admins to view event-derived player scoring totals and update stat correction fields from a dedicated leaderboard CMS page.
+
+#### Scenario: Admin corrects leaderboard stats
+- **WHEN** an admin updates a player's goal or assist adjustment from leaderboard management
+- **THEN** the correction is persisted and public leaderboard totals reflect the adjusted values

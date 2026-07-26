@@ -4,7 +4,7 @@
 TBD - created by archiving change add-live-match-scoring. Update Purpose after archive.
 ## Requirements
 ### Requirement: Admin Live Scoring Console
-The system SHALL provide admins with a match-specific scoring console for recording match events and final scores.
+The system SHALL provide admins with a match-specific scoring console for recording match events, managing live status, and final scores.
 
 #### Scenario: Admin opens scoring console
 - **WHEN** an authenticated admin opens the scoring console for a match
@@ -12,6 +12,17 @@ The system SHALL provide admins with a match-specific scoring console for record
 
 #### Scenario: Non-admin cannot access scoring console
 - **WHEN** a guest or non-admin user attempts to open the scoring console
+- **THEN** the system denies access according to the admin route protections
+
+### Requirement: Live Match Status Management
+The system SHALL allow admins to mark a scheduled match as live before final score submission.
+
+#### Scenario: Admin starts live match
+- **WHEN** an admin marks a scheduled match as live
+- **THEN** the system stores live status without changing final score fields
+
+#### Scenario: Non-admin cannot start live match
+- **WHEN** a non-admin user attempts to mark a match as live
 - **THEN** the system denies access according to the admin route protections
 
 ### Requirement: Goal Event Management
@@ -38,4 +49,3 @@ The system SHALL reflect recorded scoring events in player goal and assist total
 #### Scenario: Public stats include recorded goal
 - **WHEN** a goal event with an assist is recorded for active players
 - **THEN** the public leaderboard and player totals include the scorer goal and assist player assist
-

@@ -115,6 +115,34 @@ class AdminLiveMatchScoringTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_mark_a_match_live(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->create([
+            'status' => FootballMatch::STATUS_SCHEDULED,
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.matches.live.store', $match))
+            ->assertRedirect(route('admin.matches.scoring.index', $match));
+
+        $this->assertSame(FootballMatch::STATUS_LIVE, $match->fresh()->status);
+        $this->assertNull($match->fresh()->zeitlos_score);
+        $this->assertNull($match->fresh()->opponent_score);
+    }
+
+    public function test_non_admin_cannot_mark_a_match_live(): void
+    {
+        $user = User::factory()->create();
+        $match = FootballMatch::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('admin.matches.live.store', $match))
+            ->assertForbidden();
+
+        $this->assertSame(FootballMatch::STATUS_SCHEDULED, $match->fresh()->status);
+    }
+
     public function test_recording_a_goal_requires_a_valid_scorer(): void
     {
         $admin = User::factory()->admin()->create();

@@ -8,13 +8,20 @@ import { useState } from 'react';
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
+    const isAdminArea = route().current('admin.*');
+    const adminLinks = [
+        { label: 'Overview', href: route('admin.dashboard'), active: 'admin.dashboard' },
+        { label: 'Players', href: route('admin.players.index'), active: 'admin.players.*' },
+        { label: 'Matches', href: route('admin.matches.index'), active: 'admin.matches.*' },
+        { label: 'Stats', href: route('admin.leaderboard.index'), active: 'admin.leaderboard.*' },
+    ];
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
     return (
         <div className="min-h-screen bg-background text-foreground">
-            <nav className="border-b border-border bg-card text-card-foreground">
+            <nav className="sticky top-0 z-30 border-b border-border bg-card/95 text-card-foreground shadow-sm backdrop-blur">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
@@ -24,17 +31,31 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </Link>
                             </div>
 
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <div className="hidden space-x-7 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink
                                     href={route('dashboard')}
                                     active={route().current('dashboard')}
                                 >
                                     Dashboard
                                 </NavLink>
+                                {user.is_admin && adminLinks.map((link) => (
+                                    <NavLink
+                                        key={link.label}
+                                        href={link.href}
+                                        active={route().current(link.active)}
+                                    >
+                                        {link.label}
+                                    </NavLink>
+                                ))}
                             </div>
                         </div>
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center sm:gap-4">
+                            {user.is_admin && isAdminArea && (
+                                <span className="rounded-full border border-border bg-muted px-3 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                    Admin CMS
+                                </span>
+                            )}
                             <ThemeToggle />
                             <div className="relative ms-3">
                                 <Dropdown>
@@ -136,17 +157,26 @@ export default function AuthenticatedLayout({ header, children }) {
                         >
                             Dashboard
                         </ResponsiveNavLink>
+                        {user.is_admin && adminLinks.map((link) => (
+                            <ResponsiveNavLink
+                                key={link.label}
+                                href={link.href}
+                                active={route().current(link.active)}
+                            >
+                                {link.label}
+                            </ResponsiveNavLink>
+                        ))}
                     </div>
 
-                        <div className="border-t border-border pb-1 pt-4">
-                            <div className="px-4">
+                    <div className="border-t border-border pb-1 pt-4">
+                        <div className="px-4">
                             <div className="text-base font-medium text-foreground">
                                 {user.name}
                             </div>
                             <div className="text-sm font-medium text-muted-foreground">
                                 {user.email}
                             </div>
-                            </div>
+                        </div>
 
                         <div className="mt-3 px-4">
                             <ThemeToggle />
@@ -169,7 +199,7 @@ export default function AuthenticatedLayout({ header, children }) {
             </nav>
 
             {header && (
-                <header className="border-b border-border bg-card shadow">
+                <header className="border-b border-border bg-card shadow-sm">
                     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                         {header}
                     </div>
