@@ -29,7 +29,7 @@ export default function PublicRoster({
     headingWrapperClassName = '',
     titleClassName = 'mt-3 text-3xl font-black font-lexend uppercase tracking-tighter text-on-surface sm:text-5xl',
     contentClassName = 'space-y-10',
-    gridClassName = 'grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4',
+    gridClassName = 'grid grid-cols-3 gap-4 sm:grid-cols-3 lg:grid-cols-4',
     emptyClassName = 'rounded-2xl border border-dashed border-border p-6 text-sm font-manrope text-on-surface-variant',
     emptyText = 'No active players are available yet.',
 }) {
@@ -82,13 +82,9 @@ export default function PublicRoster({
                                                 <p className="text-[0.65rem] font-bold font-lexend uppercase tracking-[0.25em] text-primary">
                                                     {player.jersey_number ?? '-'} · {player.position}
                                                 </p>
-                                                <h4 className="mt-1 break-words text-sm font-black font-lexend uppercase leading-tight text-on-surface sm:text-base">
+                                                <h4 className="mt-1 break-words text-xs font-black font-lexend uppercase leading-tight text-on-surface sm:text-base">
                                                     {player.name}
                                                 </h4>
-                                                <div className="mt-3 flex items-center gap-2 text-[0.65rem] font-bold font-lexend uppercase tracking-widest text-on-surface-variant">
-                                                    <span>{player.goals}G</span>
-                                                    <span className="text-primary">{player.assists}A</span>
-                                                </div>
                                             </div>
                                         </Link>
                                     );

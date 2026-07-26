@@ -18,7 +18,7 @@ class PublicTeamController extends Controller
         return Inertia::render('Welcome', [
             'upcomingMatch' => $this->serializeMatch($this->upcomingMatches()->first(), true),
             'recentResult' => $this->serializeMatch($this->finishedMatches()->first(), true),
-            'players' => $this->activePlayers()->map(fn (Player $player) => $this->serializePlayer($player))->values(),
+            'players' => $this->activePlayers()->map(fn (Player $player) => $this->serializeRosterPlayer($player))->values(),
             'leaders' => $this->leaderboardPlayers()->take(5)->values(),
         ]);
     }
@@ -52,7 +52,7 @@ class PublicTeamController extends Controller
     public function roster(): Response
     {
         return Inertia::render('Public/Roster', [
-            'players' => $this->activePlayers()->map(fn (Player $player) => $this->serializePlayer($player))->values(),
+            'players' => $this->activePlayers()->map(fn (Player $player) => $this->serializeRosterPlayer($player))->values(),
         ]);
     }
 
@@ -107,9 +107,39 @@ class PublicTeamController extends Controller
     private function leaderboardPlayers(): Collection
     {
         return $this->activePlayers()
-            ->map(fn (Player $player) => $this->serializePlayer($player))
+            ->map(fn (Player $player) => $this->serializeLeaderboardPlayer($player))
             ->sortByDesc(fn (array $player) => [$player['goals'], $player['assists'], $player['name']])
             ->values();
+    }
+
+    private function serializeRosterPlayer(Player $player): array
+    {
+        $data = [
+            'id' => $player->id,
+            'name' => $player->name,
+            'jersey_number' => $player->jersey_number,
+            'position' => $player->position,
+            'goals' => $player->goalsCount(),
+            'assists' => $player->assistsCount(),
+        ];
+
+        if ($player->photo_path) {
+            $data['photo_path'] = $player->photo_path;
+        }
+
+        return $data;
+    }
+
+    private function serializeLeaderboardPlayer(Player $player): array
+    {
+        return [
+            'id' => $player->id,
+            'name' => $player->name,
+            'jersey_number' => $player->jersey_number,
+            'position' => $player->position,
+            'goals' => $player->goalsCount(),
+            'assists' => $player->assistsCount(),
+        ];
     }
 
     private function serializePlayer(Player $player): array

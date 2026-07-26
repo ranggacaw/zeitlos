@@ -95,7 +95,7 @@ export default function Welcome({ upcomingMatch, recentResult, players = [], lea
                         <span className="mb-1 border-b-2 border-primary pb-1 text-[0.65rem] font-bold font-lexend uppercase tracking-widest text-primary">Full Squad</span>
                     )}
                     contentClassName="space-y-8"
-                    gridClassName="grid grid-cols-2 gap-4 sm:grid-cols-2"
+                    gridClassName="grid grid-cols-3 gap-4 sm:grid-cols-3"
                     emptyClassName="text-sm font-manrope text-on-surface-variant"
                     emptyText="No active players yet."
                 />
