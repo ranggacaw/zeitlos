@@ -29,9 +29,9 @@ class PublicTeamPagesTest extends TestCase
                 ->component('Welcome')
                 ->where('upcomingMatch.opponent', 'Riverside FC')
                 ->where('recentResult.opponent', 'Old Town United')
-                ->has('players', 6)
+                ->has('players', 17)
                 ->has('leaders.0', fn (Assert $page) => $page
-                    ->where('name', 'Leo Fischer')
+                    ->where('name', 'Dennis')
                     ->where('goals', 2)
                     ->etc()
                 )
@@ -47,9 +47,9 @@ class PublicTeamPagesTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Public/Schedule')
                 ->where('upcomingMatches.0.opponent', 'Riverside FC')
-                ->where('upcomingMatches.0.roster.player.0.name', 'Milan Becker')
+                ->where('upcomingMatches.0.roster.player.0.name', 'Hendry')
                 ->where('finishedMatches.0.zeitlos_score', 3)
-                ->where('finishedMatches.0.events.0.scorer', 'Leo Fischer')
+                ->where('finishedMatches.0.events.0.scorer', 'Dennis')
             );
     }
 
@@ -61,10 +61,10 @@ class PublicTeamPagesTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Public/Roster')
-                ->has('players', 6)
-                ->where('players.0.name', 'Anton Keller')
+                ->has('players', 17)
+                ->where('players.0.name', 'Gilang')
                 ->where('players.0.jersey_number', 1)
-                ->where('players.0.position', 'Goalkeeper')
+                ->where('players.0.position', 'GK')
             );
     }
 
@@ -76,9 +76,9 @@ class PublicTeamPagesTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Public/Leaderboard')
-                ->where('leaders.0.name', 'Leo Fischer')
+                ->where('leaders.0.name', 'Dennis')
                 ->where('leaders.0.goals', 2)
-                ->where('leaders.0.assists', 1)
+                ->where('leaders.0.assists', 0)
             );
     }
 
@@ -86,13 +86,13 @@ class PublicTeamPagesTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $player = Player::where('name', 'Leo Fischer')->firstOrFail();
+        $player = Player::where('name', 'Dennis')->firstOrFail();
 
         $this->get(route('public.players.show', $player))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Public/PlayerShow')
-                ->where('player.name', 'Leo Fischer')
+                ->where('player.name', 'Dennis')
                 ->where('player.goals', 2)
                 ->has('matches', 2)
             );

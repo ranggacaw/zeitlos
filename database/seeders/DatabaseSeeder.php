@@ -31,15 +31,26 @@ class DatabaseSeeder extends Seeder
         );
 
         $players = collect([
-            ['name' => 'Anton Keller', 'jersey_number' => 1, 'position' => 'Goalkeeper', 'photo_path' => 'players/anton-keller.jpg'],
-            ['name' => 'Milan Becker', 'jersey_number' => 4, 'position' => 'Defender', 'photo_path' => 'players/milan-becker.jpg'],
-            ['name' => 'Jonas Hartmann', 'jersey_number' => 8, 'position' => 'Midfielder', 'photo_path' => 'players/jonas-hartmann.jpg'],
-            ['name' => 'Leo Fischer', 'jersey_number' => 10, 'position' => 'Forward', 'photo_path' => 'players/leo-fischer.jpg'],
-            ['name' => 'Noah Wagner', 'jersey_number' => 11, 'position' => 'Forward', 'photo_path' => 'players/noah-wagner.jpg'],
-            ['name' => 'Felix Roth', 'jersey_number' => 23, 'position' => 'Midfielder', 'photo_path' => 'players/felix-roth.jpg'],
+            ['name' => 'Hendry', 'jersey_number' => 9, 'position' => 'CF'],
+            ['name' => 'Rangga', 'jersey_number' => 4, 'position' => 'CB'],
+            ['name' => 'Mifta', 'jersey_number' => null, 'position' => 'CB'],
+            ['name' => 'Rafly', 'jersey_number' => null, 'position' => 'CB'],
+            ['name' => 'Adry', 'jersey_number' => null, 'position' => 'CM'],
+            ['name' => 'Rovi', 'jersey_number' => null, 'position' => 'Winger'],
+            ['name' => 'Resko', 'jersey_number' => null, 'position' => 'CF'],
+            ['name' => 'Ihsan', 'jersey_number' => 7, 'position' => 'Winger'],
+            ['name' => 'Dion', 'jersey_number' => null, 'position' => 'Winger'],
+            ['name' => 'Garcia', 'jersey_number' => null, 'position' => 'CM'],
+            ['name' => 'Ajie', 'jersey_number' => null, 'position' => 'CM'],
+            ['name' => 'Fajri', 'jersey_number' => null, 'position' => 'Winger'],
+            ['name' => 'Aslam', 'jersey_number' => null, 'position' => 'CB'],
+            ['name' => 'Fajar', 'jersey_number' => null, 'position' => 'Winger'],
+            ['name' => 'Dennis', 'jersey_number' => 10, 'position' => 'CF'],
+            ['name' => 'Gilang', 'jersey_number' => 1, 'position' => 'GK'],
+            ['name' => 'Sutan', 'jersey_number' => 1, 'position' => 'GK'],
         ])->mapWithKeys(function (array $player) {
             $model = Player::updateOrCreate(
-                ['jersey_number' => $player['jersey_number']],
+                ['name' => $player['name']],
                 $player + [
                     'is_active' => true,
                     'joined_at' => now()->subYears(2)->toDateString(),
@@ -48,7 +59,7 @@ class DatabaseSeeder extends Seeder
                 ]
             );
 
-            return [$model->jersey_number => $model];
+            return [$model->name => $model];
         });
 
         $upcomingMatch = FootballMatch::updateOrCreate(
@@ -97,7 +108,7 @@ class DatabaseSeeder extends Seeder
             foreach ($players as $player) {
                 MatchRoster::updateOrCreate(
                     ['match_id' => $match->id, 'player_id' => $player->id],
-                    ['guest_name' => null, 'role' => $player->position === 'Goalkeeper' ? MatchRoster::ROLE_GOALKEEPER : MatchRoster::ROLE_PLAYER]
+                    ['guest_name' => null, 'role' => $player->position === 'GK' ? MatchRoster::ROLE_GOALKEEPER : MatchRoster::ROLE_PLAYER]
                 );
             }
         }
@@ -108,9 +119,9 @@ class DatabaseSeeder extends Seeder
         );
 
         foreach ([
-            ['minute' => 12, 'scorer_id' => $players[10]->id, 'assist_player_id' => $players[8]->id],
-            ['minute' => 48, 'scorer_id' => $players[11]->id, 'assist_player_id' => $players[10]->id],
-            ['minute' => 76, 'scorer_id' => $players[10]->id, 'assist_player_id' => $players[23]->id],
+            ['minute' => 12, 'scorer_id' => $players['Dennis']->id, 'assist_player_id' => $players['Hendry']->id],
+            ['minute' => 48, 'scorer_id' => $players['Hendry']->id, 'assist_player_id' => $players['Ihsan']->id],
+            ['minute' => 76, 'scorer_id' => $players['Dennis']->id, 'assist_player_id' => $players['Ihsan']->id],
         ] as $event) {
             MatchEvent::updateOrCreate(
                 ['match_id' => $finishedMatch->id, 'minute' => $event['minute']],

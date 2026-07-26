@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('players', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->unsignedInteger('jersey_number')->unique();
+            $table->unsignedInteger('jersey_number')->nullable();
             $table->string('position');
             $table->boolean('is_active')->default(true);
             $table->string('photo_path')->nullable();

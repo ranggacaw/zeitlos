@@ -18,7 +18,7 @@ class PublicTeamController extends Controller
         return Inertia::render('Welcome', [
             'upcomingMatch' => $this->serializeMatch($this->upcomingMatches()->first(), true),
             'recentResult' => $this->serializeMatch($this->finishedMatches()->first(), true),
-            'players' => $this->activePlayers()->take(6)->map(fn (Player $player) => $this->serializePlayer($player))->values(),
+            'players' => $this->activePlayers()->map(fn (Player $player) => $this->serializePlayer($player))->values(),
             'leaders' => $this->leaderboardPlayers()->take(5)->values(),
         ]);
     }
@@ -71,7 +71,9 @@ class PublicTeamController extends Controller
 
         return Player::query()
             ->where('is_active', true)
+            ->orderByRaw('jersey_number is null')
             ->orderBy('jersey_number')
+            ->orderBy('name')
             ->get();
     }
 

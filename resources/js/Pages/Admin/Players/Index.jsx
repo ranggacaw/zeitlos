@@ -49,7 +49,7 @@ export default function Index({ players = [] }) {
                                     </tr>
                                 ) : players.map((player) => (
                                     <tr key={player.id}>
-                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-foreground">{player.jersey_number}</td>
+                                        <td className="whitespace-nowrap px-6 py-4 text-sm text-foreground">{player.jersey_number ?? '-'}</td>
                                         <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-foreground">{player.name}</td>
                                         <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">{player.position}</td>
                                         <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">{player.is_active ? 'Active' : 'Inactive'}</td>

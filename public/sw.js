@@ -4,7 +4,7 @@
  * navigation requests. Application (Inertia) data is intentionally left
  * to the network so stale match data is never served.
  */
-const CACHE_VERSION = 'zeitlos-v1';
+const CACHE_VERSION = 'zeitlos-v2';
 const CACHE_NAME = `${CACHE_VERSION}-shell`;
 const OFFLINE_URL = '/offline.html';
 
@@ -68,6 +68,10 @@ self.addEventListener('fetch', (event) => {
                 }
             })(),
         );
+        return;
+    }
+
+    if (request.headers.has('X-Inertia')) {
         return;
     }
 

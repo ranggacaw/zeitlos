@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim": "#c6c6c9",
+              "inverse-primary": "#ffb4a8",
+              "on-secondary-fixed-variant": "#454749",
+              "surface-container-highest": "#e1e3e4",
+              "on-error-container": "#93000a",
+              "surface-container-high": "#e7e8e9",
+              "on-primary": "#ffffff",
+              "background": "#f8f9fa",
+              "tertiary-fixed": "#e2e2e5",
+              "surface-bright": "#f8f9fa",
+              "error": "#ba1a1a",
+              "on-tertiary-fixed": "#1a1c1e",
+              "on-surface": "#191c1d",
+              "on-secondary-fixed": "#1a1c1e",
+              "surface": "#f8f9fa",
+              "primary": "#9e0000",
+              "on-primary-fixed-variant": "#930000",
+              "inverse-surface": "#2e3132",
+              "secondary-fixed": "#e2e2e5",
+              "surface-container-lowest": "#ffffff",
+              "primary-fixed-dim": "#ffb4a8",
+              "outline-variant": "#e8bdb6",
+              "outline": "#926e69",
+              "on-tertiary-container": "#e2e3e5",
+              "surface-variant": "#e1e3e4",
+              "surface-tint": "#c00000",
+              "tertiary": "#4b4d4f",
+              "inverse-on-surface": "#f0f1f2",
+              "on-surface-variant": "#5e3f3a",
+              "primary-container": "#cc0000",
+              "surface-dim": "#d9dadb",
+              "error-container": "#ffdad6",
+              "tertiary-container": "#636567",
+              "on-tertiary-fixed-variant": "#454749",
+              "surface-container": "#edeeef",
+              "surface-container-low": "#f3f4f5",
+              "secondary": "#5d5e61",
+              "on-error": "#ffffff",
+              "secondary-container": "#e2e2e5",
+              "on-primary-fixed": "#410000",
+              "on-background": "#191c1d",
+              "on-tertiary": "#ffffff",
+              "on-secondary": "#ffffff",
+              "on-primary-container": "#ffdad4",
+              "tertiary-fixed-dim": "#c6c6c9",
+              "primary-fixed": "#ffdad4",
+              "on-secondary-container": "#636467"
+            },
+            fontFamily: {
+              "headline": ["Lexend"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+      }
+      body {
+        font-family: 'Manrope', sans-serif;
+        background-color: #f8f9fa;
+        color: #191c1d;
+      }
+      h1, h2, h3, .font-lexend {
+        font-family: 'Lexend', sans-serif;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#f8f9fa]/80 dark:bg-[#191c1d]/80 backdrop-blur-xl flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer active:scale-95 transition-transform" data-icon="menu">menu</span>
+<span class="text-2xl font-black tracking-widest text-[#9e0000] dark:text-[#cc0000] font-lexend uppercase">KINETIC</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden active:scale-95 transition-transform border-2 border-primary/20">
+<img alt="User" class="w-full h-full object-cover" data-alt="close-up portrait of a professional male user in a clean studio setting with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXlB-Zsh0fGy1Hb4kMZkRvpd1OwLwobx__1p_Y69utacfYfjqnHFTvMDrUpGLnmcmLAucom_YsAJQZuztf9mL_zoHqrKEgAT-Cad3otm_IzT_-04kSDkpdo9hUnUNxAOJ2UfYx32dsYTKlHnwxRkqfrrC_FNATwOYbaSkUJjrDuitm_PW4OMR7QZ-VJcCQ6l7WZcK1YTD9wciCFWHRurYQLP4gsKSucio5Mzek1O_3Pb4B96eQhH_RIRiQ-4zp1J2H-8P4rGa62XWs"/>
+</div>
+</div>
+</header>
+<main class="pt-16 pb-32">
+<!-- Hero Banner -->
+<section class="relative h-[530px] md:h-[618px] w-full overflow-hidden mb-8">
+<img alt="Hero Player" class="w-full h-full object-cover" data-alt="dramatic wide shot of a professional soccer player in red jersey celebrating under stadium lights with cinematic lens flare" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6FgsAqDaHnbPh4H3t3RYa1jFljbWv-kirDeeyJNRwFSEG1RRM8R5vCwkawu7HuhDEQYbwziYDF7VhJskK7YUv9Otu4Yjs2Mr_hu1s0cfhuac0Sb_4g1Nfzeuqu3w1q6aKSr3_ZT-TTk11fIWLXco1AD7yo_f3ZDLhCzC1QYjwdLxir_PKcPmwuDi4o6ximniWdNtp9uFbNxtj4xy7NQR5EKKb_ax0ZZjI4OX4THP0Ostt8oKYxRVyHExjG8Dde2ry9vLdQ3LhK53Y"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<div class="absolute bottom-12 left-6 md:left-12 max-w-2xl">
+<span class="bg-primary text-white font-lexend font-bold px-4 py-1 rounded-full text-xs tracking-widest uppercase mb-4 inline-block">Featured Match</span>
+<h1 class="text-5xl md:text-7xl font-black tracking-tighter text-on-surface font-lexend leading-none mb-4">PRECISION<br/>STRIKER</h1>
+<p class="text-on-surface-variant text-lg font-medium max-w-md">Experience the velocity of the beautiful game with Kinetic Precision FC's elite roster.</p>
+</div>
+</section>
+<!-- Next Match Card (Bento Style) -->
+<section class="px-6 mb-12">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="md:col-span-2 bg-surface-container-lowest p-8 rounded-xl shadow-none flex flex-col justify-between min-h-[300px] border-l-8 border-primary relative overflow-hidden">
+<div class="absolute top-[-20%] right-[-10%] opacity-5">
+<span class="material-symbols-outlined text-[300px]" data-icon="sports_soccer">sports_soccer</span>
+</div>
+<div class="flex justify-between items-start z-10">
+<div>
+<h2 class="text-xs font-black tracking-[0.2em] text-on-surface-variant uppercase mb-2 font-lexend">Upcoming Fixture</h2>
+<p class="text-3xl font-black font-lexend text-primary uppercase italic">Final Countdown</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs font-bold text-on-surface-variant font-lexend">STADIUM ARENA</span>
+<span class="text-xs font-medium text-on-surface-variant/60">May 24, 2024 • 20:45</span>
+</div>
+</div>
+<div class="flex justify-around items-center py-8 z-10">
+<div class="flex flex-col items-center gap-3">
+<div class="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center text-white font-black text-2xl font-lexend">KP</div>
+<span class="font-bold text-sm font-lexend">KINETIC</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-4xl font-black font-lexend text-on-surface">VS</span>
+<div class="bg-secondary-container px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter mt-2 text-on-secondary-container">Live Tracker</div>
+</div>
+<div class="flex flex-col items-center gap-3">
+<div class="w-16 h-16 bg-surface-container-high rounded-full flex items-center justify-center text-on-surface-variant font-black text-2xl font-lexend">CT</div>
+<span class="font-bold text-sm font-lexend">CITY</span>
+</div>
+</div>
+<div class="flex gap-4 z-10">
+<div class="bg-surface-container-low rounded-full px-6 py-3 flex-1 text-center">
+<span class="block text-[10px] font-bold text-on-surface-variant/60 uppercase">Days</span>
+<span class="text-xl font-black font-lexend">03</span>
+</div>
+<div class="bg-surface-container-low rounded-full px-6 py-3 flex-1 text-center">
+<span class="block text-[10px] font-bold text-on-surface-variant/60 uppercase">Hours</span>
+<span class="text-xl font-black font-lexend">14</span>
+</div>
+<div class="bg-surface-container-low rounded-full px-6 py-3 flex-1 text-center">
+<span class="block text-[10px] font-bold text-on-surface-variant/60 uppercase">Mins</span>
+<span class="text-xl font-black font-lexend">52</span>
+</div>
+</div>
+</div>
+<div class="bg-primary text-white p-8 rounded-xl flex flex-col justify-center items-center text-center gap-6 shadow-none">
+<span class="material-symbols-outlined text-6xl" data-icon="confirmation_number">confirmation_number</span>
+<div>
+<h3 class="text-2xl font-black font-lexend uppercase leading-tight mb-2">Secure Your Seat</h3>
+<p class="text-white/80 text-sm">Tickets for the championship final are now available for club members.</p>
+</div>
+<button class="w-full bg-white text-primary font-black py-4 rounded-full font-lexend text-xs uppercase tracking-widest hover:bg-opacity-90 transition-all active:scale-95">Book Now</button>
+</div>
+</div>
+</section>
+<!-- Player Roster -->
+<section class="px-6 mb-12">
+<div class="flex justify-between items-end mb-8">
+<h2 class="text-3xl font-black font-lexend uppercase tracking-tighter">Squad Roster</h2>
+<span class="text-xs font-bold text-primary font-lexend uppercase tracking-widest border-b-2 border-primary pb-1">Season 23/24</span>
+</div>
+<!-- Position: Goalkeepers -->
+<div class="mb-10">
+<h3 class="text-[10px] font-black tracking-[0.3em] text-on-surface-variant uppercase mb-4 flex items-center gap-2">
+<span class="w-8 h-[2px] bg-primary"></span> Goalkeepers
+                </h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-surface-container-low rounded-lg mb-3 overflow-hidden">
+<img alt="Alisson" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="professional portrait of a confident soccer goalkeeper in team jersey with focused expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAC9Puehw4FFozY1HXOTLVfmKcFoKAO-u2BN4Kw5Y7wWV2RliwdxWGTr8jBj61mhgLjlQUMV_8tdbJkx-1aqFhHbSdGKJ7I1H4SofkJkJeB78pNPwtD5sVQ-X-qfjvCDpW6z0-eWJ9ET1p0_TsybPBQgS7FGJlMhGLTwLB_1spU50-SYoZ2ns8WyEdtCOwEyVrgvyO2WLJ5D7zrdO2ABrNx28iVcD52IDiMBBF5qLdjN228l5cJW3l351h5ypWh--eNJxChjySajkKp"/>
+</div>
+<span class="block text-[10px] font-bold text-primary font-lexend uppercase">NO. 1</span>
+<h4 class="font-black text-sm font-lexend uppercase">Alisson</h4>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-surface-container-low rounded-lg mb-3 overflow-hidden">
+<img alt="Courtois" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="action shot of a soccer goalkeeper making a dive against a blurred stadium background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAT70HXeH4mTeip2Y1ckUqjud4xXaNJP8DY8h8P2B8z5iyh1TKF5yaM-UvZYGdUpEjUdOD796rZTZZTFmTELjd7ndQwUmSgi2X9GtoKZerQOgzli06uY7bL1dB9cm3XayKHEdtEjNg71ikyc1wNpWPxGmfCmxPI8NfUrnKfSc-VE8g_jFqy_iw1S8vfSyWVwbL8E6LZ-83zJu1yEL8r-bNy1CgLLuUAsuuX_XjbiqY2zzBFb3jz9BlBKAIvup2cIZvWtQavkC7-LQtd"/>
+</div>
+<span class="block text-[10px] font-bold text-primary font-lexend uppercase">NO. 13</span>
+<h4 class="font-black text-sm font-lexend uppercase">Courtois</h4>
+</div>
+</div>
+</div>
+<!-- Position: Defenders -->
+<div class="mb-10">
+<h3 class="text-[10px] font-black tracking-[0.3em] text-on-surface-variant uppercase mb-4 flex items-center gap-2">
+<span class="w-8 h-[2px] bg-primary"></span> Defenders
+                </h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-surface-container-low rounded-lg mb-3 overflow-hidden">
+<img alt="Sergio Ramos" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="close-up of a defender in a team jersey showing intensity and determination on the field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeiUuIDFATQ7GBd5cXnrYCUWWZiO34he3y5bDNkovjS7TE681sNSMCtgw5TS0Fo2s_aLI4s98A1pcdaFTNvTJzeEO1ZifcmL7YciPxZ4mqpqpV55RQpeAY_n_FwTsX-U6FkGOKN005jyGL-tqOppMMG6yUD9wNnPhnUW9nRy5uH-uWAL7jMgZvvIK-LVTnWPjm_hZtATr4l4_x6tMA2Ae-AFB1EcZ5_fcFNrOQBAQ_jkJN2juTDAPi4_2n-p0IE2YfSlT3HtfAoxJQ"/>
+</div>
+<span class="block text-[10px] font-bold text-primary font-lexend uppercase">NO. 4</span>
+<h4 class="font-black text-sm font-lexend uppercase">Sergio Ramos</h4>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-surface-container-low rounded-lg mb-3 overflow-hidden">
+<img alt="Virgil van Dijk" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="athletic defender posing in team gear on a lush green training pitch" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSQl8CJuo_7g_IwTQ1kCdc68cYBwQDm03eMmBQ13b3tS7HxZ4-bq8V9PvQ0ItlRx8sShzRcGvOElB3zGJ0UT-uV0RVh6M_bhc0qtx_Jlg-F3RHEXRwIIe4lb0x4tVs4TYX3OJ_9z-d49YvPxj93fyW7yg51AkFbSSqFvGNpWKQ3TUymfl23zwwuhnXE2gUyLqWsREPTAo5JzX51aXU4ipEPHLg8Fgy9-J8uyYZZd4NYBSVmPb86GI16_cCkcnF-jFCC92X1jfCDV8Y"/>
+</div>
+<span class="block text-[10px] font-bold text-primary font-lexend uppercase">NO. 5</span>
+<h4 class="font-black text-sm font-lexend uppercase">Virgil van Dijk</h4>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-surface-container-low rounded-lg mb-3 overflow-hidden">
+<img alt="Ruben Dias" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="focused athlete training during a sunset session at a professional sports complex" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQg1_eJHkqIb9YQLnXunN2KwFm-1SKPMVBIniHSaId70OyxPNPpfnekw5104s5exNZo1dqorpA0yhOesyndnNT4E9d-4Gkvq12tWdiOF5MDMdIYduFys02p6ENVKLYM3BQWaKR6hULasxu-k-oIFTkNwI6X7pL8laHNM5rIe5l87NZ5Fv1z-UoqyvYav-xxuBWb41i6_pE1Hd_tE-uruNyhugPZUl61K26w0mffDCa5dQSCMt4PFjvMSmQje9oP5nhVFgjq11ciB28"/>
+</div>
+<span class="block text-[10px] font-bold text-primary font-lexend uppercase">NO. 3</span>
+<h4 class="font-black text-sm font-lexend uppercase">Ruben Dias</h4>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-surface-container-low rounded-lg mb-3 overflow-hidden">
+<img alt="Alphonso Davies" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="portrait of a young athletic defender smiling in a modern gym environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFGe5O3VCNRKWjOGg3NnljM0AGUZ5UU8Cz87BZ4nwkWGeQO5aLuHq3XpCTYa-iXL4xEL_xKMYjfmhEQeDkhReRGV0XNCgzwixOZIIDd27kjT5Z4dBzttfACnjIZVowhp6Y13wBrERKbQl-2-ok_PTNswb2v06CyKfVFyId0Vg9E8tCnHWWo9YtC6gtZd4ONUatUtpAXn3c3cjxf79QrxkzUh1XopmOOEhrVlpyg0PopmP-Gb9VTcq1qblMHWjVb_440mZC3Po5Mpzi"/>
+</div>
+<span class="block text-[10px] font-bold text-primary font-lexend uppercase">NO. 19</span>
+<h4 class="font-black text-sm font-lexend uppercase">Alphonso Davies</h4>
+</div>
+</div>
+</div>
+<!-- Position: Midfielders -->
+<div class="mb-10">
+<h3 class="text-[10px] font-black tracking-[0.3em] text-on-surface-variant uppercase mb-4 flex items-center gap-2">
+<span class="w-8 h-[2px] bg-primary"></span> Midfielders
+                </h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-surface-container-low rounded-lg mb-3 overflow-hidden">
+<img alt="De Bruyne" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="creative midfielder on the ball during a high-stakes professional soccer match" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtl7K8f5HZwz7WZkCH7fnIZ26uHDGyVCkwiCm3l56yp9FyasE1-N_iuqFY_A4QYCbdHdzwqUYZIbElkiQutHbdGvpUzkyU5mPKfj-2pZ5uhXMGhJPLmKD6VTBSp76tMkRekmUmr9URUeZ2ABx1O2bAzFt_MoyU4ssmWdrWM-41JujThqJWhhRWoob0jxS1SacUln9YjTLAgT-QccMxHDsJVW65LKSPdCT6LpJ00SXkxb7ALpniRMu1968Cj7D9RaMDyPw6MjYa723L"/>
+</div>
+<span class="block text-[10px] font-bold text-primary font-lexend uppercase">NO. 17</span>
+<h4 class="font-black text-sm font-lexend uppercase">De Bruyne</h4>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-surface-container-low rounded-lg mb-3 overflow-hidden">
+<img alt="Modric" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="veteran midfielder adjusting his captain's armband in a sun-drenched stadium" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhbvR1Sd_qsQimoRgAocK8nUEoxmcEIx2mtsFzW1bF8S0_RiHoGWgjhLNdYKTYy2D6bxtxQVQgp_EMUr71bnet8czQjdYo4GiZhXb5wV-gh9Cug4r_CdYqMAnRXCdGCeKK63R41jj4zwQLjuyoCq-DWlWOwCuF2UTlv32ywfd7_m3MxI6CW_GSN9pNFYGTARwaYJOX4VyZKcOKKaQqwMNvjaAulrAs0MpEslLg-BnR3e00q-Kg1YTD0llSxL2Tm_Z3nf9uL5aXFVnA"/>
+</div>
+<span class="block text-[10px] font-bold text-primary font-lexend uppercase">NO. 10</span>
+<h4 class="font-black text-sm font-lexend uppercase">Modric</h4>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-surface-container-low rounded-lg mb-3 overflow-hidden">
+<img alt="Pedri" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="young agile midfielder practicing ball control on a training field at dawn" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsOpvBTWDDm-7G84T20ZulC_76gawfabhEf1UGr-rmS9dQe3wJWvK1uUoawjotiuw1vRf7qrEwYUbjup15-8HNfD1EXhzxiFTWuWzkaI877-GSOO7wFdjybkRvcnT1iqXju30fTm5xFetIq4dmN4JwXqKSEpauP0-4uRDsXmaNY6wJo3KMdpdfGMIpfXzojpTjvLUXWPEHkJAxQCrTSnFlOjC9kT-NHPtFHCBAKj0e5CWFfqxow88qOgTPSa7Q__XPPMnYMOYN1nAs"/>
+</div>
+<span class="block text-[10px] font-bold text-primary font-lexend uppercase">NO. 8</span>
+<h4 class="font-black text-sm font-lexend uppercase">Pedri</h4>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-surface-container-low rounded-lg mb-3 overflow-hidden">
+<img alt="Bellingham" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="powerful midfielder celebrating a goal with fans in the background of a modern arena" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEXOq8iajql8CHPjyw2RdNeyc2AgzCo4IoN99AZ364OiyI2s5cBpACLkg8MSFOg-3HBSAIzvAeWch5ApDyRF0D1mTirmrseVd4AEoAy2Ndzyl5st0O9OwtPd4FdKgGYsMsZ_K4avH74vzM-M8iJMTEAQ4HgHog-Ljls9Zj68vxldvUsXMDvsGa_vh4h97DrPIsOTLKn5kfSnVdsXF08tlIEMyq_92jeZ5lzCgpXSyZ2AbcSozGbsZQadxBgqvG5uT5giyUmeguzFMH"/>
+</div>
+<span class="block text-[10px] font-bold text-primary font-lexend uppercase">NO. 22</span>
+<h4 class="font-black text-sm font-lexend uppercase">Bellingham</h4>
+</div>
+</div>
+</div>
+<!-- Position: Strikers -->
+<div class="mb-10">
+<h3 class="text-[10px] font-black tracking-[0.3em] text-on-surface-variant uppercase mb-4 flex items-center gap-2">
+<span class="w-8 h-[2px] bg-primary"></span> Strikers
+                </h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-surface-container-low rounded-lg mb-3 overflow-hidden">
+<img alt="Haaland" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="elite striker in dynamic motion during a goal attempt with high-speed blur effect" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9BU6r1ZsGZcTauK4rDB8ZVns2R1qMp6Ao-KdBVFTBSE9OiiB8M5Qq3mc4kS4hjtPMyG3fjlSZyxIRUnCzRvQCB9ssyTVPFUPAsQjpaj4sOgwWkjEGTU7-J3D_5XnQW36jP_vpaDaWeTINwxiRXFy6oNMOAD3nAdbBFzLea-V1zPr2nbYAepbPBm7cpD1XRjs8fPRnmOkQdeqfJJPat7IvFaz1H1DWedlIj53dKZ5yynstiDNjqO6rKXuAMUNjswDip4KWuAs96ZCr"/>
+</div>
+<span class="block text-[10px] font-bold text-primary font-lexend uppercase">NO. 9</span>
+<h4 class="font-black text-sm font-lexend uppercase">Haaland</h4>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl group hover:bg-surface-container transition-colors">
+<div class="aspect-square bg-surface-container-low rounded-lg mb-3 overflow-hidden">
+<img alt="Mbappe" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="fast-paced striker sprinting towards the opponent's goal under bright stadium floodlights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwUq5WTVacSd_ZFF8oXCgyTzx1GN4_aI8DjNtOiFUDdXsOs6zLb6wtS5fSnzYURfJBYUSZP-IPA87ZwKy7iH1cLb_NmwE3ytNtq8O0XWdofAywdsIEX6XExCfRD_eHjxHVHxpk4EnYxfKwM4wJXbNE9zSqXI7dhdN-B4XSS6txF1Inwd14bpD1KuuTm2UJQRZkzvkE0bHXEMjfcUPHHr1V13YS143lPZc7eWePh-cBE3Qv-em-Yz8p_Q0v4IxD41I_lwKkMRmd2WTz"/>
+</div>
+<span class="block text-[10px] font-bold text-primary font-lexend uppercase">NO. 7</span>
+<h4 class="font-black text-sm font-lexend uppercase">Mbappe</h4>
+</div>
+</div>
+</div>
+</section>
+<!-- Social Media Links -->
+<section class="px-6 mb-12">
+<h2 class="text-xs font-black tracking-[0.2em] text-on-surface-variant uppercase mb-6 font-lexend text-center">Follow the Velocity</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<a class="flex items-center justify-between p-6 bg-surface-container-lowest rounded-xl border-l-4 border-[#E1306C] active:scale-[0.98] transition-all group" href="#">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="camera">camera</span>
+</div>
+<div>
+<span class="text-xs font-bold text-on-surface-variant uppercase font-lexend">Instagram</span>
+<p class="font-black text-on-surface uppercase font-lexend tracking-tight">@KINETICPRECISION</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</a>
+<a class="flex items-center justify-between p-6 bg-surface-container-lowest rounded-xl border-l-4 border-[#FF0000] active:scale-[0.98] transition-all group" href="#">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-[#FF0000] flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="smart_display">smart_display</span>
+</div>
+<div>
+<span class="text-xs font-bold text-on-surface-variant uppercase font-lexend">YouTube</span>
+<p class="font-black text-on-surface uppercase font-lexend tracking-tight">KINETIC TV</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</section>
+<!-- Footer -->
+<footer class="w-full py-12 flex flex-col items-center gap-4 w-full text-center bg-[#f3f4f5] dark:bg-[#111314]">
+<span class="font-lexend font-black text-[#9e0000] text-2xl uppercase tracking-widest">KINETIC</span>
+<div class="flex gap-6">
+<a class="font-manrope text-xs tracking-tight text-[#5e3f3a] opacity-70 hover:opacity-100 hover:text-[#9e0000] transition-colors duration-200" href="#">Privacy</a>
+<a class="font-manrope text-xs tracking-tight text-[#5e3f3a] opacity-70 hover:opacity-100 hover:text-[#9e0000] transition-colors duration-200" href="#">Terms</a>
+<a class="font-manrope text-xs tracking-tight text-[#5e3f3a] opacity-70 hover:opacity-100 hover:text-[#9e0000] transition-colors duration-200" href="#">Contact</a>
+</div>
+<p class="font-manrope text-xs tracking-tight text-[#5e3f3a]">© 2024 KINETIC PRECISION FC</p>
+</footer>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-4 pt-2 bg-[#f8f9fa]/90 dark:bg-[#191c1d]/90 backdrop-blur-md z-50 rounded-t-[3rem] shadow-[0_-12px_40px_rgba(25,28,29,0.06)] border-none">
+<a class="flex flex-col items-center justify-center bg-[#cc0000] text-white rounded-full p-3 mb-2 scale-110 active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest mt-1 hidden md:block">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5e3f3a] dark:text-gray-500 p-2 hover:text-[#9e0000] dark:hover:text-[#cc0000] active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="sports_soccer">sports_soccer</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest mt-1">Matches</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5e3f3a] dark:text-gray-500 p-2 hover:text-[#9e0000] dark:hover:text-[#cc0000] active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest mt-1">Players</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5e3f3a] dark:text-gray-500 p-2 hover:text-[#9e0000] dark:hover:text-[#cc0000] active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="newspaper">newspaper</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-widest mt-1">News</span>
+</a>
+</nav>
+</body></html>

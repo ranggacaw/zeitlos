@@ -68,7 +68,7 @@ export default function Roster({ match, rosterEntries = [], availablePlayers = [
                                         <option value="">Guest (enter name below)</option>
                                         {availablePlayers.map((player) => (
                                             <option key={player.id} value={player.id}>
-                                                #{player.jersey_number} {player.name} ({player.position})
+                                                #{player.jersey_number ?? '-'} {player.name} ({player.position})
                                             </option>
                                         ))}
                                     </select>

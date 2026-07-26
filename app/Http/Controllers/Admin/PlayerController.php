@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Player;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,7 +15,9 @@ class PlayerController extends Controller
     {
         return Inertia::render('Admin/Players/Index', [
             'players' => Player::query()
+                ->orderByRaw('jersey_number is null')
                 ->orderBy('jersey_number')
+                ->orderBy('name')
                 ->get(),
         ]);
     }
@@ -69,10 +70,9 @@ class PlayerController extends Controller
         return $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'jersey_number' => [
-                'required',
+                'nullable',
                 'integer',
                 'min:1',
-                Rule::unique(Player::class, 'jersey_number')->ignore($player?->id),
             ],
             'position' => ['required', 'string', 'max:255'],
             'is_active' => ['required', 'boolean'],

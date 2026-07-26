@@ -24,7 +24,7 @@ export default function Leaderboard({ leaders = [] }) {
                                 <div className="min-w-0">
                                     <p className="truncate font-black text-foreground">{player.name}</p>
                                     <p className="truncate text-xs text-muted-foreground">
-                                        #{player.jersey_number} · {player.position}
+                                        #{player.jersey_number ?? '-'} · {player.position}
                                     </p>
                                 </div>
                                 <p className="text-right text-xs font-bold leading-tight text-chart-2 sm:text-sm">

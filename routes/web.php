@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PlayerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicTeamController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', [PublicTeamController::class, 'dashboard'])->name('public.home');
 Route::get('/players/{player}', [PublicTeamController::class, 'player'])->name('public.players.show');

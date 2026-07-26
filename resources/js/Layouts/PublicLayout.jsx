@@ -39,10 +39,6 @@ export default function PublicLayout({ children }) {
 
     return (
         <div className="relative min-h-screen bg-background text-foreground">
-            <div
-                aria-hidden="true"
-                className="pointer-events-none fixed inset-x-0 top-0 h-72 bg-gradient-to-br from-primary via-chart-2 to-transparent opacity-20"
-            />
 
             <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] sm:px-6 lg:max-w-7xl lg:px-8">
                 <header className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-3 text-card-foreground shadow-lg backdrop-blur sm:p-4">
