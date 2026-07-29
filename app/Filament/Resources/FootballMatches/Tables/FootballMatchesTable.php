@@ -76,6 +76,10 @@ class FootballMatchesTable
                     ->label('Manage roster')
                     ->icon(Heroicon::OutlinedUserGroup)
                     ->url(fn (FootballMatch $record): string => FootballMatchResource::getUrl('rosters', ['record' => $record], shouldGuessMissingParameters: true)),
+                Action::make('liveScoring')
+                    ->label('Live scoring')
+                    ->icon(Heroicon::OutlinedBolt)
+                    ->url(fn (FootballMatch $record): string => FootballMatchResource::getUrl('live-scoring', ['record' => $record], shouldGuessMissingParameters: true)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

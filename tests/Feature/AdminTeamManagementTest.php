@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Filament\Resources\FootballMatches\Pages\CreateFootballMatch;
 use App\Filament\Resources\FootballMatches\Pages\EditFootballMatch;
+use App\Filament\Resources\FootballMatches\Pages\ManageFootballMatchLiveScoring;
 use App\Filament\Resources\FootballMatches\Pages\ManageFootballMatchRosters;
 use App\Filament\Resources\Players\Pages\CreatePlayer;
 use App\Filament\Resources\Players\Pages\EditPlayer;
@@ -569,5 +570,124 @@ class AdminTeamManagementTest extends TestCase
         $this->assertDatabaseMissing('match_rosters', [
             'id' => $roster->getKey(),
         ]);
+    }
+
+    public function test_filament_live_scoring_can_mark_a_match_live(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->create([
+            'status' => FootballMatch::STATUS_SCHEDULED,
+            'zeitlos_score' => null,
+            'opponent_score' => null,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->assertSuccessful()
+            ->assertSee('Scheduled')
+            ->callAction('markLive')
+            ->assertHasNoActionErrors();
+
+        $match->refresh();
+        $this->assertSame(FootballMatch::STATUS_LIVE, $match->status);
+        $this->assertNull($match->zeitlos_score);
+        $this->assertNull($match->opponent_score);
+    }
+
+    public function test_filament_live_scoring_can_record_and_delete_a_goal_event(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->create();
+        $scorer = Player::factory()->create(['name' => 'Goal Scorer']);
+        $assist = Player::factory()->create(['name' => 'Assist Maker']);
+
+        MatchRoster::create([
+            'match_id' => $match->id,
+            'player_id' => $scorer->id,
+            'role' => MatchRoster::ROLE_PLAYER,
+        ]);
+        MatchRoster::create([
+            'match_id' => $match->id,
+            'player_id' => $assist->id,
+            'role' => MatchRoster::ROLE_PLAYER,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->assertSee('Goal Scorer')
+            ->callAction('recordGoal', [
+                'scorer_id' => $scorer->id,
+                'assist_player_id' => $assist->id,
+                'minute' => 12,
+            ])
+            ->assertHasNoActionErrors();
+
+        $event = MatchEvent::firstOrFail();
+        $this->assertSame($match->id, $event->match_id);
+        $this->assertSame($scorer->id, $event->scorer_id);
+        $this->assertSame($assist->id, $event->assist_player_id);
+        $this->assertSame(MatchEvent::TYPE_GOAL, $event->event_type);
+        $this->assertSame(12, $event->minute);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->assertSee('Goal Scorer')
+            ->callTableAction('delete', $event->getKey())
+            ->assertHasNoTableActionErrors();
+
+        $this->assertDatabaseMissing('match_events', [
+            'id' => $event->getKey(),
+        ]);
+    }
+
+    public function test_filament_live_scoring_can_submit_final_score(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->create([
+            'status' => FootballMatch::STATUS_LIVE,
+            'zeitlos_score' => null,
+            'opponent_score' => null,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('finalizeMatch', [
+                'zeitlos_score' => 4,
+                'opponent_score' => 2,
+            ])
+            ->assertHasNoActionErrors();
+
+        $match->refresh();
+        $this->assertSame(FootballMatch::STATUS_FINISHED, $match->status);
+        $this->assertSame(4, $match->zeitlos_score);
+        $this->assertSame(2, $match->opponent_score);
+    }
+
+    public function test_filament_live_scoring_goal_updates_public_stats(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->create();
+        $scorer = Player::factory()->create(['name' => 'Public Scorer', 'is_active' => true]);
+        $assist = Player::factory()->create(['name' => 'Public Assist', 'is_active' => true]);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('recordGoal', [
+                'scorer_id' => $scorer->id,
+                'assist_player_id' => $assist->id,
+                'minute' => null,
+            ])
+            ->assertHasNoActionErrors();
+
+        $this->get(route('public.leaderboard'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('leaders.0.name', 'Public Scorer')
+                ->where('leaders.0.goals', 1)
+                ->where('leaders.0.assists', 0)
+                ->where('leaders.1.name', 'Public Assist')
+                ->where('leaders.1.goals', 0)
+                ->where('leaders.1.assists', 1)
+            );
     }
 }

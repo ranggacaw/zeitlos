@@ -5,14 +5,14 @@
 | Increment | Scope | Proposed `change-id` | Depends on | Status |
 |-----------|-------|----------------------|-----------|--------|
 | 1 | Install Filament, configure admin-only panel at `/admin`, add Zeitlos-themed dashboard, and add basic Player + Match resources | `add-filament-admin-foundation` | — | archived |
-| 2 | Add match roster management inside Filament, including existing players, guest names, goalkeeper/player grouping, and copyable WhatsApp text | `add-filament-match-rosters` | Increment 1 | scaffolded |
-| 3 | Add Filament live scoring workflow: start live, record/delete goals with assists, finalize score, and keep stats reflected publicly | `add-filament-live-scoring` | Increment 2 | not created |
+| 2 | Add match roster management inside Filament, including existing players, guest names, goalkeeper/player grouping, and copyable WhatsApp text | `add-filament-match-rosters` | Increment 1 | archived |
+| 3 | Add Filament live scoring workflow: start live, record/delete goals with assists, finalize score, and keep stats reflected publicly | `add-filament-live-scoring` | Increment 2 | scaffolded |
 | 4 | Add leaderboard correction workflow and admin usability polish: grouped navigation, labels, filters, quick actions, dark Zeitlos theme refinements | `add-filament-leaderboard-polish` | Increment 3 | not created |
 | 5 | Retire or redirect the old custom Inertia admin routes/pages/controllers and update specs/tests to make Filament the admin source of truth | `replace-inertia-admin-with-filament` | Increment 4 | not created |
 
 ## Next Increment to Run
 
-**Next up:** `add-filament-live-scoring` — Increment 3 (Add Filament live scoring workflow: start live, record/delete goals with assists, finalize score, and keep stats reflected publicly) after Increment 2 is implemented and archived.
+**Next up:** `add-filament-leaderboard-polish` — Increment 4 (Add leaderboard correction workflow and admin usability polish: grouped navigation, labels, filters, quick actions, dark Zeitlos theme refinements) after Increment 3 is implemented and archived.
 
 Advance the roadmap by running Resume Mode after each increment has been implemented and archived:
 

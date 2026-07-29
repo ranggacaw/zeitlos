@@ -19,6 +19,10 @@ class EditFootballMatch extends EditRecord
                 ->label('Manage roster')
                 ->icon(Heroicon::OutlinedUserGroup)
                 ->url(fn (): string => $this->getResourceUrl('rosters')),
+            Action::make('liveScoring')
+                ->label('Live scoring')
+                ->icon(Heroicon::OutlinedBolt)
+                ->url(fn (): string => $this->getResourceUrl('live-scoring')),
             DeleteAction::make(),
         ];
     }
