@@ -97,12 +97,11 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 - Filament is the admin CMS foundation at `/admin`, configured by `App\Providers\Filament\AdminPanelProvider` and guarded by `User::canAccessPanel()` delegating to `User::isAdmin()`.
 - Filament resources live under `app/Filament/Resources`; the admin dashboard lives under `app/Filament/Pages` and `app/Filament/Widgets`.
-- Temporary legacy Inertia admin workflows live under `app/Http/Controllers/Admin` with routes prefixed `/admin-legacy` and named `admin.*` until later increments replace them.
 - `/dashboard` stays reserved for Breeze; `/admin` is the Filament CMS entry point.
+- Legacy `/admin-legacy...` admin entry URLs redirect to `/admin`; do not add new `admin.*` Inertia routes or controllers.
 - WhatsApp roster text is generated server-side via `App\Team\WhatsAppRosterText` so the copyable text is deterministic and testable.
-- Match roster management is a Filament page at `/admin/football-matches/{record}/rosters` (`ManageFootballMatchRosters`) that groups roster entries by role and shows copyable WhatsApp text; the legacy Inertia roster routes (`admin.matches.roster.*`) remain until the final replacement increment.
-- Leaderboard corrections are managed in Filament at `/admin/leaderboard` (`App\Filament\Pages\Leaderboard`) using existing `Player` stat adjustment fields; the legacy Inertia leaderboard routes (`admin.leaderboard.*`) remain until the final replacement increment.
-- Legacy admin Inertia pages live under `resources/js/Pages/Admin`.
+- Match roster management is a Filament page at `/admin/football-matches/{record}/rosters` (`ManageFootballMatchRosters`) that groups roster entries by role and shows copyable WhatsApp text.
+- Leaderboard corrections are managed in Filament at `/admin/leaderboard` (`App\Filament\Pages\Leaderboard`) using existing `Player` stat adjustment fields.
 
 ## PWA Support
 

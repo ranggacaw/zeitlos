@@ -8,13 +8,6 @@ import { useState } from 'react';
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
-    const isAdminArea = route().current('admin.*');
-    const adminLinks = [
-        { label: 'Overview', href: route('admin.dashboard'), active: 'admin.dashboard' },
-        { label: 'Players', href: route('admin.players.index'), active: 'admin.players.*' },
-        { label: 'Matches', href: route('admin.matches.index'), active: 'admin.matches.*' },
-        { label: 'Stats', href: route('admin.leaderboard.index'), active: 'admin.leaderboard.*' },
-    ];
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
@@ -38,24 +31,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Dashboard
                                 </NavLink>
-                                {user.is_admin && adminLinks.map((link) => (
-                                    <NavLink
-                                        key={link.label}
-                                        href={link.href}
-                                        active={route().current(link.active)}
-                                    >
-                                        {link.label}
-                                    </NavLink>
-                                ))}
                             </div>
                         </div>
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center sm:gap-4">
-                            {user.is_admin && isAdminArea && (
-                                <span className="rounded-full border border-border bg-muted px-3 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                    Admin CMS
-                                </span>
-                            )}
                             <ThemeToggle />
                             <div className="relative ms-3">
                                 <Dropdown>
@@ -157,15 +136,6 @@ export default function AuthenticatedLayout({ header, children }) {
                         >
                             Dashboard
                         </ResponsiveNavLink>
-                        {user.is_admin && adminLinks.map((link) => (
-                            <ResponsiveNavLink
-                                key={link.label}
-                                href={link.href}
-                                active={route().current(link.active)}
-                            >
-                                {link.label}
-                            </ResponsiveNavLink>
-                        ))}
                     </div>
 
                     <div className="border-t border-border pb-1 pt-4">

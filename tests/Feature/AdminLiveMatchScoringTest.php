@@ -2,13 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\FootballMatches\Pages\ManageFootballMatchLiveScoring;
 use App\Models\FootballMatch;
 use App\Models\MatchEvent;
 use App\Models\MatchRoster;
 use App\Models\Player;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Inertia\Testing\AssertableInertia as Assert;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class AdminLiveMatchScoringTest extends TestCase
@@ -26,7 +27,8 @@ class AdminLiveMatchScoringTest extends TestCase
     {
         $match = FootballMatch::factory()->create();
 
-        $this->get(route('admin.matches.scoring.index', $match))->assertRedirect(route('login'));
+        $this->get("/admin/football-matches/{$match->getKey()}/live-scoring")
+            ->assertRedirect('/admin/login');
     }
 
     public function test_non_admin_user_is_denied_scoring_console(): void
@@ -35,7 +37,7 @@ class AdminLiveMatchScoringTest extends TestCase
         $match = FootballMatch::factory()->create();
 
         $this->actingAs($user)
-            ->get(route('admin.matches.scoring.index', $match))
+            ->get("/admin/football-matches/{$match->getKey()}/live-scoring")
             ->assertForbidden();
     }
 
@@ -60,19 +62,12 @@ class AdminLiveMatchScoringTest extends TestCase
             'minute' => 23,
         ]);
 
-        $this->actingAs($admin)
-            ->get(route('admin.matches.scoring.index', $match))
-            ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('Admin/Matches/Scoring')
-                ->where('match.id', $match->id)
-                ->has('scoringPlayers', 1)
-                ->where('scoringPlayers.0.name', 'Leo Fischer')
-                ->has('events', 1)
-                ->where('events.0.scorer', 'Leo Fischer')
-                ->where('events.0.assist', 'Max Schmidt')
-                ->where('events.0.minute', 23)
-            );
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->assertSuccessful()
+            ->assertSee('Leo Fischer')
+            ->assertSee('Max Schmidt')
+            ->assertSee("23'");
     }
 
     public function test_scoring_console_falls_back_to_active_players_when_roster_is_empty(): void
@@ -82,13 +77,11 @@ class AdminLiveMatchScoringTest extends TestCase
         Player::factory()->create(['name' => 'Active Striker', 'is_active' => true]);
         Player::factory()->create(['name' => 'Inactive Sub', 'is_active' => false]);
 
-        $this->actingAs($admin)
-            ->get(route('admin.matches.scoring.index', $match))
-            ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
-                ->has('scoringPlayers', 1)
-                ->where('scoringPlayers.0.name', 'Active Striker')
-            );
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->assertSuccessful()
+            ->assertSee('Active Striker')
+            ->assertDontSee('Inactive Sub');
     }
 
     public function test_admin_can_record_a_goal_event(): void
@@ -98,13 +91,14 @@ class AdminLiveMatchScoringTest extends TestCase
         $scorer = Player::factory()->create();
         $assistant = Player::factory()->create();
 
-        $this->actingAs($admin)
-            ->post(route('admin.matches.scoring.events.store', $match), [
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('recordGoal', [
                 'scorer_id' => $scorer->id,
                 'assist_player_id' => $assistant->id,
                 'minute' => 42,
             ])
-            ->assertRedirect(route('admin.matches.scoring.index', $match));
+            ->assertHasNoActionErrors();
 
         $this->assertDatabaseHas('match_events', [
             'match_id' => $match->id,
@@ -122,25 +116,15 @@ class AdminLiveMatchScoringTest extends TestCase
             'status' => FootballMatch::STATUS_SCHEDULED,
         ]);
 
-        $this->actingAs($admin)
-            ->post(route('admin.matches.live.store', $match))
-            ->assertRedirect(route('admin.matches.scoring.index', $match));
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('markLive')
+            ->assertHasNoActionErrors();
 
-        $this->assertSame(FootballMatch::STATUS_LIVE, $match->fresh()->status);
-        $this->assertNull($match->fresh()->zeitlos_score);
-        $this->assertNull($match->fresh()->opponent_score);
-    }
-
-    public function test_non_admin_cannot_mark_a_match_live(): void
-    {
-        $user = User::factory()->create();
-        $match = FootballMatch::factory()->create();
-
-        $this->actingAs($user)
-            ->post(route('admin.matches.live.store', $match))
-            ->assertForbidden();
-
-        $this->assertSame(FootballMatch::STATUS_SCHEDULED, $match->fresh()->status);
+        $match->refresh();
+        $this->assertSame(FootballMatch::STATUS_LIVE, $match->status);
+        $this->assertNull($match->zeitlos_score);
+        $this->assertNull($match->opponent_score);
     }
 
     public function test_recording_a_goal_requires_a_valid_scorer(): void
@@ -148,12 +132,13 @@ class AdminLiveMatchScoringTest extends TestCase
         $admin = User::factory()->admin()->create();
         $match = FootballMatch::factory()->create();
 
-        $this->actingAs($admin)
-            ->post(route('admin.matches.scoring.events.store', $match), [
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('recordGoal', [
                 'scorer_id' => 999,
                 'minute' => 10,
             ])
-            ->assertSessionHasErrors('scorer_id');
+            ->assertHasActionErrors(['scorer_id']);
 
         $this->assertDatabaseCount('match_events', 0);
     }
@@ -171,9 +156,10 @@ class AdminLiveMatchScoringTest extends TestCase
             'minute' => 10,
         ]);
 
-        $this->actingAs($admin)
-            ->delete(route('admin.matches.scoring.events.destroy', [$match, $event]))
-            ->assertRedirect(route('admin.matches.scoring.index', $match));
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callTableAction('delete', $event->getKey())
+            ->assertHasNoTableActionErrors();
 
         $this->assertDatabaseMissing('match_events', ['id' => $event->id]);
     }
@@ -183,15 +169,16 @@ class AdminLiveMatchScoringTest extends TestCase
         $admin = User::factory()->admin()->create();
         $match = FootballMatch::factory()->create();
 
-        $this->actingAs($admin)
-            ->post(route('admin.matches.scoring.final-score.store', $match), [
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('finalizeMatch', [
                 'zeitlos_score' => 2,
                 'opponent_score' => 1,
             ])
-            ->assertRedirect(route('admin.matches.scoring.index', $match));
+            ->assertHasNoActionErrors();
 
         $match->refresh();
-        $this->assertSame('finished', $match->status);
+        $this->assertSame(FootballMatch::STATUS_FINISHED, $match->status);
         $this->assertSame(2, $match->zeitlos_score);
         $this->assertSame(1, $match->opponent_score);
     }
@@ -201,13 +188,14 @@ class AdminLiveMatchScoringTest extends TestCase
         $admin = User::factory()->admin()->create();
         $match = FootballMatch::factory()->create();
 
-        $this->actingAs($admin)
-            ->post(route('admin.matches.scoring.final-score.store', $match), [
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('finalizeMatch', [
                 'zeitlos_score' => 2,
             ])
-            ->assertSessionHasErrors('opponent_score');
+            ->assertHasActionErrors(['opponent_score']);
 
-        $this->assertSame('scheduled', $match->fresh()->status);
+        $this->assertSame(FootballMatch::STATUS_SCHEDULED, $match->fresh()->status);
     }
 
     public function test_public_leaderboard_reflects_recorded_goal_and_assist(): void
@@ -226,7 +214,7 @@ class AdminLiveMatchScoringTest extends TestCase
 
         $this->get(route('public.leaderboard'))
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
+            ->assertInertia(fn ($page) => $page
                 ->where('leaders.0.name', 'Scorer Star')
                 ->where('leaders.0.goals', 1)
                 ->where('leaders.1.name', 'Assist Star')
@@ -235,7 +223,7 @@ class AdminLiveMatchScoringTest extends TestCase
 
         $this->get(route('public.players.show', $scorer))
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->where('player.goals', 1));
+            ->assertInertia(fn ($page) => $page->where('player.goals', 1));
     }
 
     public function test_deleting_a_goal_event_updates_public_player_totals(): void
@@ -253,14 +241,16 @@ class AdminLiveMatchScoringTest extends TestCase
 
         $this->assertSame(1, $scorer->fresh()->goalsCount());
 
-        $this->actingAs($admin)
-            ->delete(route('admin.matches.scoring.events.destroy', [$match, $event]));
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callTableAction('delete', $event->getKey())
+            ->assertHasNoTableActionErrors();
 
         $this->assertSame(0, $scorer->fresh()->goalsCount());
 
         $this->get(route('public.leaderboard'))
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
+            ->assertInertia(fn ($page) => $page
                 ->where('leaders.0.goals', 0)
             );
     }
