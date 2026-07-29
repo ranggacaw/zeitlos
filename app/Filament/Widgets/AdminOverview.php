@@ -13,7 +13,7 @@ class AdminOverview extends Widget
 {
     protected string $view = 'filament.widgets.admin-overview';
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     protected function getViewData(): array
     {
@@ -34,14 +34,24 @@ class AdminOverview extends Widget
             'playerCount' => $players->count(),
             'activePlayerCount' => $players->where('is_active', true)->count(),
             'matchCount' => FootballMatch::count(),
+            'scheduledMatchCount' => FootballMatch::scheduled()->count(),
             'liveMatch' => $this->matchSummary($liveMatch),
             'nextMatch' => $this->matchSummary($nextMatch),
+            'nextMatchDetail' => $this->matchDetail($nextMatch),
             'recentResult' => $this->matchSummary($recentResult),
+            'recentResultDetail' => $this->matchDetail($recentResult),
+            'liveMatchTitle' => $liveMatch ? "Zeitlos vs {$liveMatch->opponent}" : null,
+            'liveMatchScore' => $liveMatch ? ($liveMatch->zeitlos_score ?? 0).':'.($liveMatch->opponent_score ?? 0) : null,
             'liveMatchUrl' => $liveMatch ? FootballMatchResource::getUrl('live-scoring', ['record' => $liveMatch]) : null,
             'nextMatchUrl' => $nextMatch ? FootballMatchResource::getUrl('edit', ['record' => $nextMatch]) : null,
+            'nextMatchRosterUrl' => $nextMatch ? FootballMatchResource::getUrl('rosters', ['record' => $nextMatch]) : null,
             'playersUrl' => PlayerResource::getUrl('index'),
+            'createPlayerUrl' => PlayerResource::getUrl('create'),
             'matchesUrl' => FootballMatchResource::getUrl('index'),
+            'createMatchUrl' => FootballMatchResource::getUrl('create'),
             'leaderboardUrl' => Leaderboard::getUrl(),
+            'openTaskCount' => $this->openTaskCount($liveMatch, $nextMatch),
+            'openTaskSummary' => $this->openTaskSummary($liveMatch, $nextMatch),
             'topScorers' => $leaders->take(3)->values(),
             'topAssists' => $leaders
                 ->sortByDesc(fn (array $player) => [$player['assists'], $player['goals'], $player['name']])
@@ -88,5 +98,42 @@ class AdminOverview extends Widget
             : '';
 
         return trim("{$match->opponent}{$score} {$date}");
+    }
+
+    private function matchDetail(?FootballMatch $match): ?string
+    {
+        if (! $match) {
+            return null;
+        }
+
+        $parts = array_filter([
+            $match->match_date?->format('D, M j'),
+            $match->match_time,
+            $match->venue,
+        ]);
+
+        return implode(' · ', $parts);
+    }
+
+    private function openTaskCount(?FootballMatch $liveMatch, ?FootballMatch $nextMatch): int
+    {
+        return collect([
+            $liveMatch !== null,
+            $nextMatch !== null,
+            FootballMatch::scheduled()->exists(),
+        ])->filter()->count();
+    }
+
+    private function openTaskSummary(?FootballMatch $liveMatch, ?FootballMatch $nextMatch): string
+    {
+        if ($liveMatch) {
+            return 'Live score and roster checks';
+        }
+
+        if ($nextMatch) {
+            return 'Roster and schedule checks';
+        }
+
+        return 'Create the next match';
     }
 }

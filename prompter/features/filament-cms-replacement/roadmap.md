@@ -25,3 +25,14 @@ Check progress anytime with:
 ```bash
 feature-planner filament-cms-replacement status
 ```
+
+## UI Design References
+> Written by the `ui-ux-pro` skill after previews were approved. When `continue` scaffolds an
+> increment's proposal, it copies that increment's rows into the proposal's Design Reference
+> section. Previews live in `.preview/` (often gitignored - a local design gallery).
+
+**Design:** `admin-dashboard` - hub: `.preview/admin-dashboard/lowfi.html`
+
+| Increment | Page | Approved preview | Notes |
+|-----------|------|------------------|-------|
+| 1 | `/admin` Dashboard | `.preview/admin-dashboard/lowfi.html` | Mobile-first low-fi dashboard with full-width live match priority area and compact 50:50 secondary card grids for phones. |
