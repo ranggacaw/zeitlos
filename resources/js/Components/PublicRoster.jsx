@@ -30,6 +30,11 @@ export default function PublicRoster({
     titleClassName = 'mt-3 text-3xl font-black font-lexend uppercase tracking-tighter text-on-surface sm:text-5xl',
     contentClassName = 'space-y-10',
     gridClassName = 'grid grid-cols-3 gap-4 sm:grid-cols-3 lg:grid-cols-4',
+    groupHeadingClassName = 'text-[0.65rem] font-bold font-lexend uppercase tracking-[0.25em] text-on-surface-variant',
+    playerCardClassName = 'group flex flex-col rounded-[2rem] bg-surface-container-low p-4 transition-colors hover:bg-surface-container',
+    playerPhotoClassName = 'relative mb-4 aspect-square w-full overflow-hidden rounded-2xl bg-surface-container-highest',
+    playerMetaClassName = 'text-[0.65rem] font-bold font-lexend uppercase tracking-[0.25em] text-primary',
+    playerNameClassName = 'mt-1 break-words text-xs font-black font-lexend uppercase leading-tight text-on-surface sm:text-base',
     emptyClassName = 'rounded-2xl border border-dashed border-border p-6 text-sm font-manrope text-on-surface-variant',
     emptyText = 'No active players are available yet.',
 }) {
@@ -54,22 +59,22 @@ export default function PublicRoster({
             ) : (
                 <div className={contentClassName}>
                     {rosterGroups(players).map((group) => (
-                        <div key={group.title}>
-                            <div className="mb-4 flex items-center gap-4">
-                                <div className="h-[2px] w-6 bg-primary"></div>
-                                <h3 className="text-[0.65rem] font-bold font-lexend uppercase tracking-[0.25em] text-on-surface-variant">{group.title}</h3>
-                            </div>
-                            <div className={gridClassName}>
-                                {group.items.map((player) => {
+                            <div key={group.title}>
+                                <div className="mb-4 flex items-center gap-4">
+                                    <div className="h-[2px] w-6 bg-primary"></div>
+                                    <h3 className={groupHeadingClassName}>{group.title}</h3>
+                                </div>
+                                <div className={gridClassName}>
+                                    {group.items.map((player) => {
                                     const photoUrl = rosterPhotoUrl(player);
 
                                     return (
                                         <Link
                                             key={player.id}
                                             href={route('public.players.show', player.id)}
-                                            className="group flex flex-col rounded-[2rem] bg-surface-container-low p-4 transition-colors hover:bg-surface-container"
+                                            className={playerCardClassName}
                                         >
-                                            <div className="relative mb-4 aspect-square w-full overflow-hidden rounded-2xl bg-surface-container-highest">
+                                            <div className={playerPhotoClassName}>
                                                 {photoUrl ? (
                                                     <img src={photoUrl} alt={player.name} className="h-full w-full object-cover" />
                                                 ) : (
@@ -79,10 +84,10 @@ export default function PublicRoster({
                                                 )}
                                             </div>
                                             <div className="flex flex-1 flex-col">
-                                                <p className="text-[0.65rem] font-bold font-lexend uppercase tracking-[0.25em] text-primary">
+                                                <p className={playerMetaClassName}>
                                                     {player.jersey_number ?? '-'} · {player.position}
                                                 </p>
-                                                <h4 className="mt-1 break-words text-xs font-black font-lexend uppercase leading-tight text-on-surface sm:text-base">
+                                                <h4 className={playerNameClassName}>
                                                     {player.name}
                                                 </h4>
                                             </div>

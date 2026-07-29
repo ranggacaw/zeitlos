@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Zeitlos Homepage App - High-fi Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --background: #ffffff;
+            --foreground: #0f1419;
+            --card: #f7f8f8;
+            --card-foreground: #0f1419;
+            --primary: #f80204;
+            --primary-foreground: #ffffff;
+            --secondary: #c60002;
+            --secondary-foreground: #ffffff;
+            --muted: #e5e5e6;
+            --muted-foreground: #0f1419;
+            --accent: #e3ecf6;
+            --border: #e1eaef;
+            --ring: #1da1f2;
+            --font-sans: "Open Sans", system-ui, sans-serif;
+            --radius: 1.3rem;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--foreground);
+            font-family: var(--font-sans);
+        }
+
+        a:focus-visible,
+        button:focus-visible {
+            outline: 3px solid var(--ring);
+            outline-offset: 3px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Section: App Shell -->
+    <div class="min-h-screen bg-[var(--background)] pb-28 text-[var(--foreground)] sm:pb-0">
+        <!-- Section: Header -->
+        <header class="sticky top-0 z-20 border-b border-[var(--border)] bg-white/90 backdrop-blur-xl">
+            <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+                <a href="#" class="flex items-center gap-3" aria-label="Zeitlos home">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-[1rem] bg-[var(--primary)] text-sm font-black text-[var(--primary-foreground)]">Z</span>
+                    <span class="leading-tight">
+                        <span class="block text-[0.65rem] font-black uppercase tracking-[0.32em] text-[var(--primary)]">FC Zeitlos</span>
+                        <span class="block text-lg font-black tracking-tight">Team Hub</span>
+                    </span>
+                </a>
+
+                <nav class="hidden items-center gap-2 text-sm font-bold sm:flex" aria-label="Desktop navigation">
+                    <a href="#" class="rounded-full bg-[var(--primary)] px-4 py-2 text-[var(--primary-foreground)]">Dashboard</a>
+                    <a href="#" class="rounded-full bg-[var(--accent)] px-4 py-2 text-[var(--foreground)]">Schedule</a>
+                    <a href="#" class="rounded-full bg-[var(--accent)] px-4 py-2 text-[var(--foreground)]">Roster</a>
+                    <a href="#" class="rounded-full bg-[var(--accent)] px-4 py-2 text-[var(--foreground)]">Leaderboard</a>
+                </nav>
+
+                <a href="#" class="rounded-full border border-[var(--border)] px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--foreground)]">Log in</a>
+            </div>
+        </header>
+
+        <main class="mx-auto grid max-w-7xl gap-5 px-4 py-5 sm:px-6 sm:py-8 lg:grid-cols-[1.45fr_0.85fr] lg:px-8">
+            <!-- Section: Match Command Center -->
+            <section class="relative overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[var(--card)] p-5 text-[var(--card-foreground)] sm:p-7 lg:min-h-[430px] lg:p-8">
+                <div class="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-[var(--primary)] opacity-10"></div>
+                <div class="relative flex flex-col gap-5 lg:h-full lg:justify-between">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <p class="text-xs font-black uppercase tracking-[0.28em] text-[var(--primary)]">Next up</p>
+                            <h1 class="mt-3 max-w-2xl text-4xl font-black uppercase leading-none tracking-tight sm:text-6xl lg:text-7xl">Zeitlos vs Wolves FC</h1>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <article class="rounded-[1.3rem] border border-[var(--border)] bg-white p-4 sm:p-5">
+                            <p class="text-[0.68rem] font-black uppercase tracking-widest text-slate-500">Kickoff</p>
+                            <p class="mt-3 text-xl font-black sm:text-3xl">Sat 18:30</p>
+                            <p class="mt-1 text-xs font-semibold text-slate-600 sm:text-sm">arrive 20 minutes early</p>
+                        </article>
+                        <article class="rounded-[1.3rem] border border-[var(--border)] bg-white p-4 sm:p-5">
+                            <p class="text-[0.68rem] font-black uppercase tracking-widest text-slate-500">Availability</p>
+                            <p class="mt-3 text-xl font-black sm:text-3xl">12 / 16</p>
+                            <p class="mt-1 text-xs font-semibold text-slate-600 sm:text-sm">players marked ready</p>
+                        </article>
+                    </div>
+
+                    <div class="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                        <div class="rounded-[1.3rem] border border-dashed border-[var(--primary)] bg-white p-4">
+                            <p class="text-[0.68rem] font-black uppercase tracking-widest text-[var(--primary)]">Field</p>
+                            <p class="mt-2 text-base font-semibold leading-relaxed text-slate-800">Arena West, Pitch 2. Tap the map link before leaving so players do not search in the sports complex.</p>
+                        </div>
+                        <a href="#" class="flex min-h-14 items-center justify-center rounded-xl bg-[var(--primary)] px-6 text-sm font-black uppercase tracking-widest text-[var(--primary-foreground)]">Open maps</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Today Rail -->
+            <aside class="grid gap-5 lg:grid-rows-[auto_1fr]">
+                <section class="rounded-[2rem] border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <p class="text-xs font-black uppercase tracking-[0.24em] text-[var(--primary)]">Live pulse</p>
+                            <h2 class="mt-2 text-2xl font-black tracking-tight">Team snapshot</h2>
+                        </div>
+                        <span class="rounded-full bg-white px-3 py-1 text-xs font-black uppercase tracking-wider text-slate-600">Public</span>
+                    </div>
+                    <div class="mt-5 grid grid-cols-2 gap-3">
+                        <div class="rounded-[1.3rem] bg-white p-4">
+                            <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Squad</p>
+                            <p class="mt-2 text-3xl font-black">16</p>
+                        </div>
+                        <div class="rounded-[1.3rem] bg-white p-4">
+                            <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Matches</p>
+                            <p class="mt-2 text-3xl font-black">8</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="rounded-[2rem] border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6">
+                    <div class="flex items-center justify-between gap-4">
+                        <h2 class="text-2xl font-black tracking-tight">Quick actions</h2>
+                    </div>
+                    <div class="mt-5 grid gap-3">
+                        <a href="#" class="flex items-center justify-between rounded-[1.3rem] bg-white p-4 font-bold text-[var(--foreground)]">
+                            <span>Check full roster</span>
+                            <span class="text-[var(--primary)]" aria-hidden="true">-&gt;</span>
+                        </a>
+                        <a href="#" class="flex items-center justify-between rounded-[1.3rem] bg-white p-4 font-bold text-[var(--foreground)]">
+                            <span>Open leaderboard</span>
+                            <span class="text-[var(--primary)]" aria-hidden="true">-&gt;</span>
+                        </a>
+                        <a href="#" class="flex items-center justify-between rounded-[1.3rem] bg-white p-4 font-bold text-[var(--foreground)]">
+                            <span>See upcoming matches</span>
+                            <span class="text-[var(--primary)]" aria-hidden="true">-&gt;</span>
+                        </a>
+                    </div>
+                </section>
+            </aside>
+
+            <!-- Section: Squad Preview -->
+            <section class="rounded-[2rem] border border-[var(--border)] bg-[var(--card)] p-5 sm:p-7 lg:p-8">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-[0.24em] text-[var(--primary)]">Available players</p>
+                        <h2 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Roster at a glance</h2>
+                    </div>
+                    <a href="#" class="text-sm font-black uppercase tracking-widest text-[var(--primary)]">View all</a>
+                </div>
+
+                <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+                    <article class="rounded-[1.3rem] bg-white p-4">
+                        <div class="flex h-16 items-center justify-center rounded-xl bg-[var(--muted)] text-xl font-black">M</div>
+                        <p class="mt-3 truncate font-black">Mika</p>
+                        <p class="text-sm text-slate-600">Forward</p>
+                    </article>
+                    <article class="rounded-[1.3rem] bg-white p-4">
+                        <div class="flex h-16 items-center justify-center rounded-xl bg-[var(--muted)] text-xl font-black">J</div>
+                        <p class="mt-3 truncate font-black">Jonas</p>
+                        <p class="text-sm text-slate-600">Midfield</p>
+                    </article>
+                    <article class="rounded-[1.3rem] bg-white p-4">
+                        <div class="flex h-16 items-center justify-center rounded-xl bg-[var(--muted)] text-xl font-black">L</div>
+                        <p class="mt-3 truncate font-black">Luca</p>
+                        <p class="text-sm text-slate-600">Keeper</p>
+                    </article>
+                    <article class="rounded-[1.3rem] bg-white p-4">
+                        <div class="flex h-16 items-center justify-center rounded-xl bg-[var(--muted)] text-xl font-black">N</div>
+                        <p class="mt-3 truncate font-black">Noah</p>
+                        <p class="text-sm text-slate-600">Defense</p>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Section: Leaderboard Preview -->
+            <section class="rounded-[2rem] border border-[var(--border)] bg-[var(--card)] p-5 sm:p-7 lg:p-8">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-[0.24em] text-[var(--primary)]">Season race</p>
+                        <h2 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Leaderboard</h2>
+                    </div>
+                    <a href="#" class="text-sm font-black uppercase tracking-widest text-[var(--primary)]">Full table</a>
+                </div>
+
+                <div class="mt-6 space-y-3">
+                    <article class="grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-[1.3rem] bg-white p-4">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--primary)] text-sm font-black text-[var(--primary-foreground)]">1</span>
+                        <div class="min-w-0">
+                            <p class="truncate font-black">Mika</p>
+                            <p class="text-sm text-slate-600">Forward</p>
+                        </div>
+                        <p class="text-sm font-black uppercase tracking-widest text-[var(--primary)]">9G · 4A</p>
+                    </article>
+                    <article class="grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-[1.3rem] bg-white p-4">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--muted)] text-sm font-black">2</span>
+                        <div class="min-w-0">
+                            <p class="truncate font-black">Jonas</p>
+                            <p class="text-sm text-slate-600">Midfield</p>
+                        </div>
+                        <p class="text-sm font-black uppercase tracking-widest">6G · 7A</p>
+                    </article>
+                    <article class="grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-[1.3rem] bg-white p-4">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--muted)] text-sm font-black">3</span>
+                        <div class="min-w-0">
+                            <p class="truncate font-black">Noah</p>
+                            <p class="text-sm text-slate-600">Defense</p>
+                        </div>
+                        <p class="text-sm font-black uppercase tracking-widest">4G · 3A</p>
+                    </article>
+                </div>
+            </section>
+        </main>
+
+        <!-- Section: Mobile Tab Bar -->
+        <nav class="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--border)] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl sm:hidden" aria-label="Mobile navigation">
+            <div class="mx-auto grid max-w-2xl grid-cols-4 text-center text-[0.65rem] font-bold text-slate-500">
+                <a href="#" class="flex min-h-16 flex-col items-center justify-center gap-1 px-2 py-2 text-[var(--primary)]" aria-current="page">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6" aria-hidden="true">
+                        <path d="M4 5h6v6H4zM14 5h6v6h-6zM4 15h6v6H4zM14 15h6v6h-6z"></path>
+                    </svg>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="flex min-h-16 flex-col items-center justify-center gap-1 px-2 py-2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6" aria-hidden="true">
+                        <path d="M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM3 10h18M8 2v4M16 2v4"></path>
+                    </svg>
+                    <span>Schedule</span>
+                </a>
+                <a href="#" class="flex min-h-16 flex-col items-center justify-center gap-1 px-2 py-2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6" aria-hidden="true">
+                        <path d="M12 13a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM4 20.5a8 8 0 0 1 16 0"></path>
+                    </svg>
+                    <span>Roster</span>
+                </a>
+                <a href="#" class="flex min-h-16 flex-col items-center justify-center gap-1 px-2 py-2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6" aria-hidden="true">
+                        <path d="M8 4h8v4a4 4 0 0 1-8 0V4zM6.5 6H4.5a2 2 0 0 0 2 4M17.5 6h2a2 2 0 0 1-2 4M9.5 13h5M12 13v6M9 20h6"></path>
+                    </svg>
+                    <span>Leaders</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+</body>
+</html>

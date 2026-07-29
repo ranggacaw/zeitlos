@@ -103,10 +103,17 @@ Extract tokens in this order of priority:
 - Group into semantic categories: `primary`, `secondary`, `accent`, `neutral`, `success`, `warning`, `error`, `info`
 - Identify color scales (50–950 shades) when present
 - Extract opacity/alpha variants
-- Note dark mode / alternate theme colors if detected
+- **Dark mode coverage (REQUIRED when a dark/alternate theme is detected** — see
+  [extraction-patterns.md](references/extraction-patterns.md) § Dark Mode Detection): for
+  every semantic color token, record its dark value; any token with no dark counterpart
+  (including brand, success/warning/error, and overlay colors) gets flagged `no dark value`
+  in `dark-mode.md` — never silently ship a partial dark set. Question brand/accent colors
+  reused unchanged on dark surfaces: verify they still pass contrast there and flag them
+  if they don't.
 - **Verify contrast** for every surface/`-foreground` (or background/text) pair: compute the
-  ratio and check WCAG AA — body text ≥ 4.5:1, large text & UI/borders ≥ 3:1. Record results
-  in the color token page's Contrast table and flag any failing pair (do not silently ship it).
+  ratio and check WCAG AA — body text ≥ 4.5:1, large text & UI/borders ≥ 3:1. **Run this
+  check once per theme**: light pairs go in the color token page's Contrast table, dark
+  pairs in `dark-mode.md`'s Contrast table. Flag any failing pair (do not silently ship it).
 
 ### 2.2 Typography
 - Font families (heading, body, mono)
@@ -138,6 +145,9 @@ Extract tokens in this order of priority:
 - Box shadow definitions
 - Map to elevation scale (sm, md, lg, xl)
 - Note any colored or inset shadows
+- Dark mode: box shadows are nearly invisible on dark backgrounds — record how the source
+  conveys elevation in dark (lighter surface steps, borders, or adjusted shadow alpha);
+  if it doesn't address this, flag the gap in `dark-mode.md`
 
 ### 2.7 Transitions & Animation
 - Transition durations
@@ -344,6 +354,7 @@ After generating the document:
 🔤 Typography: <count> tokens extracted
 📐 Spacing: <count> tokens extracted
 🧩 Components: <count> contract pages (<count> source / <count> inferred)
+🌗 Dark mode: <covered>/<total> tokens with dark values · <count> contrast failures · <count> flagged   (if dark theme detected)
 🔗 Patterns: <count> · 📑 Pages written/updated: <count>   (wiki mode)
 📊 Source: <input-type description>
 

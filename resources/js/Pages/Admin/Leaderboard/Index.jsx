@@ -1,3 +1,6 @@
+import AdminCard from '@/Components/AdminCard';
+import AdminPageHeader from '@/Components/AdminPageHeader';
+import { AdminFilterPanel, AdminSearchInput, SegmentedButtons } from '@/Components/AdminFilters';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -47,7 +50,7 @@ function CorrectionForm({ player }) {
 
 function PlayerCorrection({ player }) {
     return (
-        <section className="rounded-2xl border border-border bg-card p-4 text-card-foreground shadow-sm sm:p-5">
+        <AdminCard className="p-4 sm:p-5">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h3 className="text-lg font-bold text-foreground">#{player.jersey_number ?? '-'} {player.name}</h3>
@@ -67,7 +70,7 @@ function PlayerCorrection({ player }) {
                 </div>
             </div>
             <CorrectionForm player={player} />
-        </section>
+        </AdminCard>
     );
 }
 
@@ -92,10 +95,7 @@ export default function Index({ players = [] }) {
     return (
         <AuthenticatedLayout
             header={
-                <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">Admin CMS</p>
-                    <h2 className="text-2xl font-bold leading-tight text-foreground">Stats corrections</h2>
-                </div>
+                <AdminPageHeader title="Stats corrections" />
             }
         >
             <Head title="Leaderboard Corrections" />
@@ -124,38 +124,26 @@ export default function Index({ players = [] }) {
                         </div>
                     </section>
 
-                    <section className="rounded-2xl border border-border bg-card p-4 text-card-foreground shadow-sm sm:p-5">
-                        <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
-                            <div>
-                                <label className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Search players</label>
-                                <input
-                                    value={query}
-                                    onChange={(event) => setQuery(event.target.value)}
-                                    placeholder="Name, position, jersey..."
-                                    className="mt-2 block min-h-11 w-full rounded-xl border-border bg-input text-foreground shadow-sm focus:border-ring focus:ring-ring"
-                                />
-                            </div>
-                            <div className="flex gap-2">
-                                {[
-                                    ['goals', 'Goals'],
-                                    ['assists', 'Assists'],
-                                    ['name', 'Name'],
-                                ].map(([value, label]) => (
-                                    <button
-                                        key={value}
-                                        type="button"
-                                        onClick={() => setSortBy(value)}
-                                        className={`min-h-11 rounded-xl border px-4 py-2 text-sm font-bold ${sortBy === value ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background text-foreground'}`}
-                                    >
-                                        {label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </section>
+                    <AdminFilterPanel>
+                        <AdminSearchInput
+                            label="Search players"
+                            value={query}
+                            onChange={(event) => setQuery(event.target.value)}
+                            placeholder="Name, position, jersey..."
+                        />
+                        <SegmentedButtons
+                            options={[
+                                { value: 'goals', label: 'Goals' },
+                                { value: 'assists', label: 'Assists' },
+                                { value: 'name', label: 'Name' },
+                            ]}
+                            value={sortBy}
+                            onChange={setSortBy}
+                        />
+                    </AdminFilterPanel>
 
                     {filteredPlayers.length === 0 ? (
-                        <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground shadow-sm">No players found.</div>
+                        <AdminCard as="div" className="p-6 text-sm text-muted-foreground">No players found.</AdminCard>
                     ) : filteredPlayers.map((player) => (
                         <PlayerCorrection key={player.id} player={player} />
                     ))}

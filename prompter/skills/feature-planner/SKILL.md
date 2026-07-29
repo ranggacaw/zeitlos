@@ -1,6 +1,6 @@
 ---
 name: feature-planner
-description: "Plan feature development on existing projects. Interview users about what they want to build, analyze the codebase to understand tech stack, patterns, and affected areas, then produce a structured implementation plan with phased tasks. For features too large to ship in one pass, splits the work into an ordered roadmap of independently-shippable increments, each becoming its own Prompter proposal. Also resumes an existing feature: `feature-planner <slug> status` shows roadmap progress, `feature-planner <slug> continue` scaffolds the next increment's proposal, and `feature-planner <slug> run` auto-runs all remaining increments end-to-end — each implemented by a fresh sub-agent, verified, and archived (`run --checkpoint` pauses for confirmation before each archive). Once every increment is archived, offers to generate a feature-level manual testing guide. Use when a user wants to add a feature, make a change, plan a large multi-increment feature, resume or check the status of a planned feature, or plan development work on a project that already exists."
+description: "Plan feature development on existing projects. Interview users about what they want to build, analyze the codebase to understand tech stack, patterns, and affected areas, then produce a structured implementation plan with phased tasks. For features too large to ship in one pass, splits the work into an ordered roadmap of independently-shippable increments, each becoming its own Prompter proposal. When a feature introduces new pages or screens, also generates a feature UI map (`prompter/features/<slug>/ui.md`) — every new page with the navigation wiring of each button and link (target page, modal, drawer, toast) — ready for the `ui-ux-pro`/`ui-ux-max` skills to turn into clickable previews; backend-only features and tweaks to existing UI skip it. Also resumes an existing feature: `feature-planner <slug> status` shows roadmap progress, `feature-planner <slug> continue` scaffolds the next increment's proposal, and `feature-planner <slug> run` auto-runs all remaining increments end-to-end — each implemented by a fresh sub-agent, verified, and archived (`run --checkpoint` pauses for confirmation before each archive; `run --yolo` never pauses — it auto-ticks `(manual)` tasks with a logged warning; `run --review` adds an independent proposal-review gate before each archive and composes with either mode). Once every increment is archived, offers to generate a feature-level manual testing guide. Use when a user wants to add a feature, make a change, plan a large multi-increment feature, resume or check the status of a planned feature, or plan development work on a project that already exists."
 ---
 
 # Feature Developer
@@ -15,9 +15,10 @@ Interview the user about what they want to build, analyze the existing codebase,
 4. **SPLIT** -- *(always ask)* Ask the user whether to split the feature into an ordered roadmap of increments (each its own proposal) or keep it as one proposal
 5. **PLAN** -- Break down into phased implementation tasks (for the first increment only, if split)
 6. **REVIEW** -- Present the plan and iterate until approved
-7. **PROPOSAL** -- Optionally create a Prompter change proposal
+7. **UI MAP** -- *(conditional)* If the feature adds new pages/screens, generate a UI map with their navigation wiring for `ui-ux-pro` previews; skip for backend-only or existing-UI-tweak features
+8. **PROPOSAL** -- Optionally create a Prompter change proposal
 
-> Steps 1–7 above are **New Feature Mode**. If the invocation names an existing feature, you're in **Resume Mode** instead — see "Invocation & Mode Detection" below.
+> Steps 1–8 above are **New Feature Mode**. If the invocation names an existing feature, you're in **Resume Mode** instead — see "Invocation & Mode Detection" below.
 
 ---
 
@@ -29,21 +30,23 @@ Parse the skill's invocation arguments before anything else:
 feature-planner <slug>             → Resume Mode, default intent (show status, then ask)
 feature-planner <slug> status      → Resume Mode, intent = status
 feature-planner <slug> continue    → Resume Mode, intent = continue
-feature-planner <slug> run         → Resume Mode, intent = run (full auto)
+feature-planner <slug> run         → Resume Mode, intent = run (semi-auto)
 feature-planner <slug> run --checkpoint → Resume Mode, intent = run (checkpoint mode)
+feature-planner <slug> run --yolo  → Resume Mode, intent = run (yolo mode)
+feature-planner <slug> run --review → Resume Mode, intent = run (semi-auto + review gate)
 feature-planner <new-feature-name> → New Feature Mode (no matching folder)
 feature-planner                    → New Feature Mode (no args)
 ```
 
-1. Take the first argument token as a candidate **slug** and the second (if any) as the **intent** (`status`, `continue`, or `run`; `run` may carry a `--checkpoint` flag).
+1. Take the first argument token as a candidate **slug** and the second (if any) as the **intent** (`status`, `continue`, or `run`; `run` may carry `--checkpoint` or `--yolo`, plus the orthogonal `--review` flag — `run --review`, `run --checkpoint --review`, and `run --yolo --review` are all valid).
 2. Check whether `prompter/features/<slug>/` exists (Glob).
    - **Folder exists →** enter **Resume Mode** (jump to the "Resume Mode" section below; skip the interview entirely).
-   - **Folder does not exist →** enter **New Feature Mode** (the interview, Steps 1–7). If a name was given, use its kebab-case slug so a later multi-increment resume can find its folder.
+   - **Folder does not exist →** enter **New Feature Mode** (the interview, Steps 1–8). If a name was given, use its kebab-case slug so a later multi-increment resume can find its folder.
 3. If no intent word was given in Resume Mode, default to "show status, then ask".
 
 > **Only multi-increment features have a folder.** Single-proposal features never create `prompter/features/<slug>/` (see Step 5), so they always route to New Feature Mode and are resumed through Prompter's own tooling, not `feature-planner <slug>`. Resume Mode is therefore a multi-increment-only path.
 
-**feature-planner is a roadmap orchestrator.** It owns the roadmap and proposal scaffolding only. It never implements tasks, ticks task checkboxes, or reads `tasks.md` — that work belongs to Prompter's `/apply`. Resume Mode operates strictly at the **increment / proposal** level. One sanctioned exception: the `run` intent reads `tasks.md` **only to verify** an increment is complete, and ticks **only** tasks tagged `(manual)` after explicit user confirmation — see "Intent: `run`". `status` and `continue` behavior is unchanged.
+**feature-planner is a roadmap orchestrator.** It owns the roadmap and proposal scaffolding only. It never implements tasks, ticks task checkboxes, or reads `tasks.md` — that work belongs to Prompter's `/apply`. Resume Mode operates strictly at the **increment / proposal** level. One sanctioned exception: the `run` intent reads `tasks.md` **only to verify** an increment is complete, and ticks **only** tasks tagged `(manual)` after explicit user confirmation (or automatically in `--yolo` mode) — see "Intent: `run`". `status` and `continue` behavior is unchanged.
 
 ---
 
@@ -80,7 +83,7 @@ Next to run: Increment 3 (add-webhook-admin) — waiting on Increment 2 to be ar
 
 The "Next to run" line is the first roadmap row with status `not created` whose dependencies are all `archived`.
 
-If the roadmap has a `## UI Design References` section, add one line under the dashboard noting which increments have approved UI, e.g. `UI designed (ui-ux-pro): Increments 1–5 — previews under .preview/admin-area/`.
+If the roadmap has a `## UI Design References` section, add one line under the dashboard noting which increments have approved UI, e.g. `UI designed (ui-ux-pro): Increments 1–5 — previews under .preview/admin-area/`. If `prompter/features/<slug>/ui.md` exists but some of its pages have no UI Design References row yet, add one line pointing that out, e.g. `UI map available (ui.md) — Increment 3's pages not yet designed; run ui-ux-pro to build previews.`
 
 ### When every increment is `archived` (feature complete)
 
@@ -147,12 +150,17 @@ Advance the roadmap by exactly **one** increment — never more, since later inc
 
 Run **all remaining increments** end-to-end: scaffold → implement (fresh sub-agent) → verify → archive → next. This is the automated alternative to manually cycling `continue` → `/apply` → `/archive` per increment.
 
-Two modes:
+Three modes:
 
-- `run` — full auto: stops only on failures, bounced questions, or manual checks.
+- `run` — semi-auto: stops only on failures, bounced questions, or manual checks.
 - `run --checkpoint` — additionally pauses for user confirmation before **each** archive.
+- `run --yolo` — truly unattended: like `run`, but instead of pausing on `(manual)` tasks it auto-ticks them with a logged warning (see step 8). **Nothing human-verifies those tasks** — offer it only when the user explicitly accepts that. `--yolo` and `--checkpoint` contradict each other; if both are given, `--checkpoint` wins.
 
-This intent is the one sanctioned exception to the orchestrator rule: it reads `tasks.md` only to **verify** completion, and ticks only tasks tagged `(manual)` after explicit user confirmation. Ordinary tasks are always ticked by the implementing sub-agent, never by the orchestrator.
+One orthogonal flag:
+
+- `--review` — not a fourth mode; it composes with any of the three (`run --review`, `run --checkpoint --review`, `run --yolo --review`). Inserts an independent review gate (step 7) between the verify gate and the archive: a fresh sub-agent runs the `proposal-review` skill on the increment's change in report-only mode, and the orchestrator only archives when the report says `ready_to_archive: true` (or the user explicitly waives the findings).
+
+This intent is the one sanctioned exception to the orchestrator rule: it reads `tasks.md` only to **verify** completion, and ticks only tasks tagged `(manual)` after explicit user confirmation (in `--yolo` mode, automatically — see step 8). Ordinary tasks are always ticked by the implementing sub-agent, never by the orchestrator.
 
 **The loop is stateless by design** — all state lives on disk (`roadmap.md`, change dirs, `tasks.md` ticked in real time), so re-running the same `run` command after any stop, crash, or interruption resumes exactly where it left off.
 
@@ -173,16 +181,22 @@ Repeat until no eligible increment remains:
    *Inline fallback:* if the current tool has no sub-agent capability, implement the increment inline in this session following the same rules, then continue the loop.
 5. **Handle a bounced question**: if the sub-agent stopped on a question, relay it to the user with `AskUserQuestion` (plain text if open-ended). Then spawn a **new** sub-agent resuming from the first unticked task, with the user's decision included in its prompt. Repeat as needed.
 6. **Verify gate** — run by the orchestrator before archiving; never trust the sub-agent's own report:
-   - Read `tasks.md` from disk: every task must be `[x]`, except tasks tagged `(manual)` (handled in step 7).
+   - Read `tasks.md` from disk: every task must be `[x]`, except tasks tagged `(manual)` (handled in step 8).
    - Run the project's test suite (if one exists); it must pass.
    - Run `prompter validate <change-id> --strict --no-interactive`; it must be clean.
    - **Any failure → STOP the whole run.** Report exactly what failed and leave the change un-archived; a later re-run resumes at this increment.
-7. **Manual checks pause** (applies even in full-auto): if unticked `(manual)` tasks remain, present them as a checklist and ask via `AskUserQuestion` — "Verified, archive it" / "Not yet, stop here". On confirmation, tick those tasks `[x]` (the sanctioned exception), then proceed. On "Not yet", stop; a later re-run comes straight back to this checklist. In `--checkpoint` mode, fold this into the step 8 checkpoint question instead of asking twice.
-8. **Checkpoint** (only with `--checkpoint`): before archiving, show a brief summary (tasks done, test results, files touched, any manual checks) and ask "Archive and continue" / "Stop here".
-9. **Archive**: run `prompter archive <change-id> --yes`. Bump the roadmap Status to `archived` and update the **Next Increment to Run** block.
-10. **Report one line** (`Increment 2/5 archived: add-webhook-worker`) and loop back to step 1.
+7. **Review gate** (only with `--review`): after the verify gate passes, delegate the review to a **fresh sub-agent** — never the implementer from step 4, so the work gets independent eyes. Its prompt must instruct it to follow the `proposal-review` skill (`skills/proposal-review/SKILL.md`) for `<change-id>` in **report-only mode**: run that skill's Steps 0–6 (load artifacts, verification matrix, targeted bug hunt, declared validations, write the report to `prompter/changes/<change-id>/proposal-review.md`) and skip its Step 7 fix gate — the orchestrator owns the fix decision. When it returns, read the report's machine-readable status block **from disk** (never trust the sub-agent's own summary):
+   - `ready_to_archive: true` → proceed to the next step; note the clean review in the increment's report line.
+   - `ready_to_archive: false` → blocking findings exist:
+     - **Semi-auto `run` / `--checkpoint`:** summarize the blocking findings and ask via `AskUserQuestion` — "Fix findings" (spawn a fresh fix sub-agent to execute the report's TODO list, then re-run step 6 and this gate; after **2** failed fix rounds, stop the run) / "Archive anyway" (log the waiver and proceed) / "Stop here".
+     - **`--yolo`:** do not ask — spawn the fix sub-agent automatically and re-run step 6 + this gate **once**. If still not `ready_to_archive`, **STOP the whole run** and report the findings: yolo may auto-tick manual checks, but it never archives a change with unresolved blocking findings.
+   - `requires_human_review: true` (BREAKING change, security finding, or judgment-call deviation) → never auto-archive: in `--yolo`, stop the run; otherwise surface it prominently in the question above so "Archive anyway" is a deliberate user choice, not a default.
+8. **Manual checks pause** (applies even in plain semi-auto `run`): if unticked `(manual)` tasks remain, present them as a checklist and ask via `AskUserQuestion` — "Verified, archive it" / "Not yet, stop here". On confirmation, tick those tasks `[x]` (the sanctioned exception), then proceed. On "Not yet", stop; a later re-run comes straight back to this checklist. In `--checkpoint` mode, fold this into the step 9 checkpoint question instead of asking twice. In `--yolo` mode, do **not** ask: tick the `(manual)` tasks `[x]` automatically and log a warning listing exactly what went unverified (e.g. `⚠ yolo: auto-ticked 2 unverified manual tasks: 4.2, 5.1`); repeat that list in the increment's step 11 report line and in the final run summary.
+9. **Checkpoint** (only with `--checkpoint`): before archiving, show a brief summary (tasks done, test results, files touched, review outcome if `--review`, any manual checks) and ask "Archive and continue" / "Stop here".
+10. **Archive**: run `prompter archive <change-id> --yes`. Bump the roadmap Status to `archived` and update the **Next Increment to Run** block.
+11. **Report one line** (`Increment 2/5 archived: add-webhook-worker` — with `--review`, append the outcome, e.g. `· review clean` or `· review waived: PR-002`) and loop back to step 1.
 
-**Stop conditions** — always report clearly which one hit: verify-gate failure · a bounced question the user chose not to answer now · "Stop" at a checkpoint or manual-checks pause · blocked dependency · all increments archived (success).
+**Stop conditions** — always report clearly which one hit: verify-gate failure · review-gate blocking findings ("Stop here", two failed fix rounds, or `--yolo` after its single failed auto-fix round) · a bounced question the user chose not to answer now · "Stop" at a checkpoint or manual-checks pause (the pause never fires in `--yolo`) · blocked dependency · all increments archived (success).
 
 ### Intent: default (bare slug)
 
@@ -207,7 +221,7 @@ Otherwise, ask with `AskUserQuestion`:
 }
 ```
 
-Route the answer to the `continue`, `run`, or `status` behavior above. If the user picks "Run all" and this is their first run on this feature, mention they can use `run --checkpoint` instead to confirm before each archive.
+Route the answer to the `continue`, `run`, or `status` behavior above. If the user picks "Run all" and this is their first run on this feature, mention they can use `run --checkpoint` instead to confirm before each archive, or `run --yolo` for a fully unattended run that auto-ticks `(manual)` tasks — and that adding `--review` to any of these inserts an independent proposal-review gate before each archive.
 
 ---
 
@@ -483,6 +497,44 @@ Iterate if the user requests changes.
 
 ---
 
+## Step 4.5: Feature UI Map (CONDITIONAL — only when the feature adds new UI)
+
+After the plan is approved, decide whether this feature needs a **UI map** — the page inventory + navigation contract the `ui-ux-pro`/`ui-ux-max` skills consume to build clickable `.preview/` mockups (same idea as project-orchestrator's `prompter/project/ui.md`, but scoped to this feature's new UI only).
+
+**Gate — decide from the approved scope, don't ask by default:**
+
+- **Generate** when the in-scope work introduces **new user-facing surfaces**: new pages/routes/screens, a new multi-step flow, or new modals/drawers that anchor the feature.
+- **Skip silently** when the feature is backend-only (API, jobs, schema, config, CLI) **or** only modifies existing UI (adds a field to an existing form, restyles a component, changes copy) — existing screens are ui-ux-pro redesign territory, not this map's.
+- **Genuinely borderline** (e.g. one new modal on an existing page, nothing else) → ask one `AskUserQuestion` ("Generate a UI map for the new UI?" / "Skip it") and follow the answer.
+
+**When generating, derive the map from the approved plan — new UI only:**
+
+1. **New routes:** every page the feature adds (index/detail/create/edit as applicable). If the plan implies create/edit happens in a modal instead of a page, model it as a modal on its host page and say so.
+2. **Entry points from existing UI:** the one-line navigation additions to existing screens that make the new pages reachable (e.g. new sidebar item `→ /settings/webhooks`). Record them as entries, not redesigns of those screens.
+3. **App shell:** reuse the existing shell — list only additions.
+4. **Per page:** purpose, access, "arrived from", layout sections, and an **Elements & Navigation table listing every clickable element** — CTAs, row actions, breadcrumbs, pagination, empty-state CTAs — each action written in the template's **Action Vocabulary** (`→ /route`, `open modal: <id>`, `open drawer: <id>`, `toast: "<msg>"`, `close modal`, `→ back`, `→ external:`, `expand/collapse`). Existing routes may be navigation targets; never re-specify their pages.
+5. **Modals / Drawers / Toasts inventories** so every reference resolves — no dangling references.
+6. **Pages by Increment** (multi-increment only): tag each page with its owning increment from the Step 3.5 roadmap so the design work can be sliced per increment.
+
+**Scope rule:** navigation outcomes only. `Save → toast: "Webhook created" → /settings/webhooks` is in scope; what Save validates or persists is not. Never invent UI the plan doesn't contain.
+
+**Where it lands — depends on the Step 3.5 structure decision:**
+
+- **Multi-increment feature →** write it to `prompter/features/{feature}/ui.md` using the template in `assets/ui-template.md` (the folder exists for the roadmap; `ui.md` joins it as a durable artifact). Present a compact summary (new routes grouped by increment + counts of modals/toasts), confirm with `AskUserQuestion` (Looks good / Needs changes), iterate until approved.
+- **Single-proposal feature →** do **not** create `prompter/features/{feature}/` for this (folder existence is what routes `feature-planner <slug>` into Resume Mode, and there'd be no `roadmap.md` to resume). Instead, carry the same content — new routes, entry points, per-page element tables, modal/toast inventories — into the proposal's `design.md` under a `## UI Map` heading when Step 5 scaffolds it (or keep it in the plan presented in-conversation if no proposal is created). The `ui-ux-pro` skill picks it up through its originating-proposal detection.
+
+After saving (multi-increment), tell the user:
+
+```
+Feature UI map saved to prompter/features/{feature}/ui.md.
+Design these pages anytime by invoking the ui-ux-pro skill — it reads ui.md as its page
+inventory and builds clickable previews under .preview/ where every button and link works.
+```
+
+If the plan is later revised, update the map with it — the two must stay consistent.
+
+---
+
 ## Step 5: Save & Next Steps (REQUIRED)
 
 Once approved, save the plan based on what's available in the project.
@@ -498,6 +550,7 @@ prompter/features/{feature}/
 - `{feature}` is a kebab-case slug derived from the feature name (e.g., "Webhook delivery retries" → `webhook-delivery-retries`).
 - `roadmap.md` — the durable run-order tracker (written once; only its Status column is updated over time).
 - `implementation-plan.md` — the detailed plan for the current increment only (regenerated/overwritten each increment).
+- `ui.md` — optional feature UI map (Step 4.5; only when the feature adds new pages). Consumed by `ui-ux-pro`/`ui-ux-max` as the page inventory when designing previews.
 - Create the folder if it doesn't exist (the path is relative to the project root, e.g. `prompter/features/webhook-delivery-retries/`).
 
 **Single-proposal features do not create this folder and are not saved as a standalone plan file.** The plan feeds directly into a Prompter proposal or into implementation. Because there is no folder, single-proposal features are not resumable via `feature-planner <slug>` — resume them through Prompter's own tooling (`/apply`, the change under `prompter/changes/<change-id>/`).
@@ -517,7 +570,7 @@ When the feature was split into increments, these rules override everything belo
    - In both cases, if `roadmap.md` already carries a `## UI Design References` section (a `ui-ux-pro` design can pre-date or accompany planning), copy Increment 1's rows into the proposal exactly as Resume Mode's `continue` does: a `## Design Reference` section in `proposal.md` plus one `Implement UI per approved preview` task per page in `tasks.md`.
    - **Status values** (roadmap Status column): `not created` → `scaffolded` → `in progress` → `archived`.
 
-3. **Trigger later increments with `feature-planner <slug> continue` (Resume Mode).** Once Increment 1 is implemented (`/apply`) and archived (`/archive`), the user advances the roadmap by running `feature-planner <slug> continue`, which scaffolds the next eligible increment's proposal and bumps its Status — see the "Resume Mode" section. They can check progress anytime with `feature-planner <slug> status`, or auto-run every remaining increment end-to-end with `feature-planner <slug> run` (add `--checkpoint` to confirm before each archive) — see "Intent: `run`". Fill the roadmap file's **Next Increment to Run** block with that row's `change-id` and the copy-paste `continue` trigger line. (Re-running the full interview is only needed if they want fresh codebase analysis for that increment's detailed plan; the `continue` command alone does not re-plan, it only scaffolds the proposal.)
+3. **Trigger later increments with `feature-planner <slug> continue` (Resume Mode).** Once Increment 1 is implemented (`/apply`) and archived (`/archive`), the user advances the roadmap by running `feature-planner <slug> continue`, which scaffolds the next eligible increment's proposal and bumps its Status — see the "Resume Mode" section. They can check progress anytime with `feature-planner <slug> status`, or auto-run every remaining increment end-to-end with `feature-planner <slug> run` (add `--checkpoint` to confirm before each archive, `--yolo` to never pause on manual checks, and/or `--review` for an independent review gate before each archive) — see "Intent: `run`". Fill the roadmap file's **Next Increment to Run** block with that row's `change-id` and the copy-paste `continue` trigger line. (Re-running the full interview is only needed if they want fresh codebase analysis for that increment's detailed plan; the `continue` command alone does not re-plan, it only scaffolds the proposal.)
 
 For single-feature plans, ignore this block and use the branches below as-is.
 
@@ -592,3 +645,4 @@ Without Prompter there are no increments and no per-feature folder, so the plan 
 ## Resources
 
 - **Implementation plan template**: [implementation-plan-template.md](assets/implementation-plan-template.md) -- Structured output format for the plan
+- **Feature UI map template**: [ui-template.md](assets/ui-template.md) -- Page inventory + navigation contract for new UI, written to `prompter/features/{feature}/ui.md` (Step 4.5); consumed by `ui-ux-pro`/`ui-ux-max` to build clickable previews

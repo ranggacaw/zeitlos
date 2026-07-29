@@ -333,6 +333,8 @@ Extract nested token objects and flatten to design tokens.
 - Check `darkMode` config in `tailwind.config.js`
 
 When dark mode is detected, create a parallel token set documenting both light and dark values.
+Cover every semantic token — flag any token with no dark counterpart as `no dark value` rather
+than omitting it, and re-run the contrast checks against the dark values (see SKILL.md 2.1).
 
 ---
 

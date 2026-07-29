@@ -40,7 +40,14 @@ layout, or style.
    are **not** in the source theme. Use them, but flag them in the output summary so they
    can be ratified. Never overload `--primary` or `--destructive` for missing feedback states.
 
-7. **Output contract.** Deliver generated UI with:
+7. **Theme integrity.** Style only with semantic tokens that resolve in every theme the
+   system defines (see [[dark-mode]]). Never hardcode a value that only works in one theme.
+   If a needed token is flagged `no dark value` on the dark-mode page, surface that in the
+   output summary instead of guessing a dark value. Do not rely on box shadows alone for
+   elevation in dark mode — follow the system's dark elevation strategy (surface steps or
+   borders) when one is documented.
+
+8. **Output contract.** Deliver generated UI with:
    - token-referenced styles only;
    - inline comments mapping each value to its token source;
    - a summary block listing components used, tokens applied, variants selected, and
