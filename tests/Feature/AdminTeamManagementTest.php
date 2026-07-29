@@ -2,13 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Pages\Leaderboard;
+use App\Filament\Resources\FootballMatches\FootballMatchResource;
 use App\Filament\Resources\FootballMatches\Pages\CreateFootballMatch;
 use App\Filament\Resources\FootballMatches\Pages\EditFootballMatch;
+use App\Filament\Resources\FootballMatches\Pages\ListFootballMatches;
 use App\Filament\Resources\FootballMatches\Pages\ManageFootballMatchLiveScoring;
 use App\Filament\Resources\FootballMatches\Pages\ManageFootballMatchRosters;
 use App\Filament\Resources\Players\Pages\CreatePlayer;
 use App\Filament\Resources\Players\Pages\EditPlayer;
-use App\Filament\Pages\Leaderboard;
 use App\Models\FootballMatch;
 use App\Models\MatchEvent;
 use App\Models\MatchRoster;
@@ -16,8 +18,8 @@ use App\Models\Player;
 use App\Models\User;
 use App\Team\WhatsAppRosterText;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Support\Facades\Route;
+use Inertia\Testing\AssertableInertia as Assert;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -169,6 +171,63 @@ class AdminTeamManagementTest extends TestCase
         $this->assertSame(3, $match->zeitlos_score);
     }
 
+    public function test_admin_can_create_a_match_from_a_whatsapp_template(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $player = Player::factory()->create(['name' => 'Rafly']);
+
+        $template = <<<'TEXT'
+!!MAY THE WINS BE WITH YOU!!
+
+🥅 : EPIC MINISOCCER
+⏰ : 18:00 sd 20:00 WIB
+📅 : Sabtu, 18 Juli 2026
+💵 : 80K
+👔 : JERSEY ZEITLOS
+
+Include: Lap, Wasit, FG
+NOTE: SEGERA BERGABUNG & BAYAR DP SECEPATNYA AGAR TIDAK KEHABISAN SLOT, KARENA SLOT TERBATAS
+PEMBAYARAN DP:
+DANA: 085156292210 an Rafly Fandiansyah
+
+DP Mininal 20K ✅
+
+Maps :
+https://maps.app.goo.gl/HadXRxcpugrjtTRCA?g_st=ac
+
+LIST KIPER
+1. Gilang
+
+LIST PLAYER
+1. Rafly
+TEXT;
+
+        Livewire::actingAs($admin)
+            ->test(ListFootballMatches::class)
+            ->callAction('createFromWhatsAppTemplate', [
+                'opponent' => 'Internal Game',
+                'template' => $template,
+            ])
+            ->assertHasNoActionErrors();
+
+        $match = FootballMatch::where('venue', 'EPIC MINISOCCER')->firstOrFail();
+
+        $this->assertSame('Internal Game', $match->opponent);
+        $this->assertSame('2026-07-18', $match->match_date->toDateString());
+        $this->assertStringStartsWith('18:00', $match->match_time);
+        $this->assertSame('https://maps.app.goo.gl/HadXRxcpugrjtTRCA?g_st=ac', $match->maps_url);
+        $this->assertDatabaseHas('match_rosters', [
+            'match_id' => $match->id,
+            'guest_name' => 'Gilang',
+            'role' => MatchRoster::ROLE_GOALKEEPER,
+        ]);
+        $this->assertDatabaseHas('match_rosters', [
+            'match_id' => $match->id,
+            'player_id' => $player->id,
+            'role' => MatchRoster::ROLE_PLAYER,
+        ]);
+    }
+
     public function test_admin_can_open_and_update_filament_leaderboard_corrections(): void
     {
         $admin = User::factory()->admin()->create();
@@ -292,6 +351,115 @@ class AdminTeamManagementTest extends TestCase
         ]);
     }
 
+    public function test_filament_roster_page_can_import_a_whatsapp_template(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->create([
+            'opponent' => 'Internal Game',
+            'venue' => 'Old Venue',
+        ]);
+        $goalkeeper = Player::factory()->create(['name' => 'Gilang']);
+        $squadPlayer = Player::factory()->create(['name' => 'Hendry']);
+        $oldPlayer = Player::factory()->create(['name' => 'Old Player']);
+
+        MatchRoster::create([
+            'match_id' => $match->id,
+            'player_id' => $oldPlayer->id,
+            'role' => MatchRoster::ROLE_PLAYER,
+        ]);
+
+        $template = <<<'TEXT'
+!!MAY THE WINS BE WITH YOU!!
+
+🥅 : EPIC MINISOCCER
+⏰ : 18:00 sd 20:00 WIB
+📅 : Sabtu, 18 Juli 2026
+💵 : 80K
+👔 : JERSEY ZEITLOS
+
+Include: Lap, Wasit, FG
+_________
+_________
+NOTE: SEGERA BERGABUNG & BAYAR DP SECEPATNYA AGAR TIDAK KEHABISAN SLOT, KARENA SLOT TERBATAS
+__________________
+PEMBAYARAN DP:
+DANA: 085156292210 an Rafly Fandiansyah
+BCA: 7391837345 an Rafly Fandiansyah
+
+DP Mininal 20K ✅
+Bukti TF kirim ke: 085156292210
+
+Maps :
+https://maps.app.goo.gl/HadXRxcpugrjtTRCA?g_st=ac
+
+LIST KIPER
+1. Gilang
+2. Sutan
+
+LIST PLAYER
+1. Hendry
+2. Rangga
+3. Mifta
+4. Rafly
+5. Adry
+6. Rovi
+7. Resko
+8. Ucup
+9. Dion
+10. Garcia
+11. Ajie
+12. Fajri
+13. Centong
+14. Aslam 
+TEXT;
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchRosters::class, ['record' => $match->getRouteKey()])
+            ->callAction('importWhatsAppTemplate', [
+                'template' => $template,
+                'replace_roster' => true,
+            ])
+            ->assertHasNoActionErrors();
+
+        $match->refresh();
+
+        $this->assertSame('2026-07-18', $match->match_date->toDateString());
+        $this->assertStringStartsWith('18:00', $match->match_time);
+        $this->assertSame('EPIC MINISOCCER', $match->venue);
+        $this->assertSame('https://maps.app.goo.gl/HadXRxcpugrjtTRCA?g_st=ac', $match->maps_url);
+        $this->assertEquals(80000, $match->ticket_price);
+        $this->assertSame('ZEITLOS', $match->dress_code);
+        $this->assertSame('Lap, Wasit, FG', $match->facilities);
+        $this->assertStringContainsString('SEGERA BERGABUNG', $match->notes);
+        $this->assertEquals(20000, $match->payment_amount);
+        $this->assertStringContainsString('DANA: 085156292210', $match->payment_instructions);
+        $this->assertStringContainsString('MAY THE WINS', $match->whatsapp_announcement);
+
+        $this->assertDatabaseHas('match_rosters', [
+            'match_id' => $match->id,
+            'player_id' => $goalkeeper->id,
+            'guest_name' => null,
+            'role' => MatchRoster::ROLE_GOALKEEPER,
+        ]);
+        $this->assertDatabaseHas('match_rosters', [
+            'match_id' => $match->id,
+            'player_id' => $squadPlayer->id,
+            'guest_name' => null,
+            'role' => MatchRoster::ROLE_PLAYER,
+        ]);
+        $this->assertDatabaseHas('match_rosters', [
+            'match_id' => $match->id,
+            'player_id' => null,
+            'guest_name' => 'Sutan',
+            'role' => MatchRoster::ROLE_GOALKEEPER,
+        ]);
+        $this->assertDatabaseMissing('match_rosters', [
+            'match_id' => $match->id,
+            'player_id' => $oldPlayer->id,
+        ]);
+        $this->assertSame(16, MatchRoster::where('match_id', $match->id)->count());
+    }
+
     public function test_filament_roster_page_can_add_a_guest_entry_and_rejects_invalid_identity(): void
     {
         $admin = User::factory()->admin()->create();
@@ -386,7 +554,8 @@ class AdminTeamManagementTest extends TestCase
         Livewire::actingAs($admin)
             ->test(ManageFootballMatchRosters::class, ['record' => $match->getRouteKey()])
             ->callTableAction('delete', $roster->getKey())
-            ->assertHasNoTableActionErrors();
+            ->assertHasNoTableActionErrors()
+            ->assertRedirect(FootballMatchResource::getUrl('rosters', ['record' => $match]));
 
         $this->assertDatabaseMissing('match_rosters', [
             'id' => $roster->getKey(),

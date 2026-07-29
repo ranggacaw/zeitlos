@@ -5,12 +5,15 @@ namespace App\Filament\Resources\FootballMatches\Pages;
 use App\Filament\Resources\FootballMatches\FootballMatchResource;
 use App\Models\MatchRoster;
 use App\Models\Player;
+use App\Team\WhatsAppMatchTemplateImport;
 use App\Team\WhatsAppRosterText;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
@@ -70,6 +73,7 @@ class ManageFootballMatchRosters extends Page implements HasTable
             ])
             ->recordActions([
                 DeleteAction::make()
+                    ->successRedirectUrl(fn (): string => $this->getResourceUrl('rosters'))
                     ->action(fn (MatchRoster $record) => $record->delete()),
             ]);
     }
@@ -166,6 +170,33 @@ class ManageFootballMatchRosters extends Page implements HasTable
                     Notification::make()
                         ->success()
                         ->title('Roster entry added')
+                        ->send();
+                }),
+            Action::make('importWhatsAppTemplate')
+                ->label('Import WhatsApp template')
+                ->schema([
+                    Textarea::make('template')
+                        ->label('WhatsApp template')
+                        ->rows(16)
+                        ->required()
+                        ->helperText('Paste the group message to fill match details and roster names.'),
+                    Toggle::make('replace_roster')
+                        ->label('Replace current roster')
+                        ->default(true),
+                ])
+                ->action(function (array $data): void {
+                    $result = app(WhatsAppMatchTemplateImport::class)->import(
+                        $this->getRecord(),
+                        $data['template'],
+                        $data['replace_roster'] ?? true,
+                    );
+
+                    $this->record->refresh();
+
+                    Notification::make()
+                        ->success()
+                        ->title('WhatsApp template imported')
+                        ->body($result['roster_count'].' roster entries imported.')
                         ->send();
                 }),
         ];
