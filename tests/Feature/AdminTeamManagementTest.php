@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Filament\Resources\FootballMatches\Pages\CreateFootballMatch;
 use App\Filament\Resources\FootballMatches\Pages\EditFootballMatch;
+use App\Filament\Resources\FootballMatches\Pages\ManageFootballMatchRosters;
 use App\Filament\Resources\Players\Pages\CreatePlayer;
 use App\Filament\Resources\Players\Pages\EditPlayer;
 use App\Models\FootballMatch;
@@ -444,5 +445,129 @@ class AdminTeamManagementTest extends TestCase
                 ->has('whatsappText')
                 ->where('whatsappText', fn (string $text) => str_contains($text, 'Leo Fischer') && str_contains($text, 'Riverside FC'))
             );
+    }
+
+    public function test_filament_roster_page_can_add_an_existing_player_entry(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->create();
+        $player = Player::factory()->create(['name' => 'Filament Player']);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchRosters::class, ['record' => $match->getRouteKey()])
+            ->callAction('addRosterEntry', [
+                'player_id' => $player->id,
+                'guest_name' => null,
+                'role' => MatchRoster::ROLE_PLAYER,
+            ])
+            ->assertHasNoActionErrors();
+
+        $this->assertDatabaseHas('match_rosters', [
+            'match_id' => $match->id,
+            'player_id' => $player->id,
+            'guest_name' => null,
+            'role' => MatchRoster::ROLE_PLAYER,
+        ]);
+    }
+
+    public function test_filament_roster_page_can_add_a_guest_entry_and_rejects_invalid_identity(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->create();
+        $player = Player::factory()->create();
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchRosters::class, ['record' => $match->getRouteKey()])
+            ->callAction('addRosterEntry', [
+                'player_id' => null,
+                'guest_name' => 'Guest Star',
+                'role' => MatchRoster::ROLE_GOALKEEPER,
+            ])
+            ->assertHasNoActionErrors();
+
+        $this->assertDatabaseHas('match_rosters', [
+            'match_id' => $match->id,
+            'player_id' => null,
+            'guest_name' => 'Guest Star',
+            'role' => MatchRoster::ROLE_GOALKEEPER,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchRosters::class, ['record' => $match->getRouteKey()])
+            ->callAction('addRosterEntry', [
+                'player_id' => $player->id,
+                'guest_name' => 'Both Provided',
+                'role' => MatchRoster::ROLE_PLAYER,
+            ])
+            ->assertHasActionErrors(['player_id']);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchRosters::class, ['record' => $match->getRouteKey()])
+            ->callAction('addRosterEntry', [
+                'player_id' => null,
+                'guest_name' => null,
+                'role' => MatchRoster::ROLE_PLAYER,
+            ])
+            ->assertHasActionErrors(['guest_name']);
+
+        $this->assertDatabaseCount('match_rosters', 1);
+    }
+
+    public function test_filament_roster_page_exposes_whatsapp_text_and_grouped_roster(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->create([
+            'opponent' => 'Riverside FC',
+            'match_date' => '2026-08-01',
+            'match_time' => '20:00',
+            'venue' => 'Central Pitch',
+        ]);
+        $goalkeeper = Player::factory()->create(['name' => 'Anton Keller']);
+        $squadPlayer = Player::factory()->create(['name' => 'Leo Fischer']);
+
+        MatchRoster::create([
+            'match_id' => $match->id,
+            'player_id' => $goalkeeper->id,
+            'role' => MatchRoster::ROLE_GOALKEEPER,
+        ]);
+        MatchRoster::create([
+            'match_id' => $match->id,
+            'player_id' => $squadPlayer->id,
+            'role' => MatchRoster::ROLE_PLAYER,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchRosters::class, ['record' => $match->getRouteKey()])
+            ->assertSuccessful()
+            ->assertSee('vs Riverside FC')
+            ->assertSee('Anton Keller')
+            ->assertSee('Leo Fischer')
+            ->assertSee('Goalkeepers')
+            ->assertSee('Squad')
+            ->assertSee('Zeitlos vs Riverside FC')
+            ->assertSee('Central Pitch')
+            ->assertSee('WhatsApp message');
+    }
+
+    public function test_filament_roster_page_can_remove_a_roster_entry(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->create();
+        $player = Player::factory()->create(['name' => 'Removable Player']);
+
+        $roster = MatchRoster::create([
+            'match_id' => $match->id,
+            'player_id' => $player->id,
+            'role' => MatchRoster::ROLE_PLAYER,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchRosters::class, ['record' => $match->getRouteKey()])
+            ->callTableAction('delete', $roster->getKey())
+            ->assertHasNoTableActionErrors();
+
+        $this->assertDatabaseMissing('match_rosters', [
+            'id' => $roster->getKey(),
+        ]);
     }
 }

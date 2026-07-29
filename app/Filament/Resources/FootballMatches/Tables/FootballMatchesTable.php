@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\FootballMatches\Tables;
 
+use App\Filament\Resources\FootballMatches\FootballMatchResource;
 use App\Models\FootballMatch;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -69,6 +72,10 @@ class FootballMatchesTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('manageRoster')
+                    ->label('Manage roster')
+                    ->icon(Heroicon::OutlinedUserGroup)
+                    ->url(fn (FootballMatch $record): string => FootballMatchResource::getUrl('rosters', ['record' => $record], shouldGuessMissingParameters: true)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

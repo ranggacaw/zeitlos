@@ -100,6 +100,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Temporary legacy Inertia admin workflows live under `app/Http/Controllers/Admin` with routes prefixed `/admin-legacy` and named `admin.*` until later increments replace them.
 - `/dashboard` stays reserved for Breeze; `/admin` is the Filament CMS entry point.
 - WhatsApp roster text is generated server-side via `App\Team\WhatsAppRosterText` so the copyable text is deterministic and testable.
+- Match roster management is a Filament page at `/admin/football-matches/{record}/rosters` (`ManageFootballMatchRosters`) that groups roster entries by role and shows copyable WhatsApp text; the legacy Inertia roster routes (`admin.matches.roster.*`) remain until the final replacement increment.
 - Legacy admin Inertia pages live under `resources/js/Pages/Admin`.
 
 ## PWA Support

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\FootballMatches;
 use App\Filament\Resources\FootballMatches\Pages\CreateFootballMatch;
 use App\Filament\Resources\FootballMatches\Pages\EditFootballMatch;
 use App\Filament\Resources\FootballMatches\Pages\ListFootballMatches;
+use App\Filament\Resources\FootballMatches\Pages\ManageFootballMatchRosters;
 use App\Filament\Resources\FootballMatches\Schemas\FootballMatchForm;
 use App\Filament\Resources\FootballMatches\Tables\FootballMatchesTable;
 use App\Models\FootballMatch;
@@ -43,6 +44,7 @@ class FootballMatchResource extends Resource
             'index' => ListFootballMatches::route('/'),
             'create' => CreateFootballMatch::route('/create'),
             'edit' => EditFootballMatch::route('/{record}/edit'),
+            'rosters' => ManageFootballMatchRosters::route('/{record}/rosters'),
         ];
     }
 }
