@@ -8,6 +8,7 @@ use App\Filament\Resources\FootballMatches\Pages\ManageFootballMatchLiveScoring;
 use App\Filament\Resources\FootballMatches\Pages\ManageFootballMatchRosters;
 use App\Filament\Resources\Players\Pages\CreatePlayer;
 use App\Filament\Resources\Players\Pages\EditPlayer;
+use App\Filament\Pages\Leaderboard;
 use App\Models\FootballMatch;
 use App\Models\MatchEvent;
 use App\Models\MatchRoster;
@@ -319,6 +320,62 @@ class AdminTeamManagementTest extends TestCase
                 ->where('leaders.0.name', 'Correction Player')
                 ->where('leaders.0.goals', 4)
                 ->where('leaders.0.assists', 2)
+            );
+    }
+
+    public function test_admin_can_open_and_update_filament_leaderboard_corrections(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->create();
+        $player = Player::factory()->create([
+            'name' => 'Filament Correction Player',
+            'goals_adjustment' => 0,
+            'assists_adjustment' => 0,
+            'is_active' => true,
+        ]);
+        $assist = Player::factory()->create([
+            'name' => 'Filament Assist Player',
+            'is_active' => true,
+        ]);
+
+        MatchEvent::create([
+            'match_id' => $match->id,
+            'scorer_id' => $player->id,
+            'assist_player_id' => $assist->id,
+            'event_type' => MatchEvent::TYPE_GOAL,
+        ]);
+
+        $this->actingAs($admin)
+            ->get('/admin/leaderboard')
+            ->assertOk()
+            ->assertSee('Leaderboard corrections')
+            ->assertSee('Filament Correction Player')
+            ->assertSee('Event goals')
+            ->assertSee('Event assists');
+
+        Livewire::actingAs($admin)
+            ->test(Leaderboard::class)
+            ->assertSuccessful()
+            ->assertSee('Filament Correction Player')
+            ->callTableAction('editAdjustments', $player->getKey(), [
+                'goals_adjustment' => 3,
+                'assists_adjustment' => 2,
+            ])
+            ->assertHasNoTableActionErrors();
+
+        $player->refresh();
+        $this->assertSame(3, $player->goals_adjustment);
+        $this->assertSame(2, $player->assists_adjustment);
+
+        $this->get(route('public.leaderboard'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('leaders.0.name', 'Filament Correction Player')
+                ->where('leaders.0.goals', 4)
+                ->where('leaders.0.assists', 2)
+                ->where('leaders.1.name', 'Filament Assist Player')
+                ->where('leaders.1.goals', 0)
+                ->where('leaders.1.assists', 1)
             );
     }
 

@@ -30,17 +30,22 @@ class FootballMatchesTable
                 TextColumn::make('venue')
                     ->searchable(),
                 TextColumn::make('maps_url')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('ticket_price')
                     ->money()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('dress_code')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('payment_label')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('payment_amount')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('payment_due_at')
                     ->dateTime()
                     ->sortable(),
@@ -64,6 +69,7 @@ class FootballMatchesTable
             ])
             ->filters([
                 SelectFilter::make('status')
+                    ->label('Match status')
                     ->options([
                         FootballMatch::STATUS_SCHEDULED => 'Scheduled',
                         FootballMatch::STATUS_LIVE => 'Live',
@@ -71,7 +77,9 @@ class FootballMatchesTable
                     ]),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->label('Edit match')
+                    ->icon(Heroicon::OutlinedPencilSquare),
                 Action::make('manageRoster')
                     ->label('Manage roster')
                     ->icon(Heroicon::OutlinedUserGroup)

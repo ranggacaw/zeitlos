@@ -2,6 +2,9 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Pages\Leaderboard;
+use App\Filament\Resources\FootballMatches\FootballMatchResource;
+use App\Filament\Resources\Players\PlayerResource;
 use App\Models\FootballMatch;
 use App\Models\Player;
 use Filament\Widgets\Widget;
@@ -15,6 +18,9 @@ class AdminOverview extends Widget
     protected function getViewData(): array
     {
         $players = Player::query()->get();
+        $liveMatch = $this->liveMatch();
+        $nextMatch = $this->nextMatch();
+        $recentResult = $this->recentResult();
         $leaders = $players
             ->map(fn (Player $player) => [
                 'name' => $player->name,
@@ -28,9 +34,14 @@ class AdminOverview extends Widget
             'playerCount' => $players->count(),
             'activePlayerCount' => $players->where('is_active', true)->count(),
             'matchCount' => FootballMatch::count(),
-            'liveMatch' => $this->matchSummary($this->liveMatch()),
-            'nextMatch' => $this->matchSummary($this->nextMatch()),
-            'recentResult' => $this->matchSummary($this->recentResult()),
+            'liveMatch' => $this->matchSummary($liveMatch),
+            'nextMatch' => $this->matchSummary($nextMatch),
+            'recentResult' => $this->matchSummary($recentResult),
+            'liveMatchUrl' => $liveMatch ? FootballMatchResource::getUrl('live-scoring', ['record' => $liveMatch]) : null,
+            'nextMatchUrl' => $nextMatch ? FootballMatchResource::getUrl('edit', ['record' => $nextMatch]) : null,
+            'playersUrl' => PlayerResource::getUrl('index'),
+            'matchesUrl' => FootballMatchResource::getUrl('index'),
+            'leaderboardUrl' => Leaderboard::getUrl(),
             'topScorers' => $leaders->take(3)->values(),
             'topAssists' => $leaders
                 ->sortByDesc(fn (array $player) => [$player['assists'], $player['goals'], $player['name']])

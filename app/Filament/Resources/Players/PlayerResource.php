@@ -13,12 +13,23 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class PlayerResource extends Resource
 {
     protected static ?string $model = Player::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static ?string $modelLabel = 'Player';
+
+    protected static ?string $pluralModelLabel = 'Players';
+
+    protected static ?string $navigationLabel = 'Players';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Team management';
+
+    protected static ?int $navigationSort = 1;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
     public static function form(Schema $schema): Schema
     {
