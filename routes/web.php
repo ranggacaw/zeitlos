@@ -31,7 +31,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'verified', 'admin'])
-    ->prefix('admin')
+    ->prefix('admin-legacy')
     ->name('admin.')
     ->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');

@@ -2,6 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\FootballMatches\Pages\CreateFootballMatch;
+use App\Filament\Resources\FootballMatches\Pages\EditFootballMatch;
+use App\Filament\Resources\Players\Pages\CreatePlayer;
+use App\Filament\Resources\Players\Pages\EditPlayer;
 use App\Models\FootballMatch;
 use App\Models\MatchEvent;
 use App\Models\MatchRoster;
@@ -10,6 +14,7 @@ use App\Models\User;
 use App\Team\WhatsAppRosterText;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class AdminTeamManagementTest extends TestCase
@@ -25,6 +30,7 @@ class AdminTeamManagementTest extends TestCase
 
     public function test_guest_is_redirected_from_admin_management(): void
     {
+        $this->get('/admin')->assertRedirect('/admin/login');
         $this->get(route('admin.dashboard'))->assertRedirect(route('login'));
         $this->get(route('admin.players.index'))->assertRedirect(route('login'));
     }
@@ -32,6 +38,10 @@ class AdminTeamManagementTest extends TestCase
     public function test_non_admin_user_is_denied_admin_management(): void
     {
         $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get('/admin')
+            ->assertForbidden();
 
         $this->actingAs($user)
             ->get(route('admin.dashboard'))
@@ -45,6 +55,11 @@ class AdminTeamManagementTest extends TestCase
     public function test_admin_can_access_team_management_dashboard(): void
     {
         $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->get('/admin')
+            ->assertOk()
+            ->assertSee('Zeitlos CMS');
 
         $this->actingAs($admin)
             ->get(route('admin.dashboard'))
@@ -139,6 +154,49 @@ class AdminTeamManagementTest extends TestCase
         $this->assertFalse($player->is_active);
     }
 
+    public function test_admin_can_create_and_update_a_player_through_filament(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin);
+
+        Livewire::test(CreatePlayer::class)
+            ->fillForm([
+                'name' => 'Filament Player',
+                'jersey_number' => 8,
+                'position' => 'Midfielder',
+                'is_active' => true,
+                'photo_path' => 'players/filament.jpg',
+                'joined_at' => '2026-02-01',
+                'goals_adjustment' => 2,
+                'assists_adjustment' => 3,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $player = Player::where('name', 'Filament Player')->firstOrFail();
+        $this->assertSame(8, $player->jersey_number);
+
+        Livewire::test(EditPlayer::class, ['record' => $player->getRouteKey()])
+            ->fillForm([
+                'name' => 'Updated Filament Player',
+                'jersey_number' => 9,
+                'position' => 'Forward',
+                'is_active' => false,
+                'photo_path' => 'players/updated.jpg',
+                'joined_at' => '2026-02-01',
+                'goals_adjustment' => 4,
+                'assists_adjustment' => 5,
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $player->refresh();
+        $this->assertSame('Updated Filament Player', $player->name);
+        $this->assertSame(9, $player->jersey_number);
+        $this->assertFalse($player->is_active);
+    }
+
     public function test_admin_can_create_and_update_a_match(): void
     {
         $admin = User::factory()->admin()->create();
@@ -172,6 +230,53 @@ class AdminTeamManagementTest extends TestCase
         $this->assertSame('North Field', $match->venue);
         $this->assertSame('finished', $match->status);
         $this->assertSame(2, $match->zeitlos_score);
+    }
+
+    public function test_admin_can_create_and_update_a_match_through_filament(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin);
+
+        Livewire::test(CreateFootballMatch::class)
+            ->fillForm([
+                'opponent' => 'Filament FC',
+                'match_date' => '2026-08-15',
+                'match_time' => '20:00',
+                'venue' => 'CMS Arena',
+                'maps_url' => 'https://maps.example.com/cms-arena',
+                'payment_label' => 'Pitch share',
+                'payment_amount' => 12.50,
+                'whatsapp_announcement' => 'Kickoff at 20:00.',
+                'status' => FootballMatch::STATUS_SCHEDULED,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $match = FootballMatch::where('opponent', 'Filament FC')->firstOrFail();
+        $this->assertSame('CMS Arena', $match->venue);
+
+        Livewire::test(EditFootballMatch::class, ['record' => $match->getRouteKey()])
+            ->fillForm([
+                'opponent' => 'Filament FC',
+                'match_date' => '2026-08-15',
+                'match_time' => '21:00',
+                'venue' => 'Updated Arena',
+                'maps_url' => 'https://maps.example.com/updated-arena',
+                'payment_label' => 'Pitch share',
+                'payment_amount' => 14.00,
+                'whatsapp_announcement' => 'Kickoff moved to 21:00.',
+                'status' => FootballMatch::STATUS_FINISHED,
+                'zeitlos_score' => 3,
+                'opponent_score' => 2,
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $match->refresh();
+        $this->assertSame('Updated Arena', $match->venue);
+        $this->assertSame(FootballMatch::STATUS_FINISHED, $match->status);
+        $this->assertSame(3, $match->zeitlos_score);
     }
 
     public function test_admin_can_open_and_update_leaderboard_corrections(): void

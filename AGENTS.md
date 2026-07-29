@@ -95,11 +95,12 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ## Admin Team Management
 
-- Authenticated team management lives under `app/Http/Controllers/Admin` with routes prefixed `/admin` and named `admin.*`.
-- The `/admin` route group is guarded by `auth`, `verified`, and the `admin` middleware alias (`EnsureAdmin`, which requires `User::isAdmin()`).
-- `/dashboard` stays reserved for Breeze; `/admin` is the team management entry point (`admin.dashboard`).
+- Filament is the admin CMS foundation at `/admin`, configured by `App\Providers\Filament\AdminPanelProvider` and guarded by `User::canAccessPanel()` delegating to `User::isAdmin()`.
+- Filament resources live under `app/Filament/Resources`; the admin dashboard lives under `app/Filament/Pages` and `app/Filament/Widgets`.
+- Temporary legacy Inertia admin workflows live under `app/Http/Controllers/Admin` with routes prefixed `/admin-legacy` and named `admin.*` until later increments replace them.
+- `/dashboard` stays reserved for Breeze; `/admin` is the Filament CMS entry point.
 - WhatsApp roster text is generated server-side via `App\Team\WhatsAppRosterText` so the copyable text is deterministic and testable.
-- Admin Inertia pages live under `resources/js/Pages/Admin`.
+- Legacy admin Inertia pages live under `resources/js/Pages/Admin`.
 
 ## PWA Support
 
