@@ -52,6 +52,7 @@ class Player extends Model
     {
         return $this->scoredEvents()
             ->where('event_type', MatchEvent::TYPE_GOAL)
+            ->where('team', MatchEvent::TEAM_ZEITLOS)
             ->count() + $this->goals_adjustment;
     }
 
@@ -59,6 +60,7 @@ class Player extends Model
     {
         return $this->assistedEvents()
             ->where('event_type', MatchEvent::TYPE_GOAL)
+            ->where('team', MatchEvent::TEAM_ZEITLOS)
             ->count() + $this->assists_adjustment;
     }
 }

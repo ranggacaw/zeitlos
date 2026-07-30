@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\FootballMatch;
+use App\Models\MatchEvent;
 use App\Models\Player;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -27,6 +29,7 @@ class PublicTeamPagesTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Welcome')
+                ->where('activeMatch', null)
                 ->where('upcomingMatch.opponent', 'Riverside FC')
                 ->where('recentResult.opponent', 'Old Town United')
                 ->has('players', 17)
@@ -46,6 +49,7 @@ class PublicTeamPagesTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Public/Schedule')
+                ->has('activeMatches', 0)
                 ->where('upcomingMatches.0.opponent', 'Riverside FC')
                 ->where('upcomingMatches.0.roster.player.0.name', 'Hendry')
                 ->where('finishedMatches.0.zeitlos_score', 3)
@@ -104,6 +108,7 @@ class PublicTeamPagesTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Welcome')
+                ->where('activeMatch', null)
                 ->where('upcomingMatch', null)
                 ->where('recentResult', null)
                 ->has('players', 0)
@@ -114,9 +119,70 @@ class PublicTeamPagesTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Public/Schedule')
+                ->has('activeMatches', 0)
                 ->has('upcomingMatches', 0)
                 ->has('finishedMatches', 0)
             );
+    }
+
+    public function test_public_dashboard_and_schedule_surface_active_match(): void
+    {
+        $match = FootballMatch::factory()->starting()->create(['opponent' => 'Live Rivals']);
+
+        $this->get(route('public.home'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Welcome')
+                ->where('activeMatch.opponent', 'Live Rivals')
+                ->where('activeMatch.status', FootballMatch::STATUS_STARTING)
+            );
+
+        $this->get(route('public.schedule'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Public/Schedule')
+                ->where('activeMatches.0.id', $match->id)
+                ->where('activeMatches.0.status', FootballMatch::STATUS_STARTING)
+            );
+    }
+
+    public function test_public_live_match_page_renders_score_events_and_finished_state(): void
+    {
+        $match = FootballMatch::factory()->live()->create([
+            'opponent' => 'Stream FC',
+            'zeitlos_score' => 1,
+            'opponent_score' => 0,
+        ]);
+        $scorer = Player::factory()->create(['name' => 'Live Scorer']);
+
+        MatchEvent::create([
+            'match_id' => $match->id,
+            'scorer_id' => $scorer->id,
+            'event_type' => MatchEvent::TYPE_GOAL,
+            'team' => MatchEvent::TEAM_ZEITLOS,
+            'minute' => 12,
+        ]);
+
+        $this->get(route('public.matches.live', $match))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Public/MatchLive')
+                ->where('match.opponent', 'Stream FC')
+                ->where('match.status', FootballMatch::STATUS_LIVE)
+                ->where('match.zeitlos_score', 1)
+                ->where('match.events.0.scorer', 'Live Scorer')
+            );
+
+        $match->update(['status' => FootballMatch::STATUS_FINISHED]);
+
+        $this->get(route('public.matches.live', $match))->assertOk();
+    }
+
+    public function test_scheduled_match_live_page_is_not_public(): void
+    {
+        $match = FootballMatch::factory()->create();
+
+        $this->get(route('public.matches.live', $match))->assertNotFound();
     }
 
     public function test_inactive_player_detail_is_not_public(): void

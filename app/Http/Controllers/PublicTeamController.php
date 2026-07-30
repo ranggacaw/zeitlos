@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\FootballMatch;
-use App\Models\MatchEvent;
-use App\Models\MatchRoster;
 use App\Models\Player;
+use App\Team\PublicMatchPresenter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
@@ -13,13 +12,29 @@ use Inertia\Response;
 
 class PublicTeamController extends Controller
 {
+    public function __construct(private readonly PublicMatchPresenter $matches) {}
+
     public function dashboard(): Response
     {
         return Inertia::render('Welcome', [
+            'activeMatch' => $this->serializeMatch($this->activeMatches()->first(), true),
             'upcomingMatch' => $this->serializeMatch($this->upcomingMatches()->first(), true),
             'recentResult' => $this->serializeMatch($this->finishedMatches()->first(), true),
             'players' => $this->activePlayers()->map(fn (Player $player) => $this->serializeRosterPlayer($player))->values(),
             'leaders' => $this->leaderboardPlayers()->take(5)->values(),
+        ]);
+    }
+
+    public function live(FootballMatch $match): Response
+    {
+        abort_unless(in_array($match->status, [
+            FootballMatch::STATUS_STARTING,
+            FootballMatch::STATUS_LIVE,
+            FootballMatch::STATUS_FINISHED,
+        ], true), 404);
+
+        return Inertia::render('Public/MatchLive', [
+            'match' => $this->serializeMatch($match, true),
         ]);
     }
 
@@ -44,6 +59,7 @@ class PublicTeamController extends Controller
     public function schedule(): Response
     {
         return Inertia::render('Public/Schedule', [
+            'activeMatches' => $this->activeMatches()->map(fn (FootballMatch $match) => $this->serializeMatch($match, true))->values(),
             'upcomingMatches' => $this->upcomingMatches()->map(fn (FootballMatch $match) => $this->serializeMatch($match, true))->values(),
             'finishedMatches' => $this->finishedMatches()->map(fn (FootballMatch $match) => $this->serializeMatch($match, true))->values(),
         ]);
@@ -85,6 +101,20 @@ class PublicTeamController extends Controller
 
         return FootballMatch::query()
             ->scheduled()
+            ->with(['rosterEntries.player', 'events.scorer', 'events.assistPlayer'])
+            ->orderBy('match_date')
+            ->orderBy('match_time')
+            ->get();
+    }
+
+    private function activeMatches(): Collection
+    {
+        if (! Schema::hasTable('matches')) {
+            return collect();
+        }
+
+        return FootballMatch::query()
+            ->active()
             ->with(['rosterEntries.player', 'events.scorer', 'events.assistPlayer'])
             ->orderBy('match_date')
             ->orderBy('match_time')
@@ -158,51 +188,6 @@ class PublicTeamController extends Controller
 
     private function serializeMatch(?FootballMatch $match, bool $includeRoster = false): ?array
     {
-        if (! $match) {
-            return null;
-        }
-
-        return [
-            'id' => $match->id,
-            'opponent' => $match->opponent,
-            'match_date' => $match->match_date?->toDateString(),
-            'match_time' => $match->match_time,
-            'venue' => $match->venue,
-            'maps_url' => $match->maps_url,
-            'ticket_price' => $match->ticket_price,
-            'dress_code' => $match->dress_code,
-            'facilities' => $match->facilities,
-            'notes' => $match->notes,
-            'payment_label' => $match->payment_label,
-            'payment_amount' => $match->payment_amount,
-            'payment_due_at' => $match->payment_due_at?->toDateTimeString(),
-            'payment_instructions' => $match->payment_instructions,
-            'whatsapp_announcement' => $match->whatsapp_announcement,
-            'status' => $match->status,
-            'zeitlos_score' => $match->zeitlos_score,
-            'opponent_score' => $match->opponent_score,
-            'roster' => $includeRoster ? $this->serializeRoster($match->rosterEntries) : [],
-            'events' => $match->events->map(fn (MatchEvent $event) => [
-                'minute' => $event->minute,
-                'event_type' => $event->event_type,
-                'scorer' => $event->scorer?->name,
-                'assist' => $event->assistPlayer?->name,
-            ])->values(),
-        ];
-    }
-
-    private function serializeRoster(Collection $entries): array
-    {
-        return $entries
-            ->map(fn (MatchRoster $entry) => [
-                'id' => $entry->id,
-                'name' => $entry->player?->name ?? $entry->guest_name,
-                'role' => $entry->role,
-                'jersey_number' => $entry->player?->jersey_number,
-                'position' => $entry->player?->position,
-            ])
-            ->groupBy('role')
-            ->map(fn (Collection $group) => $group->values())
-            ->all();
+        return $this->matches->present($match, $includeRoster);
     }
 }

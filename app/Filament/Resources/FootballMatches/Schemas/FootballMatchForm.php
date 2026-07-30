@@ -6,8 +6,8 @@ use App\Models\FootballMatch;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -70,6 +70,7 @@ class FootballMatchForm
                         Select::make('status')
                             ->options([
                                 FootballMatch::STATUS_SCHEDULED => 'Scheduled',
+                                FootballMatch::STATUS_STARTING => 'Starting',
                                 FootballMatch::STATUS_LIVE => 'Live',
                                 FootballMatch::STATUS_FINISHED => 'Finished',
                             ])

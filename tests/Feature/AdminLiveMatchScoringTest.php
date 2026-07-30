@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Events\PublicMatchUpdated;
 use App\Filament\Resources\FootballMatches\Pages\ManageFootballMatchLiveScoring;
 use App\Models\FootballMatch;
 use App\Models\MatchEvent;
@@ -9,6 +10,7 @@ use App\Models\MatchRoster;
 use App\Models\Player;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -105,8 +107,85 @@ class AdminLiveMatchScoringTest extends TestCase
             'scorer_id' => $scorer->id,
             'assist_player_id' => $assistant->id,
             'event_type' => MatchEvent::TYPE_GOAL,
+            'team' => MatchEvent::TEAM_ZEITLOS,
             'minute' => 42,
         ]);
+        $this->assertSame(1, $match->fresh()->zeitlos_score);
+    }
+
+    public function test_admin_can_record_an_opponent_goal_without_a_scorer_name(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->live()->create([
+            'zeitlos_score' => 0,
+            'opponent_score' => 0,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('recordOpponentGoal', [
+                'minute' => 31,
+            ])
+            ->assertHasNoActionErrors();
+
+        $match->refresh();
+        $this->assertSame(0, $match->zeitlos_score);
+        $this->assertSame(1, $match->opponent_score);
+        $this->assertDatabaseHas('match_events', [
+            'match_id' => $match->id,
+            'scorer_id' => null,
+            'event_type' => MatchEvent::TYPE_GOAL,
+            'team' => MatchEvent::TEAM_OPPONENT,
+            'minute' => 31,
+        ]);
+
+        $this->get(route('public.matches.live', $match))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('match.zeitlos_score', 0)
+                ->where('match.opponent_score', 1)
+                ->where('match.events.0.team', MatchEvent::TEAM_OPPONENT)
+                ->where('match.events.0.scorer', 'Enemy team')
+            );
+    }
+
+    public function test_public_live_score_uses_goal_events_when_stored_live_score_is_stale(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->live()->create([
+            'zeitlos_score' => 2,
+            'opponent_score' => 1,
+        ]);
+        $scorer = Player::factory()->create(['name' => 'Late Scorer']);
+
+        foreach ([3, 5, 6] as $minute) {
+            MatchEvent::create([
+                'match_id' => $match->id,
+                'scorer_id' => $scorer->id,
+                'event_type' => MatchEvent::TYPE_GOAL,
+                'team' => MatchEvent::TEAM_ZEITLOS,
+                'minute' => $minute,
+            ]);
+        }
+
+        MatchEvent::create([
+            'match_id' => $match->id,
+            'scorer_id' => null,
+            'event_type' => MatchEvent::TYPE_GOAL,
+            'team' => MatchEvent::TEAM_OPPONENT,
+            'minute' => 4,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->assertSee('Zeitlos 3 : 1');
+
+        $this->get(route('public.matches.live', $match))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('match.zeitlos_score', 3)
+                ->where('match.opponent_score', 1)
+            );
     }
 
     public function test_admin_can_mark_a_match_live(): void
@@ -125,6 +204,41 @@ class AdminLiveMatchScoringTest extends TestCase
         $this->assertSame(FootballMatch::STATUS_LIVE, $match->status);
         $this->assertNull($match->zeitlos_score);
         $this->assertNull($match->opponent_score);
+    }
+
+    public function test_admin_can_mark_a_match_starting(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->create([
+            'status' => FootballMatch::STATUS_SCHEDULED,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('markStarting')
+            ->assertHasNoActionErrors();
+
+        $this->assertSame(FootballMatch::STATUS_STARTING, $match->fresh()->status);
+    }
+
+    public function test_live_scoring_changes_dispatch_public_match_updates(): void
+    {
+        Event::fake([PublicMatchUpdated::class]);
+
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->create();
+        $scorer = Player::factory()->create();
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('markStarting')
+            ->callAction('recordGoal', [
+                'scorer_id' => $scorer->id,
+                'minute' => 7,
+            ])
+            ->assertHasNoActionErrors();
+
+        Event::assertDispatched(PublicMatchUpdated::class, 2);
     }
 
     public function test_recording_a_goal_requires_a_valid_scorer(): void
@@ -162,6 +276,7 @@ class AdminLiveMatchScoringTest extends TestCase
             ->assertHasNoTableActionErrors();
 
         $this->assertDatabaseMissing('match_events', ['id' => $event->id]);
+        $this->assertSame(0, $match->fresh()->zeitlos_score);
     }
 
     public function test_admin_can_finalize_match_score(): void

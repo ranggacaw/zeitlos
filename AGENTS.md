@@ -86,6 +86,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Public read-only team pages use `PublicTeamController` and named routes prefixed with `public.*`.
 - Keep `/dashboard` reserved for the authenticated Breeze admin/user flow.
 - Public Inertia pages live under `resources/js/Pages/Public`, with the home dashboard rendered by `Welcome.jsx`.
+- Public live match scoring uses `/matches/{match}/live` (`public.matches.live`) for matches with `starting`, `live`, or `finished` status; scheduled matches are not exposed on the live page.
+- Active public match data is serialized through `App\Team\PublicMatchPresenter` so Inertia props and broadcast payloads stay public-safe and consistent.
 
 ## Mobile Public App Shell
 
@@ -101,7 +103,14 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Legacy `/admin-legacy...` admin entry URLs redirect to `/admin`; do not add new `admin.*` Inertia routes or controllers.
 - WhatsApp roster text is generated server-side via `App\Team\WhatsAppRosterText` so the copyable text is deterministic and testable.
 - Match roster management is a Filament page at `/admin/football-matches/{record}/rosters` (`ManageFootballMatchRosters`) that groups roster entries by role and shows copyable WhatsApp text.
+- Match live scoring is a Filament page at `/admin/football-matches/{record}/live-scoring` (`ManageFootballMatchLiveScoring`) that can mark matches `starting`, start them `live`, record/delete Zeitlos or opponent goals, finalize scores, and dispatch public match update events. Opponent goals do not store a player scorer name; public timelines label them as `Enemy team`.
 - Leaderboard corrections are managed in Filament at `/admin/leaderboard` (`App\Filament\Pages\Leaderboard`) using existing `Player` stat adjustment fields.
+
+## Public Live Updates
+
+- Public live scoring broadcasts `App\Events\PublicMatchUpdated` on public channels `public-matches` and `public-match.{id}`.
+- Laravel Reverb is configured via `config/reverb.php` and `config/broadcasting.php`; local defaults keep `BROADCAST_CONNECTION=log` until Reverb env values are enabled.
+- React Echo setup lives in `resources/js/bootstrap.js` and only initializes when `VITE_REVERB_APP_KEY` is present; public pages keep polling fallbacks so users still update if WebSockets are unavailable.
 
 ## PWA Support
 

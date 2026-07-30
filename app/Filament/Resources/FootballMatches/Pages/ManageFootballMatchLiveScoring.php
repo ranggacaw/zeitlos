@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\FootballMatches\Pages;
 
+use App\Events\PublicMatchUpdated;
 use App\Filament\Resources\FootballMatches\FootballMatchResource;
 use App\Models\FootballMatch;
 use App\Models\MatchEvent;
@@ -80,6 +81,9 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
                     ->formatStateUsing(fn (?int $state): ?string => $state !== null ? $state."'" : null),
                 TextColumn::make('scorer.name')
                     ->label('Scorer'),
+                TextColumn::make('team')
+                    ->formatStateUsing(fn (string $state): string => $state === MatchEvent::TEAM_OPPONENT ? 'Enemy team' : 'Zeitlos')
+                    ->badge(),
                 TextColumn::make('assistPlayer.name')
                     ->label('Assist')
                     ->placeholder('None'),
@@ -89,7 +93,14 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
                     ->modalHeading('Delete goal?')
                     ->modalDescription('This removes the goal from scoring totals.')
                     ->successNotificationTitle('Goal deleted')
-                    ->action(fn (MatchEvent $record) => $record->delete()),
+                    ->action(function (MatchEvent $record): void {
+                        $match = $record->match;
+
+                        $record->delete();
+                        $match->recalculateLiveScore();
+
+                        PublicMatchUpdated::dispatch($match);
+                    }),
             ]);
     }
 
@@ -118,15 +129,34 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
             Action::make('markLive')
                 ->label('Start live match')
                 ->icon(Heroicon::OutlinedBolt)
-                ->visible(fn (): bool => $this->match()->status === FootballMatch::STATUS_SCHEDULED)
+                ->visible(fn (): bool => in_array($this->match()->status, [FootballMatch::STATUS_SCHEDULED, FootballMatch::STATUS_STARTING], true))
                 ->action(function (): void {
                     $this->match()->update([
                         'status' => FootballMatch::STATUS_LIVE,
                     ]);
 
+                    PublicMatchUpdated::dispatch($this->match());
+
                     Notification::make()
                         ->success()
                         ->title('Match is live')
+                        ->send();
+                }),
+            Action::make('markStarting')
+                ->label('Mark starting')
+                ->icon(Heroicon::OutlinedClock)
+                ->color('warning')
+                ->visible(fn (): bool => $this->match()->status === FootballMatch::STATUS_SCHEDULED)
+                ->action(function (): void {
+                    $this->match()->update([
+                        'status' => FootballMatch::STATUS_STARTING,
+                    ]);
+
+                    PublicMatchUpdated::dispatch($this->match());
+
+                    Notification::make()
+                        ->success()
+                        ->title('Match is starting')
                         ->send();
                 }),
             Action::make('recordGoal')
@@ -152,12 +182,45 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
                         'scorer_id' => $data['scorer_id'],
                         'assist_player_id' => $data['assist_player_id'] ?? null,
                         'event_type' => MatchEvent::TYPE_GOAL,
+                        'team' => MatchEvent::TEAM_ZEITLOS,
                         'minute' => $data['minute'] ?? null,
                     ]);
+
+                    $match = $this->match();
+                    $match->recalculateLiveScore();
+                    PublicMatchUpdated::dispatch($match);
 
                     Notification::make()
                         ->success()
                         ->title('Goal recorded')
+                        ->send();
+                }),
+            Action::make('recordOpponentGoal')
+                ->label('Record opponent goal')
+                ->icon(Heroicon::OutlinedMinusCircle)
+                ->color('danger')
+                ->schema([
+                    TextInput::make('minute')
+                        ->numeric()
+                        ->minValue(0),
+                ])
+                ->action(function (array $data): void {
+                    MatchEvent::create([
+                        'match_id' => $this->match()->getKey(),
+                        'scorer_id' => null,
+                        'assist_player_id' => null,
+                        'event_type' => MatchEvent::TYPE_GOAL,
+                        'team' => MatchEvent::TEAM_OPPONENT,
+                        'minute' => $data['minute'] ?? null,
+                    ]);
+
+                    $match = $this->match();
+                    $match->recalculateLiveScore();
+                    PublicMatchUpdated::dispatch($match);
+
+                    Notification::make()
+                        ->success()
+                        ->title('Opponent goal recorded')
                         ->send();
                 }),
             Action::make('finalizeMatch')
@@ -184,6 +247,8 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
                         'zeitlos_score' => $data['zeitlos_score'],
                         'opponent_score' => $data['opponent_score'],
                     ]);
+
+                    PublicMatchUpdated::dispatch($this->match());
 
                     Notification::make()
                         ->success()

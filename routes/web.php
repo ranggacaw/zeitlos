@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', [PublicTeamController::class, 'dashboard'])->name('public.home');
+Route::get('/matches/{match}/live', [PublicTeamController::class, 'live'])->name('public.matches.live');
 Route::get('/players/{player}', [PublicTeamController::class, 'player'])->name('public.players.show');
 Route::get('/schedule', [PublicTeamController::class, 'schedule'])->name('public.schedule');
 Route::get('/roster', [PublicTeamController::class, 'roster'])->name('public.roster');

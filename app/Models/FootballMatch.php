@@ -15,6 +15,8 @@ class FootballMatch extends Model
 
     public const STATUS_SCHEDULED = 'scheduled';
 
+    public const STATUS_STARTING = 'starting';
+
     public const STATUS_LIVE = 'live';
 
     public const STATUS_FINISHED = 'finished';
@@ -63,9 +65,19 @@ class FootballMatch extends Model
         return $query->where('status', self::STATUS_FINISHED);
     }
 
+    public function scopeStarting(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_STARTING);
+    }
+
     public function scopeLive(Builder $query): Builder
     {
         return $query->where('status', self::STATUS_LIVE);
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->whereIn('status', [self::STATUS_STARTING, self::STATUS_LIVE]);
     }
 
     public function rosterEntries(): HasMany
@@ -76,5 +88,40 @@ class FootballMatch extends Model
     public function events(): HasMany
     {
         return $this->hasMany(MatchEvent::class, 'match_id');
+    }
+
+    public function goalCountForTeam(string $team): int
+    {
+        if ($this->relationLoaded('events')) {
+            return $this->events
+                ->where('event_type', MatchEvent::TYPE_GOAL)
+                ->where('team', $team)
+                ->count();
+        }
+
+        return $this->events()
+            ->where('event_type', MatchEvent::TYPE_GOAL)
+            ->where('team', $team)
+            ->count();
+    }
+
+    public function liveZeitlosScore(): int
+    {
+        return $this->goalCountForTeam(MatchEvent::TEAM_ZEITLOS);
+    }
+
+    public function liveOpponentScore(): int
+    {
+        return $this->goalCountForTeam(MatchEvent::TEAM_OPPONENT);
+    }
+
+    public function recalculateLiveScore(): void
+    {
+        $this->load('events');
+
+        $this->forceFill([
+            'zeitlos_score' => $this->liveZeitlosScore(),
+            'opponent_score' => $this->liveOpponentScore(),
+        ])->save();
     }
 }

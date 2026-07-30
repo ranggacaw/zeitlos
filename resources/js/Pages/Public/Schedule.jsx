@@ -1,17 +1,20 @@
 import PublicLayout from '@/Layouts/PublicLayout';
-import { Head } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, router } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 const PAGE_SIZE = 10;
 
 const TABS = [
     ['all', 'All'],
+    ['active', 'Live'],
     ['upcoming', 'Upcoming'],
     ['finished', 'Finished'],
 ];
 
 const STATUS_TONE = {
-    upcoming: 'bg-primary text-primary-foreground',
+    scheduled: 'bg-primary text-primary-foreground',
+    starting: 'bg-chart-4 text-primary-foreground',
+    live: 'bg-destructive text-destructive-foreground',
     finished: 'bg-muted text-chart-2',
     default: 'bg-muted text-muted-foreground',
 };
@@ -53,6 +56,14 @@ function formatDateTime(value) {
 }
 
 function matchResult(match) {
+    if (match.status === 'starting') {
+        return 'Starting';
+    }
+
+    if (match.status === 'live') {
+        return `Live ${match.zeitlos_score ?? 0}-${match.opponent_score ?? 0}`;
+    }
+
     if (match.status !== 'finished') {
         return 'Upcoming';
     }
@@ -164,7 +175,7 @@ function MatchDetailsDialog({ match, onClose }) {
                         <div className="mt-3 space-y-2">
                             {match.events.map((event, index) => (
                                 <p key={`${event.minute}-${event.event_type}-${index}`} className="text-sm font-bold text-foreground">
-                                    {event.minute ? `${event.minute}'` : 'FT'} {event.event_type}: {event.scorer || 'Zeitlos'}{event.assist ? `, assist ${event.assist}` : ''}
+                                    {event.minute ? `${event.minute}'` : 'FT'} {event.event_type}: {event.team === 'opponent' ? 'Enemy team' : (event.scorer || 'Zeitlos')}{event.assist ? `, assist ${event.assist}` : ''}
                                 </p>
                             ))}
                         </div>
@@ -290,7 +301,7 @@ function MatchesTable({ matches, currentPage, onPageChange, onSelect }) {
                                         onSelect(match);
                                     }
                                 }}
-                                className={`cursor-pointer transition hover:bg-primary/10 focus:bg-primary/10 focus:outline-none ${match.status === 'upcoming' ? 'bg-primary/5' : ''}`}
+                                className={`cursor-pointer transition hover:bg-primary/10 focus:bg-primary/10 focus:outline-none ${['starting', 'live'].includes(match.status) ? 'bg-primary/5' : ''}`}
                             >
                                 <td className="px-5 py-4 text-foreground">Zeitlos vs {match.opponent}</td>
                                 <td className="px-5 py-4">{match.match_date || 'TBD'}</td>
@@ -344,11 +355,28 @@ function MatchesTable({ matches, currentPage, onPageChange, onSelect }) {
     );
 }
 
-export default function Schedule({ upcomingMatches = [], finishedMatches = [] }) {
+export default function Schedule({ activeMatches = [], upcomingMatches = [], finishedMatches = [] }) {
     const [activeTab, setActiveTab] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedMatch, setSelectedMatch] = useState(null);
-    const allMatches = [...upcomingMatches, ...finishedMatches];
+    const allMatches = [...activeMatches, ...upcomingMatches, ...finishedMatches];
+
+    useEffect(() => {
+        const interval = window.setInterval(() => {
+            router.reload({ only: ['activeMatches', 'upcomingMatches', 'finishedMatches'], preserveScroll: true });
+        }, 10000);
+
+        return () => window.clearInterval(interval);
+    }, []);
+
+    function selectMatch(match) {
+        if (['starting', 'live'].includes(match.status)) {
+            router.visit(route('public.matches.live', match.id));
+            return;
+        }
+
+        setSelectedMatch(match);
+    }
 
     function selectTab(tab) {
         setActiveTab(tab);
@@ -367,12 +395,12 @@ export default function Schedule({ upcomingMatches = [], finishedMatches = [] })
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-center text-sm sm:w-80">
                         <div className="rounded-[1.3rem] border border-border bg-card p-3 text-card-foreground shadow-sm">
-                            <p className="text-xl font-black text-foreground">{upcomingMatches.length}</p>
-                            <p className="text-xs text-muted-foreground">Upcoming</p>
+                            <p className="text-xl font-black text-foreground">{activeMatches.length}</p>
+                            <p className="text-xs text-muted-foreground">Live</p>
                         </div>
                         <div className="rounded-[1.3rem] border border-border bg-card p-3 text-card-foreground shadow-sm">
-                            <p className="text-xl font-black text-foreground">{finishedMatches.length}</p>
-                            <p className="text-xs text-muted-foreground">Finished</p>
+                            <p className="text-xl font-black text-foreground">{upcomingMatches.length}</p>
+                            <p className="text-xs text-muted-foreground">Upcoming</p>
                         </div>
                         <div className="rounded-[1.3rem] border border-border bg-card p-3 text-card-foreground shadow-sm">
                             <p className="text-xl font-black text-foreground">{allMatches.length}</p>
@@ -399,12 +427,14 @@ export default function Schedule({ upcomingMatches = [], finishedMatches = [] })
                 </section>
 
                 {activeTab === 'all' && (
-                    <MatchesTable matches={allMatches} currentPage={currentPage} onPageChange={setCurrentPage} onSelect={setSelectedMatch} />
+                    <MatchesTable matches={allMatches} currentPage={currentPage} onPageChange={setCurrentPage} onSelect={selectMatch} />
                 )}
 
-                {activeTab === 'upcoming' && <MatchCards matches={upcomingMatches} onSelect={setSelectedMatch} />}
+                {activeTab === 'active' && <MatchCards matches={activeMatches} onSelect={selectMatch} />}
 
-                {activeTab === 'finished' && <MatchCards matches={finishedMatches} onSelect={setSelectedMatch} />}
+                {activeTab === 'upcoming' && <MatchCards matches={upcomingMatches} onSelect={selectMatch} />}
+
+                {activeTab === 'finished' && <MatchCards matches={finishedMatches} onSelect={selectMatch} />}
             </div>
 
             <MatchDetailsDialog match={selectedMatch} onClose={() => setSelectedMatch(null)} />

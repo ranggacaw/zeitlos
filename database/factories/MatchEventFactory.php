@@ -19,6 +19,7 @@ class MatchEventFactory extends Factory
             'scorer_id' => Player::factory(),
             'assist_player_id' => null,
             'event_type' => MatchEvent::TYPE_GOAL,
+            'team' => MatchEvent::TEAM_ZEITLOS,
             'minute' => fake()->numberBetween(1, 90),
         ];
     }

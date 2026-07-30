@@ -3,7 +3,13 @@
     /** @var \Illuminate\Support\Collection<int, \App\Models\Player> $scoringPlayers */
 
     $statusLabel = ucfirst($match->status);
-    $score = ($match->zeitlos_score ?? 0).' : '.($match->opponent_score ?? 0);
+    $zeitlosScore = $match->status === \App\Models\FootballMatch::STATUS_FINISHED
+        ? ($match->zeitlos_score ?? $match->liveZeitlosScore())
+        : $match->liveZeitlosScore();
+    $opponentScore = $match->status === \App\Models\FootballMatch::STATUS_FINISHED
+        ? ($match->opponent_score ?? $match->liveOpponentScore())
+        : $match->liveOpponentScore();
+    $score = $zeitlosScore.' : '.$opponentScore;
 @endphp
 
 <div class="grid gap-6 lg:grid-cols-2">

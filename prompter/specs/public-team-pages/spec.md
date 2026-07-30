@@ -14,6 +14,10 @@ The system SHALL provide a public read-only dashboard that summarizes Zeitlos te
 - **WHEN** no players or matches exist
 - **THEN** the page renders public empty states instead of failing
 
+#### Scenario: Dashboard has active match
+- **WHEN** a match is starting or live
+- **THEN** the dashboard highlights that match and provides a live score entry point
+
 ### Requirement: Public Player Details
 The system SHALL provide a public read-only player detail page for active players with roster identity and derived stat totals.
 
@@ -35,6 +39,25 @@ The system SHALL provide a public read-only schedule page that lists upcoming an
 #### Scenario: Finished matches are shown
 - **WHEN** finished matches exist
 - **THEN** the schedule includes their final Zeitlos and opponent scores
+
+#### Scenario: Active matches are shown
+- **WHEN** matches are starting or live
+- **THEN** the schedule lists them separately from upcoming and finished matches and links them to public live scoring
+
+### Requirement: Public Live Match Page
+The system SHALL provide a public read-only live match page for starting, live, and finalized matches with current score context and automatic updates.
+
+#### Scenario: Visitor opens active match
+- **WHEN** a visitor opens the public live page for a starting or live match
+- **THEN** the page shows match status, score, venue, roster, and goal timeline from public match data
+
+#### Scenario: Visitor remains after finalization
+- **WHEN** an admin finalizes a match while a visitor is viewing the public live page
+- **THEN** the page remains accessible and shows the final score state
+
+#### Scenario: Visitor opens scheduled live page
+- **WHEN** a visitor opens the public live page for a scheduled match that has not started
+- **THEN** the system does not expose the live scoring page for that match
 
 ### Requirement: Public Roster
 The system SHALL provide a public read-only roster page that lists active players and match roster assignments from persisted roster records.
@@ -67,4 +90,3 @@ The system SHALL render public team content with responsive layouts and touch-fr
 #### Scenario: Visitor views public content on mobile
 - **WHEN** a visitor opens a public team page on a narrow mobile viewport
 - **THEN** match, player, roster, and leaderboard content remains readable without horizontal scrolling and primary links or actions use comfortable touch targets
-

@@ -14,11 +14,16 @@ class MatchEvent extends Model
 
     public const TYPE_GOAL = 'goal';
 
+    public const TEAM_ZEITLOS = 'zeitlos';
+
+    public const TEAM_OPPONENT = 'opponent';
+
     protected $fillable = [
         'match_id',
         'scorer_id',
         'assist_player_id',
         'event_type',
+        'team',
         'minute',
     ];
 

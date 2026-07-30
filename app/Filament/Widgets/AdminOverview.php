@@ -63,7 +63,7 @@ class AdminOverview extends Widget
     private function liveMatch(): ?FootballMatch
     {
         return FootballMatch::query()
-            ->live()
+            ->active()
             ->orderBy('match_date')
             ->orderBy('match_time')
             ->first();

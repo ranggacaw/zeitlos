@@ -51,6 +51,19 @@ class FootballMatchesTable
                     ->sortable(),
                 TextColumn::make('status')
                     ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        FootballMatch::STATUS_SCHEDULED => 'Scheduled',
+                        FootballMatch::STATUS_STARTING => 'Starting',
+                        FootballMatch::STATUS_LIVE => 'Live',
+                        FootballMatch::STATUS_FINISHED => 'Finished',
+                        default => ucfirst($state),
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        FootballMatch::STATUS_STARTING => 'warning',
+                        FootballMatch::STATUS_LIVE => 'success',
+                        FootballMatch::STATUS_FINISHED => 'gray',
+                        default => 'info',
+                    })
                     ->searchable(),
                 TextColumn::make('zeitlos_score')
                     ->numeric()
@@ -72,6 +85,7 @@ class FootballMatchesTable
                     ->label('Match status')
                     ->options([
                         FootballMatch::STATUS_SCHEDULED => 'Scheduled',
+                        FootballMatch::STATUS_STARTING => 'Starting',
                         FootballMatch::STATUS_LIVE => 'Live',
                         FootballMatch::STATUS_FINISHED => 'Finished',
                     ]),

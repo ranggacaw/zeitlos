@@ -55,6 +55,8 @@ class ListFootballMatches extends ListRecords
             'all' => Tab::make(),
             'scheduled' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('status', FootballMatch::STATUS_SCHEDULED)),
+            'starting' => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('status', FootballMatch::STATUS_STARTING)),
             'live' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('status', FootballMatch::STATUS_LIVE)),
             'finished' => Tab::make()

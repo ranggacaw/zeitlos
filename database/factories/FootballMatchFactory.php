@@ -44,4 +44,18 @@ class FootballMatchFactory extends Factory
             'opponent_score' => 1,
         ]);
     }
+
+    public function starting(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => FootballMatch::STATUS_STARTING,
+        ]);
+    }
+
+    public function live(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => FootballMatch::STATUS_LIVE,
+        ]);
+    }
 }

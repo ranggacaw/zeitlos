@@ -1,6 +1,7 @@
 import PublicRoster from '@/Components/PublicRoster';
 import PublicLayout from '@/Layouts/PublicLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useEffect } from 'react';
 
 function ActionRow({ href, children }) {
     return (
@@ -24,25 +25,39 @@ function StatPill({ label, value }) {
 }
 
 function MatchCommandCenter({ match }) {
+    const isActive = ['starting', 'live'].includes(match?.status);
     const rosterCount = match?.roster
         ? Object.values(match.roster).reduce((total, group) => total + group.length, 0)
         : 0;
     const mapHref = match?.maps_url || (match?.venue ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(match.venue)}` : null);
+    const score = `${match?.zeitlos_score ?? 0} : ${match?.opponent_score ?? 0}`;
 
     return (
         <section className="rounded-[1.75rem] border border-border bg-card p-5 text-card-foreground sm:p-6 lg:p-7">
             <div className="flex flex-col gap-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
-                        <p className="text-[0.7rem] font-black uppercase tracking-[0.24em] text-primary">Next match</p>
+                        <p className="text-[0.7rem] font-black uppercase tracking-[0.24em] text-primary">{isActive ? 'Live match' : 'Next match'}</p>
                         <h1 className="mt-2 text-2xl font-black leading-tight tracking-tight text-foreground sm:text-3xl lg:text-4xl">
                             {match ? `Zeitlos vs ${match.opponent}` : 'Match to be announced'}
                         </h1>
                         <p className="mt-2 text-sm font-semibold text-muted-foreground">
                             {match?.match_date ? `${match.match_date} at ${match.match_time ?? 'TBD'}` : 'Schedule will update once the fixture is set.'}
                         </p>
+                        {isActive && (
+                            <p className="mt-3 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-black uppercase tracking-widest text-primary-foreground">
+                                {match.status === 'starting' ? 'Starting soon' : `Live ${score}`}
+                            </p>
+                        )}
                     </div>
-                    {mapHref ? (
+                    {isActive ? (
+                        <Link
+                            href={route('public.matches.live', match.id)}
+                            className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-primary px-4 text-xs font-black uppercase tracking-widest text-primary-foreground transition hover:bg-secondary"
+                        >
+                            Live score
+                        </Link>
+                    ) : mapHref ? (
                         <a
                             href={mapHref}
                             target="_blank"
@@ -60,7 +75,7 @@ function MatchCommandCenter({ match }) {
 
                 <div className="grid gap-3 sm:grid-cols-3">
                     <StatPill label="Kickoff" value={match?.match_time ?? 'TBD'} />
-                    <StatPill label="Roster" value={rosterCount ? `${rosterCount} ready` : 'Open'} />
+                    <StatPill label={isActive ? 'Score' : 'Roster'} value={isActive ? score : (rosterCount ? `${rosterCount} ready` : 'Open')} />
                     <StatPill label="Venue" value={match?.venue ?? 'TBD'} />
                 </div>
             </div>
@@ -157,13 +172,23 @@ function LeaderboardPreview({ leaders }) {
     );
 }
 
-export default function Welcome({ upcomingMatch, players = [], leaders = [] }) {
+export default function Welcome({ activeMatch, upcomingMatch, players = [], leaders = [] }) {
+    const featuredMatch = activeMatch ?? upcomingMatch;
+
+    useEffect(() => {
+        const interval = window.setInterval(() => {
+            router.reload({ only: ['activeMatch', 'upcomingMatch'], preserveScroll: true });
+        }, 10000);
+
+        return () => window.clearInterval(interval);
+    }, []);
+
     return (
         <PublicLayout>
             <Head title="Zeitlos Team Hub" />
 
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.75fr)]">
-                <MatchCommandCenter match={upcomingMatch} />
+                <MatchCommandCenter match={featuredMatch} />
 
                 <aside className="grid gap-5">
                     <TeamSnapshot players={players} leaders={leaders} />
