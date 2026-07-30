@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Schedule Low-fi Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white font-sans text-neutral-950">
+    <!-- Section: App Shell -->
+    <div class="mx-auto min-h-screen max-w-7xl px-4 pb-28 pt-4 sm:px-6 sm:pb-10 lg:px-8">
+        <!-- Section: Header -->
+        <header class="flex items-center justify-between rounded-2xl border border-neutral-300 bg-white p-3 sm:p-4">
+            <a href="#" class="flex items-center gap-3" aria-label="FC Zeitlos Team Hub">
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-400 bg-neutral-100 text-sm font-black">Z</span>
+                <span class="leading-tight">
+                    <span class="block text-[0.65rem] font-bold uppercase tracking-[0.35em] text-neutral-600">FC Zeitlos</span>
+                    <span class="block text-lg font-black tracking-tight">Team Hub</span>
+                </span>
+            </a>
+
+            <nav class="hidden items-center gap-2 text-sm font-semibold sm:flex" aria-label="Desktop navigation">
+                <a class="rounded-full border border-transparent px-4 py-2 text-neutral-600" href="#">Dashboard</a>
+                <a class="rounded-full border border-neutral-950 bg-neutral-950 px-4 py-2 text-white" href="#">Schedule</a>
+                <a class="rounded-full border border-transparent px-4 py-2 text-neutral-600" href="#">Roster</a>
+                <a class="rounded-full border border-transparent px-4 py-2 text-neutral-600" href="#">Leaderboard</a>
+            </nav>
+
+            <button class="rounded-full border border-neutral-300 px-4 py-2 text-xs font-bold sm:hidden">Log in</button>
+        </header>
+
+        <main class="pt-6 sm:pt-8">
+            <!-- Section: Page Title -->
+            <section class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-[0.28em] text-neutral-500">Schedule</p>
+                    <h1 class="mt-2 text-4xl font-black tracking-tight sm:text-5xl">Matches</h1>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center text-sm sm:w-80">
+                    <div class="rounded-2xl border border-neutral-300 p-3">
+                        <p class="text-2xl font-black">2</p>
+                        <p class="text-xs font-bold text-neutral-500">Upcoming</p>
+                    </div>
+                    <div class="rounded-2xl border border-neutral-300 p-3">
+                        <p class="text-2xl font-black">2</p>
+                        <p class="text-xs font-bold text-neutral-500">Finished</p>
+                    </div>
+                    <div class="rounded-2xl border border-neutral-300 p-3">
+                        <p class="text-2xl font-black">4</p>
+                        <p class="text-xs font-bold text-neutral-500">Total</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Filters -->
+            <section class="mt-6 flex gap-2 overflow-x-auto pb-1 text-sm font-bold">
+                <button class="shrink-0 rounded-full border border-neutral-950 bg-neutral-950 px-4 py-2 text-white">All</button>
+                <button class="shrink-0 rounded-full border border-neutral-300 px-4 py-2 text-neutral-700">Upcoming</button>
+                <button class="shrink-0 rounded-full border border-neutral-300 px-4 py-2 text-neutral-700">Finished</button>
+            </section>
+
+            <!-- Section: All Matches Table -->
+            <section class="mt-4 overflow-hidden rounded-3xl border border-neutral-300 bg-white">
+                <div class="flex flex-col gap-3 border-b border-neutral-300 bg-neutral-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 class="text-xl font-black">All matches</h2>
+                        <p class="mt-1 text-sm font-semibold text-neutral-500">Showing 1-10 of 54</p>
+                    </div>
+                    <label class="flex items-center gap-2 text-sm font-bold text-neutral-600">
+                        Per page
+                        <select class="rounded-full border border-neutral-300 bg-white px-3 py-2 font-black text-neutral-950">
+                            <option>10</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="overflow-x-auto">
+                <table class="min-w-[48rem] w-full text-left text-sm">
+                    <thead class="border-b border-neutral-300 bg-neutral-50 text-xs uppercase tracking-[0.16em] text-neutral-500">
+                        <tr>
+                            <th class="px-5 py-4 font-black">Match</th>
+                            <th class="px-5 py-4 font-black">Date</th>
+                            <th class="px-5 py-4 font-black">Venue</th>
+                            <th class="px-5 py-4 font-black">Kit</th>
+                            <th class="px-5 py-4 font-black">Payment</th>
+                            <th class="px-5 py-4 font-black">Roster</th>
+                            <th class="px-5 py-4 text-right font-black">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-neutral-200">
+                        <tr>
+                            <td class="px-5 py-4 font-black">Zeitlos vs North End</td>
+                            <td class="px-5 py-4">Sat 18:30</td>
+                            <td class="px-5 py-4">Central Pitch</td>
+                            <td class="px-5 py-4">Black</td>
+                            <td class="px-5 py-4">10 EUR</td>
+                            <td class="px-5 py-4">14</td>
+                            <td class="px-5 py-4 text-right"><span class="rounded-full bg-neutral-950 px-3 py-1 text-xs font-black text-white">Upcoming</span></td>
+                        </tr>
+                        <tr>
+                            <td class="px-5 py-4 font-black">Zeitlos vs Riverside</td>
+                            <td class="px-5 py-4">Sun 11:00</td>
+                            <td class="px-5 py-4">Away Ground</td>
+                            <td class="px-5 py-4">White</td>
+                            <td class="px-5 py-4">8 EUR</td>
+                            <td class="px-5 py-4">10</td>
+                            <td class="px-5 py-4 text-right"><span class="rounded-full border border-neutral-300 px-3 py-1 text-xs font-black">Upcoming</span></td>
+                        </tr>
+                        <tr>
+                            <td class="px-5 py-4 font-black">Zeitlos vs Old Town</td>
+                            <td class="px-5 py-4">Jul 27</td>
+                            <td class="px-5 py-4">Home Pitch</td>
+                            <td class="px-5 py-4">Black</td>
+                            <td class="px-5 py-4">Paid</td>
+                            <td class="px-5 py-4">13</td>
+                            <td class="px-5 py-4 text-right"><span class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-black">Won 4-2</span></td>
+                        </tr>
+                        <tr>
+                            <td class="px-5 py-4 font-black">Zeitlos vs West Side</td>
+                            <td class="px-5 py-4">Jul 20</td>
+                            <td class="px-5 py-4">Arena 2</td>
+                            <td class="px-5 py-4">Red</td>
+                            <td class="px-5 py-4">Paid</td>
+                            <td class="px-5 py-4">12</td>
+                            <td class="px-5 py-4 text-right"><span class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-black">Draw 1-1</span></td>
+                        </tr>
+                        <tr>
+                            <td class="px-5 py-4 font-black">Zeitlos vs East Club</td>
+                            <td class="px-5 py-4">Jul 13</td>
+                            <td class="px-5 py-4">Field 4</td>
+                            <td class="px-5 py-4">Black</td>
+                            <td class="px-5 py-4">Paid</td>
+                            <td class="px-5 py-4">15</td>
+                            <td class="px-5 py-4 text-right"><span class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-black">Lost 0-2</span></td>
+                        </tr>
+                        <tr>
+                            <td class="px-5 py-4 font-black">Zeitlos vs City Five</td>
+                            <td class="px-5 py-4">Jul 06</td>
+                            <td class="px-5 py-4">Home Pitch</td>
+                            <td class="px-5 py-4">Red</td>
+                            <td class="px-5 py-4">Paid</td>
+                            <td class="px-5 py-4">11</td>
+                            <td class="px-5 py-4 text-right"><span class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-black">Won 3-0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="px-5 py-4 font-black">Zeitlos vs United</td>
+                            <td class="px-5 py-4">Jun 29</td>
+                            <td class="px-5 py-4">Arena 1</td>
+                            <td class="px-5 py-4">White</td>
+                            <td class="px-5 py-4">Paid</td>
+                            <td class="px-5 py-4">13</td>
+                            <td class="px-5 py-4 text-right"><span class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-black">Draw 2-2</span></td>
+                        </tr>
+                        <tr>
+                            <td class="px-5 py-4 font-black">Zeitlos vs Harbor</td>
+                            <td class="px-5 py-4">Jun 22</td>
+                            <td class="px-5 py-4">Away Ground</td>
+                            <td class="px-5 py-4">Black</td>
+                            <td class="px-5 py-4">Paid</td>
+                            <td class="px-5 py-4">12</td>
+                            <td class="px-5 py-4 text-right"><span class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-black">Won 1-0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="px-5 py-4 font-black">Zeitlos vs South Park</td>
+                            <td class="px-5 py-4">Jun 15</td>
+                            <td class="px-5 py-4">Home Pitch</td>
+                            <td class="px-5 py-4">Red</td>
+                            <td class="px-5 py-4">Paid</td>
+                            <td class="px-5 py-4">14</td>
+                            <td class="px-5 py-4 text-right"><span class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-black">Lost 1-3</span></td>
+                        </tr>
+                        <tr>
+                            <td class="px-5 py-4 font-black">Zeitlos vs Metro</td>
+                            <td class="px-5 py-4">Jun 08</td>
+                            <td class="px-5 py-4">Field 2</td>
+                            <td class="px-5 py-4">White</td>
+                            <td class="px-5 py-4">Paid</td>
+                            <td class="px-5 py-4">10</td>
+                            <td class="px-5 py-4 text-right"><span class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-black">Won 5-1</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+
+                <!-- Section: Pagination -->
+                <div class="flex flex-col gap-3 border-t border-neutral-300 p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <p class="text-sm font-bold text-neutral-500">Page 1 of 6</p>
+                    <div class="flex items-center gap-2 text-sm font-black">
+                        <button class="rounded-full border border-neutral-300 px-4 py-2 text-neutral-400" disabled>Previous</button>
+                        <button class="rounded-full border border-neutral-950 bg-neutral-950 px-4 py-2 text-white">1</button>
+                        <button class="rounded-full border border-neutral-300 px-4 py-2">2</button>
+                        <button class="rounded-full border border-neutral-300 px-4 py-2">3</button>
+                        <span class="px-1 text-neutral-400">...</span>
+                        <button class="rounded-full border border-neutral-300 px-4 py-2">6</button>
+                        <button class="rounded-full border border-neutral-300 px-4 py-2">Next</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Upcoming Finished Preview -->
+            <section class="mt-6 grid gap-5 lg:grid-cols-2">
+                <div class="rounded-3xl border border-neutral-300 bg-neutral-50 p-5">
+                    <h2 class="text-xl font-black">Upcoming view</h2>
+                    <p class="mt-1 text-sm font-semibold text-neutral-500">Cards are okay here because the list is short.</p>
+                    <div class="mt-4 space-y-3">
+                <article class="rounded-3xl border border-neutral-950 bg-white p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="text-xl font-black">Zeitlos vs North End</h2>
+                            <p class="mt-1 text-sm text-neutral-600">Sat 18:30 · Central Pitch</p>
+                        </div>
+                        <span class="rounded-full bg-neutral-950 px-3 py-1 text-xs font-black text-white">Upcoming</span>
+                    </div>
+                    <dl class="mt-4 grid grid-cols-3 gap-2 text-sm">
+                        <div class="rounded-2xl bg-neutral-50 p-3"><dt class="font-bold text-neutral-500">Kit</dt><dd class="font-black">Black</dd></div>
+                        <div class="rounded-2xl bg-neutral-50 p-3"><dt class="font-bold text-neutral-500">Pay</dt><dd class="font-black">10 EUR</dd></div>
+                        <div class="rounded-2xl bg-neutral-50 p-3"><dt class="font-bold text-neutral-500">Roster</dt><dd class="font-black">14</dd></div>
+                    </dl>
+                </article>
+
+                <article class="rounded-3xl border border-neutral-300 bg-white p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="text-xl font-black">Zeitlos vs Riverside</h2>
+                            <p class="mt-1 text-sm text-neutral-600">Sun 11:00 · Away Ground</p>
+                        </div>
+                        <span class="rounded-full border border-neutral-300 px-3 py-1 text-xs font-black">Upcoming</span>
+                    </div>
+                    <dl class="mt-4 grid grid-cols-3 gap-2 text-sm">
+                        <div class="rounded-2xl bg-neutral-50 p-3"><dt class="font-bold text-neutral-500">Kit</dt><dd class="font-black">White</dd></div>
+                        <div class="rounded-2xl bg-neutral-50 p-3"><dt class="font-bold text-neutral-500">Pay</dt><dd class="font-black">8 EUR</dd></div>
+                        <div class="rounded-2xl bg-neutral-50 p-3"><dt class="font-bold text-neutral-500">Roster</dt><dd class="font-black">10</dd></div>
+                    </dl>
+                </article>
+                    </div>
+                </div>
+
+                <div class="rounded-3xl border border-neutral-300 bg-neutral-50 p-5">
+                    <h2 class="text-xl font-black">Finished view</h2>
+                    <p class="mt-1 text-sm font-semibold text-neutral-500">Recent results stay compact.</p>
+                    <div class="mt-4 space-y-3">
+                <article class="rounded-3xl border border-neutral-300 bg-neutral-50 p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="text-xl font-black">Zeitlos vs Old Town</h2>
+                            <p class="mt-1 text-sm text-neutral-600">Jul 27 · Home Pitch</p>
+                        </div>
+                        <span class="rounded-full bg-white px-3 py-1 text-xs font-black">Won 4-2</span>
+                    </div>
+                    <p class="mt-3 text-sm font-bold text-neutral-500">Roster: 13 · Kit: Black · Paid</p>
+                </article>
+
+                <article class="rounded-3xl border border-neutral-300 bg-neutral-50 p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="text-xl font-black">Zeitlos vs West Side</h2>
+                            <p class="mt-1 text-sm text-neutral-600">Jul 20 · Arena 2</p>
+                        </div>
+                        <span class="rounded-full bg-white px-3 py-1 text-xs font-black">Draw 1-1</span>
+                    </div>
+                    <p class="mt-3 text-sm font-bold text-neutral-500">Roster: 12 · Kit: Red · Paid</p>
+                </article>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Section: Mobile Tab Bar -->
+    <nav class="fixed inset-x-0 bottom-0 border-t border-neutral-300 bg-white sm:hidden" aria-label="Mobile navigation">
+        <div class="mx-auto grid max-w-5xl grid-cols-4 text-center text-[0.65rem] font-bold text-neutral-500">
+            <a class="py-3" href="#">Dashboard</a>
+            <a class="border-t-2 border-neutral-950 py-3 text-neutral-950" href="#">Schedule</a>
+            <a class="py-3" href="#">Roster</a>
+            <a class="py-3" href="#">Leaderboard</a>
+        </div>
+    </nav>
+</body>
+</html>

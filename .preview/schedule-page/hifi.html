@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Schedule High-fi Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --background: #ffffff;
+            --foreground: #0f1419;
+            --card: #f7f8f8;
+            --muted: #e5e5e6;
+            --primary: #f80204;
+            --secondary: #c60002;
+            --border: #e1eaef;
+            --ring: #1da1f2;
+            --chart-2: #00b87a;
+            --radius: 1.3rem;
+        }
+
+        body { background: var(--background); color: var(--foreground); font-family: "Open Sans", system-ui, sans-serif; }
+        .surface { background: var(--card); border-color: var(--border); }
+        .focusable:focus-visible { outline: 3px solid var(--ring); outline-offset: 3px; }
+    </style>
+</head>
+<body>
+    <!-- Section: App Shell -->
+    <div class="mx-auto min-h-screen max-w-7xl px-4 pb-28 pt-4 sm:px-6 sm:pb-10 lg:px-8">
+        <!-- Section: Header -->
+        <header class="surface flex items-center justify-between rounded-[1.3rem] border p-3 shadow-sm sm:p-4">
+            <a href="#" class="focusable flex items-center gap-3 rounded-xl" aria-label="FC Zeitlos Team Hub">
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--primary)] text-sm font-black text-white">Z</span>
+                <span class="leading-tight">
+                    <span class="block text-[0.65rem] font-black uppercase tracking-[0.35em] text-[var(--primary)]">FC Zeitlos</span>
+                    <span class="block text-lg font-black tracking-tight">Team Hub</span>
+                </span>
+            </a>
+
+            <nav class="hidden items-center gap-2 text-sm font-bold sm:flex" aria-label="Desktop navigation">
+                <a class="focusable rounded-full px-4 py-2 text-slate-600 transition hover:bg-white" href="#">Dashboard</a>
+                <a class="focusable rounded-full bg-[var(--primary)] px-4 py-2 text-white shadow-sm" href="#">Schedule</a>
+                <a class="focusable rounded-full px-4 py-2 text-slate-600 transition hover:bg-white" href="#">Roster</a>
+                <a class="focusable rounded-full px-4 py-2 text-slate-600 transition hover:bg-white" href="#">Leaderboard</a>
+            </nav>
+
+            <button class="focusable rounded-full border border-[var(--border)] bg-white px-4 py-2 text-xs font-black sm:hidden">Log in</button>
+        </header>
+
+        <main class="pt-6 sm:pt-8">
+            <!-- Section: Page Title -->
+            <section class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p class="text-xs font-black uppercase tracking-[0.28em] text-[var(--primary)]">Schedule</p>
+                    <h1 class="mt-2 text-2xl font-black tracking-tight sm:text-2xl">Matches</h1>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center text-sm sm:w-80">
+                    <div class="rounded-[1.3rem] border border-[var(--border)] bg-white p-3 shadow-sm">
+                        <p class="text-xl font-black">2</p>
+                        <p class="text-xs font-bold text-slate-500">Upcoming</p>
+                    </div>
+                    <div class="rounded-[1.3rem] border border-[var(--border)] bg-white p-3 shadow-sm">
+                        <p class="text-xl font-black">52</p>
+                        <p class="text-xs font-bold text-slate-500">Finished</p>
+                    </div>
+                    <div class="rounded-[1.3rem] border border-[var(--border)] bg-white p-3 shadow-sm">
+                        <p class="text-xl font-black">54</p>
+                        <p class="text-xs font-bold text-slate-500">Total</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Filters -->
+            <section class="mt-6 flex gap-2 overflow-x-auto pb-1 text-sm">
+                <button class="focusable shrink-0 rounded-full bg-[var(--primary)] px-4 py-2 text-white shadow-sm">All</button>
+                <button class="focusable shrink-0 rounded-full border border-[var(--border)] bg-white px-4 py-2 text-slate-700">Upcoming</button>
+                <button class="focusable shrink-0 rounded-full border border-[var(--border)] bg-white px-4 py-2 text-slate-700">Finished</button>
+            </section>
+
+            <!-- Section: All Matches Table -->
+            <section class="mt-4 overflow-hidden rounded-[1.55rem] border border-[var(--border)] bg-white shadow-sm">
+                <div class="surface flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 class="text-xl font-black">All matches</h2>
+                        <p class="mt-1 text-sm font-semibold text-slate-500">Showing 1-10 of 54</p>
+                    </div>
+                    <label class="flex items-center gap-2 text-sm font-bold text-slate-600">
+                        Per page
+                        <select class="focusable rounded-full border border-[var(--border)] bg-white px-3 py-2 font-black text-slate-950">
+                            <option>10</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[48rem] text-left text-sm">
+                        <thead class="surface border-b text-xs uppercase tracking-[0.16em] text-slate-500">
+                            <tr>
+                                <th class="px-5 py-4 font-black">Match</th>
+                                <th class="px-5 py-4 font-black">Date</th>
+                                <th class="px-5 py-4 font-black">Venue</th>
+                                <th class="px-5 py-4 font-black">Kit</th>
+                                <th class="px-5 py-4 font-black">Payment</th>
+                                <th class="px-5 py-4 font-black">Roster</th>
+                                <th class="px-5 py-4 text-right font-black">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="bg-red-50/60">
+                                <td class="px-5 py-4">Zeitlos vs North End</td>
+                                <td class="px-5 py-4">Sat 18:30</td>
+                                <td class="px-5 py-4">Central Pitch</td>
+                                <td class="px-5 py-4">Black</td>
+                                <td class="px-5 py-4">10 EUR</td>
+                                <td class="px-5 py-4">14</td>
+                                <td class="px-5 py-4 text-right"><span class="rounded-full bg-[var(--primary)] px-3 py-1 text-xs font-black text-white">Upcoming</span></td>
+                            </tr>
+                            <tr>
+                                <td class="px-5 py-4">Zeitlos vs Riverside</td>
+                                <td class="px-5 py-4">Sun 11:00</td>
+                                <td class="px-5 py-4">Away Ground</td>
+                                <td class="px-5 py-4">White</td>
+                                <td class="px-5 py-4">8 EUR</td>
+                                <td class="px-5 py-4">10</td>
+                                <td class="px-5 py-4 text-right"><span class="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-black">Upcoming</span></td>
+                            </tr>
+                            <tr>
+                                <td class="px-5 py-4">Zeitlos vs Old Town</td>
+                                <td class="px-5 py-4">Jul 27</td>
+                                <td class="px-5 py-4">Home Pitch</td>
+                                <td class="px-5 py-4">Black</td>
+                                <td class="px-5 py-4">Paid</td>
+                                <td class="px-5 py-4">13</td>
+                                <td class="px-5 py-4 text-right"><span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">Won 4-2</span></td>
+                            </tr>
+                            <tr><td class="px-5 py-4">Zeitlos vs West Side</td><td class="px-5 py-4">Jul 20</td><td class="px-5 py-4">Arena 2</td><td class="px-5 py-4">Red</td><td class="px-5 py-4">Paid</td><td class="px-5 py-4">12</td><td class="px-5 py-4 text-right"><span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">Draw 1-1</span></td></tr>
+                            <tr><td class="px-5 py-4">Zeitlos vs East Club</td><td class="px-5 py-4">Jul 13</td><td class="px-5 py-4">Field 4</td><td class="px-5 py-4">Black</td><td class="px-5 py-4">Paid</td><td class="px-5 py-4">15</td><td class="px-5 py-4 text-right"><span class="rounded-full bg-red-50 px-3 py-1 text-xs font-black text-red-700">Lost 0-2</span></td></tr>
+                            <tr><td class="px-5 py-4">Zeitlos vs City Five</td><td class="px-5 py-4">Jul 06</td><td class="px-5 py-4">Home Pitch</td><td class="px-5 py-4">Red</td><td class="px-5 py-4">Paid</td><td class="px-5 py-4">11</td><td class="px-5 py-4 text-right"><span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">Won 3-0</span></td></tr>
+                            <tr><td class="px-5 py-4">Zeitlos vs United</td><td class="px-5 py-4">Jun 29</td><td class="px-5 py-4">Arena 1</td><td class="px-5 py-4">White</td><td class="px-5 py-4">Paid</td><td class="px-5 py-4">13</td><td class="px-5 py-4 text-right"><span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">Draw 2-2</span></td></tr>
+                            <tr><td class="px-5 py-4">Zeitlos vs Harbor</td><td class="px-5 py-4">Jun 22</td><td class="px-5 py-4">Away Ground</td><td class="px-5 py-4">Black</td><td class="px-5 py-4">Paid</td><td class="px-5 py-4">12</td><td class="px-5 py-4 text-right"><span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">Won 1-0</span></td></tr>
+                            <tr><td class="px-5 py-4">Zeitlos vs South Park</td><td class="px-5 py-4">Jun 15</td><td class="px-5 py-4">Home Pitch</td><td class="px-5 py-4">Red</td><td class="px-5 py-4">Paid</td><td class="px-5 py-4">14</td><td class="px-5 py-4 text-right"><span class="rounded-full bg-red-50 px-3 py-1 text-xs font-black text-red-700">Lost 1-3</span></td></tr>
+                            <tr><td class="px-5 py-4">Zeitlos vs Metro</td><td class="px-5 py-4">Jun 08</td><td class="px-5 py-4">Field 2</td><td class="px-5 py-4">White</td><td class="px-5 py-4">Paid</td><td class="px-5 py-4">10</td><td class="px-5 py-4 text-right"><span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">Won 5-1</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Section: Pagination -->
+                <div class="flex flex-col gap-3 border-t border-[var(--border)] p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <p class="text-sm font-bold text-slate-500">Page 1 of 6</p>
+                    <div class="flex flex-wrap items-center gap-2 text-sm">
+                        <button class="rounded-xl border border-[var(--border)] px-4 py-2 text-slate-400" disabled>Previous</button>
+                        <button class="focusable rounded-full bg-[var(--primary)] px-4 py-2 text-white">1</button>
+                        <button class="focusable rounded-full border border-[var(--border)] bg-white px-4 py-2">2</button>
+                        <button class="focusable rounded-full border border-[var(--border)] bg-white px-4 py-2">3</button>
+                        <span class="px-1 text-slate-400">...</span>
+                        <button class="focusable rounded-full border border-[var(--border)] bg-white px-4 py-2">6</button>
+                        <button class="focusable rounded-xl border border-[var(--border)] bg-white px-4 py-2">Next</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Upcoming Finished Preview -->
+            <section class="mt-6 grid gap-5 lg:grid-cols-2">
+                <div class="surface rounded-[1.55rem] border p-5">
+                    <h2 class="text-xl font-black">Upcoming view</h2>
+                    <div class="mt-4 space-y-3">
+                        <article class="rounded-[1.3rem] border-2 border-[var(--primary)] bg-white p-4 shadow-sm">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <h3 class="text-xl font-black">Zeitlos vs North End</h3>
+                                    <p class="mt-1 text-sm text-slate-600">Sat 18:30 · Central Pitch</p>
+                                </div>
+                                <span class="rounded-full bg-[var(--primary)] px-3 py-1 text-xs font-black text-white">Upcoming</span>
+                            </div>
+                            <dl class="mt-4 grid grid-cols-3 gap-2 text-sm">
+                                <div class="rounded-2xl bg-slate-50 p-3"><dt class="font-bold text-slate-500">Kit</dt><dd class="font-black">Black</dd></div>
+                                <div class="rounded-2xl bg-slate-50 p-3"><dt class="font-bold text-slate-500">Pay</dt><dd class="font-black">10 EUR</dd></div>
+                                <div class="rounded-2xl bg-slate-50 p-3"><dt class="font-bold text-slate-500">Roster</dt><dd class="font-black">14</dd></div>
+                            </dl>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="surface rounded-[1.55rem] border p-5">
+                    <h2 class="text-xl font-black">Finished view</h2>
+                    <div class="mt-4 space-y-3">
+                        <article class="rounded-[1.3rem] border border-[var(--border)] bg-white p-4 shadow-sm">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <h3 class="text-xl font-black">Zeitlos vs Old Town</h3>
+                                    <p class="mt-1 text-sm text-slate-600">Jul 27 · Home Pitch</p>
+                                </div>
+                                <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">Won 4-2</span>
+                            </div>
+                            <p class="mt-3 text-sm font-bold text-slate-500">Roster: 13 · Kit: Black · Paid</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Section: Mobile Tab Bar -->
+    <nav class="fixed inset-x-0 bottom-0 border-t border-[var(--border)] bg-white sm:hidden" aria-label="Mobile navigation">
+        <div class="mx-auto grid max-w-5xl grid-cols-4 text-center text-[0.65rem] font-bold text-slate-500">
+            <a class="py-3" href="#">Dashboard</a>
+            <a class="border-t-2 border-[var(--primary)] py-3 text-[var(--primary)]" href="#">Schedule</a>
+            <a class="py-3" href="#">Roster</a>
+            <a class="py-3" href="#">Leaderboard</a>
+        </div>
+    </nav>
+</body>
+</html>
