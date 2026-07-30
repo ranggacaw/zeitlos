@@ -344,7 +344,7 @@ class AdminLiveMatchScoringTest extends TestCase
     public function test_deleting_a_goal_event_updates_public_player_totals(): void
     {
         $admin = User::factory()->admin()->create();
-        $match = FootballMatch::factory()->finished()->create();
+        $match = FootballMatch::factory()->live()->create();
         $scorer = Player::factory()->create(['name' => 'Scorer Star', 'is_active' => true]);
 
         $event = MatchEvent::create([
@@ -368,5 +368,26 @@ class AdminLiveMatchScoringTest extends TestCase
             ->assertInertia(fn ($page) => $page
                 ->where('leaders.0.goals', 0)
             );
+    }
+
+    public function test_finished_match_live_scoring_is_read_only(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->finished()->create();
+        $scorer = Player::factory()->create(['name' => 'Finished Scorer', 'is_active' => true]);
+
+        $event = MatchEvent::create([
+            'match_id' => $match->id,
+            'scorer_id' => $scorer->id,
+            'event_type' => MatchEvent::TYPE_GOAL,
+            'minute' => 9,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->assertActionHidden('recordGoal')
+            ->assertActionHidden('recordOpponentGoal')
+            ->assertActionHidden('finalizeMatch')
+            ->assertTableActionHidden('delete', $event->getKey());
     }
 }

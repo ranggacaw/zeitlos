@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\FootballMatches\Pages;
 
 use App\Filament\Resources\FootballMatches\FootballMatchResource;
+use App\Models\FootballMatch;
 use App\Models\MatchRoster;
 use App\Models\Player;
 use App\Team\WhatsAppMatchTemplateImport;
@@ -73,6 +74,7 @@ class ManageFootballMatchRosters extends Page implements HasTable
             ])
             ->recordActions([
                 DeleteAction::make()
+                    ->visible(fn (): bool => $this->getRecord()->status !== FootballMatch::STATUS_FINISHED)
                     ->successRedirectUrl(fn (): string => $this->getResourceUrl('rosters'))
                     ->action(fn (MatchRoster $record) => $record->delete()),
             ]);
@@ -109,6 +111,10 @@ class ManageFootballMatchRosters extends Page implements HasTable
             $match->venue,
         ]);
 
+        if ($match->status === FootballMatch::STATUS_FINISHED) {
+            $parts[] = 'Finalized · read-only';
+        }
+
         return filled($parts) ? implode(' · ', $parts) : null;
     }
 
@@ -123,6 +129,7 @@ class ManageFootballMatchRosters extends Page implements HasTable
             Action::make('addRosterEntry')
                 ->label('Add roster entry')
                 ->icon(Heroicon::OutlinedPlus)
+                ->visible(fn (): bool => $this->getRecord()->status !== FootballMatch::STATUS_FINISHED)
                 ->schema([
                     Select::make('player_id')
                         ->label('Player')
@@ -174,6 +181,7 @@ class ManageFootballMatchRosters extends Page implements HasTable
                 }),
             Action::make('importWhatsAppTemplate')
                 ->label('Import WhatsApp template')
+                ->visible(fn (): bool => $this->getRecord()->status !== FootballMatch::STATUS_FINISHED)
                 ->schema([
                     Textarea::make('template')
                         ->label('WhatsApp template')

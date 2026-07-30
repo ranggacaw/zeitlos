@@ -40,24 +40,21 @@ function Timeline({ events = [] }) {
         );
     }
 
-    return (
-        <div className="space-y-3">
-            {events.map((event, index) => (
-                <div key={`${event.minute}-${event.scorer}-${index}`} className="grid grid-cols-[auto_1fr] gap-3 rounded-2xl border border-border bg-background p-4">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-sm font-black text-primary-foreground">
-                        {event.minute ? `${event.minute}'` : 'Goal'}
-                    </span>
-                    <div>
-                        <p className="text-sm font-black text-foreground">
-                            {event.team === 'opponent' ? 'Enemy team' : (event.scorer || 'Zeitlos')} scored
+        return (
+            <ul className="space-y-2">
+                {events.map((event, index) => (
+                    <li key={`${event.minute}-${event.scorer}-${index}`} className="flex items-center gap-3 rounded-xl border border-border bg-background px-3 py-2">
+                        <span className="flex h-7 min-w-7 items-center justify-center rounded-md bg-primary px-1.5 text-xs font-black text-primary-foreground">
+                            {event.minute ? `${event.minute}'` : 'Goal'}
+                        </span>
+                        <p className="text-sm font-bold text-foreground">
+                            {event.team === 'opponent' ? 'Enemy team' : (event.scorer || 'Zeitlos')}
                         </p>
-                        {event.team === 'opponent' && <p className="mt-1 text-xs font-semibold text-muted-foreground">Opponent goal</p>}
-                        {event.assist && <p className="mt-1 text-xs font-semibold text-muted-foreground">Assist: {event.assist}</p>}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
+                        {event.assist && <p className="text-xs font-semibold text-muted-foreground">· Assist: {event.assist}</p>}
+                    </li>
+                ))}
+            </ul>
+        );
 }
 
 export default function MatchLive({ match }) {

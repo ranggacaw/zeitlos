@@ -93,6 +93,7 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
                     ->modalHeading('Delete goal?')
                     ->modalDescription('This removes the goal from scoring totals.')
                     ->successNotificationTitle('Goal deleted')
+                    ->visible(fn (): bool => $this->match()->status !== FootballMatch::STATUS_FINISHED)
                     ->action(function (MatchEvent $record): void {
                         $match = $record->match;
 
@@ -114,6 +115,10 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
             $match->match_time,
             $match->venue,
         ]);
+
+        if ($match->status === FootballMatch::STATUS_FINISHED) {
+            $parts[] = 'Finalized · read-only';
+        }
 
         return filled($parts) ? implode(' · ', $parts) : null;
     }
@@ -162,6 +167,7 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
             Action::make('recordGoal')
                 ->label('Record goal')
                 ->icon(Heroicon::OutlinedPlus)
+                ->visible(fn (): bool => $this->match()->status !== FootballMatch::STATUS_FINISHED)
                 ->schema([
                     Select::make('scorer_id')
                         ->label('Scorer')
@@ -199,6 +205,7 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
                 ->label('Record opponent goal')
                 ->icon(Heroicon::OutlinedMinusCircle)
                 ->color('danger')
+                ->visible(fn (): bool => $this->match()->status !== FootballMatch::STATUS_FINISHED)
                 ->schema([
                     TextInput::make('minute')
                         ->numeric()
@@ -227,6 +234,7 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
                 ->label('Finalize match')
                 ->icon(Heroicon::OutlinedCheckCircle)
                 ->color('success')
+                ->visible(fn (): bool => $this->match()->status !== FootballMatch::STATUS_FINISHED)
                 ->schema([
                     TextInput::make('zeitlos_score')
                         ->label('Zeitlos score')

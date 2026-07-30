@@ -46,9 +46,6 @@ class FootballMatchesTable
                     ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('payment_due_at')
-                    ->dateTime()
-                    ->sortable(),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => match ($state) {
@@ -65,12 +62,6 @@ class FootballMatchesTable
                         default => 'info',
                     })
                     ->searchable(),
-                TextColumn::make('zeitlos_score')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('opponent_score')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -93,14 +84,22 @@ class FootballMatchesTable
             ->recordActions([
                 EditAction::make()
                     ->label('Edit match')
-                    ->icon(Heroicon::OutlinedPencilSquare),
+                    ->icon(Heroicon::OutlinedPencilSquare)
+                    ->iconButton()
+                    ->tooltip('Edit match'),
                 Action::make('manageRoster')
                     ->label('Manage roster')
                     ->icon(Heroicon::OutlinedUserGroup)
+                    ->iconButton()
+                    ->tooltip('Manage roster')
+                    ->visible(fn (FootballMatch $record): bool => $record->status !== FootballMatch::STATUS_FINISHED)
                     ->url(fn (FootballMatch $record): string => FootballMatchResource::getUrl('rosters', ['record' => $record], shouldGuessMissingParameters: true)),
                 Action::make('liveScoring')
                     ->label('Live scoring')
                     ->icon(Heroicon::OutlinedBolt)
+                    ->iconButton()
+                    ->tooltip('Live scoring')
+                    ->visible(fn (FootballMatch $record): bool => $record->status !== FootballMatch::STATUS_FINISHED)
                     ->url(fn (FootballMatch $record): string => FootballMatchResource::getUrl('live-scoring', ['record' => $record], shouldGuessMissingParameters: true)),
             ])
             ->toolbarActions([
