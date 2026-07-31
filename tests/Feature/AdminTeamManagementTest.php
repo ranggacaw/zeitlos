@@ -93,7 +93,7 @@ class AdminTeamManagementTest extends TestCase
                 'jersey_number' => 8,
                 'position' => 'Midfielder',
                 'is_active' => true,
-                'photo_path' => 'players/filament.jpg',
+                'photo_url' => 'https://example.com/filament.jpg',
                 'joined_at' => '2026-02-01',
                 'goals_adjustment' => 2,
                 'assists_adjustment' => 3,
@@ -103,6 +103,7 @@ class AdminTeamManagementTest extends TestCase
 
         $player = Player::where('name', 'Filament Player')->firstOrFail();
         $this->assertSame(8, $player->jersey_number);
+        $this->assertSame('https://example.com/filament.jpg', $player->photo_path);
 
         Livewire::test(EditPlayer::class, ['record' => $player->getRouteKey()])
             ->fillForm([
@@ -110,7 +111,7 @@ class AdminTeamManagementTest extends TestCase
                 'jersey_number' => 9,
                 'position' => 'Forward',
                 'is_active' => false,
-                'photo_path' => 'players/updated.jpg',
+                'photo_url' => 'https://example.com/updated.jpg',
                 'joined_at' => '2026-02-01',
                 'goals_adjustment' => 4,
                 'assists_adjustment' => 5,
@@ -122,6 +123,7 @@ class AdminTeamManagementTest extends TestCase
         $this->assertSame('Updated Filament Player', $player->name);
         $this->assertSame(9, $player->jersey_number);
         $this->assertFalse($player->is_active);
+        $this->assertSame('https://example.com/updated.jpg', $player->photo_path);
     }
 
     public function test_admin_can_create_and_update_a_match_through_filament(): void

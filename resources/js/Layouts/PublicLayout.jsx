@@ -77,7 +77,7 @@ export default function PublicLayout({ children }) {
                         ))}
                         {auth?.user ? (
                             <Link
-                                href={route('dashboard')}
+                                href="/admin"
                                 className="rounded-full bg-secondary px-4 py-2 text-secondary-foreground transition hover:bg-secondary"
                             >
                                 Admin
@@ -97,7 +97,7 @@ export default function PublicLayout({ children }) {
                         <ThemeToggle />
                         {auth?.user ? (
                             <Link
-                                href={route('dashboard')}
+                                href="/admin"
                                 className="rounded-full bg-secondary px-4 py-2 text-xs font-bold text-secondary-foreground"
                             >
                                 Admin

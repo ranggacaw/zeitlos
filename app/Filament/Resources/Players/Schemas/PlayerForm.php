@@ -3,9 +3,12 @@
 namespace App\Filament\Resources\Players\Schemas;
 
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class PlayerForm
@@ -29,8 +32,25 @@ class PlayerForm
                             ->label('Active')
                             ->default(true)
                             ->required(),
-                        TextInput::make('photo_path')
-                            ->maxLength(255),
+                        FileUpload::make('photo_path')
+                            ->image()
+                            ->disk('public')
+                            ->directory('players')
+                            ->visibility('public')
+                            ->dehydrateStateUsing(function ($state, Get $get) {
+                                $url = $get('photo_url');
+
+                                if (blank($state) && is_string($url) && preg_match('#^https?://#i', $url)) {
+                                    return $url;
+                                }
+
+                                return $state;
+                            }),
+                        TextInput::make('photo_url')
+                            ->label('Photo URL')
+                            ->dehydrated(false)
+                            ->formatStateUsing(fn ($state, $record) => (is_string($record?->photo_path) && preg_match('#^https?://#i', $record->photo_path)) ? $record->photo_path : null)
+                            ->afterStateUpdated(fn ($state, Set $set) => filled($state) ? $set('photo_path', $state) : $set('photo_path', null)),
                         DatePicker::make('joined_at'),
                     ]),
                 Section::make('Stat corrections')

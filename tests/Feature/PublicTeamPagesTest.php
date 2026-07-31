@@ -7,6 +7,7 @@ use App\Models\MatchEvent;
 use App\Models\Player;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -192,9 +193,10 @@ class PublicTeamPagesTest extends TestCase
         $this->get(route('public.players.show', $player))->assertNotFound();
     }
 
-    public function test_authenticated_dashboard_route_remains_protected(): void
+    public function test_dashboard_route_has_been_retired(): void
     {
-        $this->get(route('dashboard'))->assertRedirect(route('login'));
-        $this->assertSame('/dashboard', parse_url(route('dashboard'), PHP_URL_PATH));
+        $this->assertFalse(Route::has('dashboard'));
+
+        $this->get('/dashboard')->assertNotFound();
     }
 }

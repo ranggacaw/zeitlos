@@ -59,6 +59,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === self::ROLE_ADMIN;
     }
 
+    public function preferredHomeUrl(): string
+    {
+        return $this->isAdmin() ? '/admin' : '/';
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $panel->getId() === 'admin' && $this->isAdmin();

@@ -84,7 +84,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ## Public Team Pages
 
 - Public read-only team pages use `PublicTeamController` and named routes prefixed with `public.*`.
-- Keep `/dashboard` reserved for the authenticated Breeze admin/user flow.
+- The `/dashboard` Breeze page is retired. After login, registration, and email verification, authenticated admins land on `/admin` via `User::preferredHomeUrl()` and non-admins land on `/` (public home).
 - Public Inertia pages live under `resources/js/Pages/Public`, with the home dashboard rendered by `Welcome.jsx`.
 - Public live match scoring uses `/matches/{match}/live` (`public.matches.live`) for matches with `starting`, `live`, or `finished` status; scheduled matches are not exposed on the live page.
 - Active public match data is serialized through `App\Team\PublicMatchPresenter` so Inertia props and broadcast payloads stay public-safe and consistent.
@@ -99,12 +99,13 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 - Filament is the admin CMS foundation at `/admin`, configured by `App\Providers\Filament\AdminPanelProvider` and guarded by `User::canAccessPanel()` delegating to `User::isAdmin()`.
 - Filament resources live under `app/Filament/Resources`; the admin dashboard lives under `app/Filament/Pages` and `app/Filament/Widgets`.
-- `/dashboard` stays reserved for Breeze; `/admin` is the Filament CMS entry point.
+- `/admin` is the Filament CMS entry point and the post-auth home for admins (`User::preferredHomeUrl()`). The admin login uses a custom `App\Filament\Pages\Auth\Login` with a revealable password field.
 - Legacy `/admin-legacy...` admin entry URLs redirect to `/admin`; do not add new `admin.*` Inertia routes or controllers.
 - WhatsApp roster text is generated server-side via `App\Team\WhatsAppRosterText` so the copyable text is deterministic and testable.
 - Match roster management is a Filament page at `/admin/football-matches/{record}/rosters` (`ManageFootballMatchRosters`) that groups roster entries by role and shows copyable WhatsApp text.
 - Match live scoring is a Filament page at `/admin/football-matches/{record}/live-scoring` (`ManageFootballMatchLiveScoring`) that can mark matches `starting`, start them `live`, record/delete Zeitlos or opponent goals, finalize scores, and dispatch public match update events. Opponent goals do not store a player scorer name; public timelines label them as `Enemy team`.
 - Leaderboard corrections are managed in Filament at `/admin/leaderboard` (`App\Filament\Pages\Leaderboard`) using existing `Player` stat adjustment fields.
+- Player photos (`PlayerForm`) support either an image upload or a pasted URL: a `FileUpload` writes a `players/` storage path while a dehydrated `photo_url` text field writes an absolute URL — both persist into the single `photo_path` column. The public frontend (`rosterPhotos.js`) passes `http(s)://` values through unchanged and prefixes other paths with `/storage/`.
 
 ## Public Live Updates
 

@@ -17,6 +17,10 @@ const slugify = (value) => value
 
 export function rosterPhotoUrl(player) {
     if (player.photo_path) {
+        if (/^https?:\/\//i.test(player.photo_path)) {
+            return player.photo_path;
+        }
+
         return `/storage/${player.photo_path}`;
     }
 
