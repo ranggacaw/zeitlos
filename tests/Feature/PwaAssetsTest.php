@@ -44,7 +44,7 @@ class PwaAssetsTest extends TestCase
         $this->assertStringContainsString('activate', $contents);
         $this->assertStringContainsString('fetch', $contents);
         $this->assertStringContainsString('/offline.html', $contents);
-        $this->assertStringContainsString('zeitlos-v2', $contents);
+        $this->assertStringContainsString('zeitlos-v3', $contents);
         $this->assertStringContainsString("request.headers.has('X-Inertia')", $contents);
     }
 

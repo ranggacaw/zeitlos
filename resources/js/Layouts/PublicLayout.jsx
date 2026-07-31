@@ -1,4 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
+import zeitlosLogo from '../../assets/zeitlos_logo.png';
 import InstallPrompt from '../Components/InstallPrompt';
 import ThemeToggle from '../Components/ThemeToggle';
 
@@ -43,8 +44,12 @@ export default function PublicLayout({ children }) {
             <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] sm:px-6 lg:max-w-7xl lg:px-8">
                 <header className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-3 text-card-foreground shadow-lg backdrop-blur sm:p-4">
                     <Link href={route('public.home')} className="group flex items-center gap-2">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-black text-primary-foreground sm:h-10 sm:w-10">
-                            Z
+                        <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-primary sm:h-10 sm:w-10">
+                            <img
+                                src={zeitlosLogo}
+                                alt="FC Zeitlos logo"
+                                className="h-full w-full object-contain"
+                            />
                         </span>
                         <span className="leading-tight">
                             <span className="block text-[0.6rem] font-bold uppercase tracking-[0.4em] text-primary">
