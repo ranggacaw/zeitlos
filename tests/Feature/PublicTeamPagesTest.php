@@ -87,6 +87,75 @@ class PublicTeamPagesTest extends TestCase
             );
     }
 
+    public function test_public_leaderboard_defaults_to_goals_ordering(): void
+    {
+        Player::factory()->create([
+            'name' => 'Goal Leader',
+            'goals_adjustment' => 4,
+            'assists_adjustment' => 1,
+        ]);
+        Player::factory()->create([
+            'name' => 'Assist Leader',
+            'goals_adjustment' => 1,
+            'assists_adjustment' => 5,
+        ]);
+
+        $this->get(route('public.leaderboard'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Public/Leaderboard')
+                ->where('selectedStat', 'goals')
+                ->where('leaders.0.name', 'Goal Leader')
+                ->where('leaders.1.name', 'Assist Leader')
+            );
+    }
+
+    public function test_public_leaderboard_can_order_by_assists(): void
+    {
+        Player::factory()->create([
+            'name' => 'Goal Leader',
+            'goals_adjustment' => 4,
+            'assists_adjustment' => 1,
+        ]);
+        Player::factory()->create([
+            'name' => 'Assist Leader',
+            'goals_adjustment' => 1,
+            'assists_adjustment' => 5,
+        ]);
+
+        $this->get(route('public.leaderboard', ['stat' => 'assists']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Public/Leaderboard')
+                ->where('selectedStat', 'assists')
+                ->where('leaders.0.name', 'Assist Leader')
+                ->where('leaders.1.name', 'Goal Leader')
+            );
+    }
+
+    public function test_public_leaderboard_ignores_invalid_stat_filter(): void
+    {
+        Player::factory()->create([
+            'name' => 'Goal Leader',
+            'goals_adjustment' => 4,
+            'assists_adjustment' => 1,
+        ]);
+        Player::factory()->create([
+            'name' => 'Assist Leader',
+            'goals_adjustment' => 1,
+            'assists_adjustment' => 5,
+        ]);
+
+        $this->get(route('public.leaderboard', ['stat' => 'cards']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Public/Leaderboard')
+                ->where('selectedStat', 'goals')
+                ->where('leaders.0.name', 'Goal Leader')
+                ->where('leaders.1.name', 'Assist Leader')
+            );
+    }
+
     public function test_public_player_detail_renders_player_stats_and_matches(): void
     {
         $this->seed(DatabaseSeeder::class);

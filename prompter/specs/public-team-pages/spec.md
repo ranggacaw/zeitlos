@@ -71,11 +71,19 @@ The system SHALL provide a public read-only roster page that lists active player
 - **THEN** the page can show goalkeepers, regular players, and guest names grouped for that match
 
 ### Requirement: Public Leaderboard
-The system SHALL provide a public read-only leaderboard that ranks players by derived goal and assist totals.
+The system SHALL provide a public read-only leaderboard that ranks players by derived goal and assist totals, with visitor-selectable goals-first or assists-first ordering.
 
 #### Scenario: Visitor views leaderboard
 - **WHEN** a visitor opens the leaderboard route
 - **THEN** the page lists active players ordered by goals and assists using event-derived totals plus configured stat corrections
+
+#### Scenario: Visitor filters leaderboard by assists
+- **WHEN** a visitor opens the leaderboard route with the assists stat filter
+- **THEN** the page lists active players ordered by assists before goals using event-derived totals plus configured stat corrections
+
+#### Scenario: Visitor requests invalid leaderboard filter
+- **WHEN** a visitor opens the leaderboard route with an unsupported stat filter
+- **THEN** the page falls back to goals-first ordering
 
 ### Requirement: Mobile-First Public App Shell
 The system SHALL present public team pages in a mobile-first app shell with persistent public navigation that remains reachable and readable on small screens.

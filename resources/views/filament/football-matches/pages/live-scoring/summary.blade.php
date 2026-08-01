@@ -12,7 +12,7 @@
     $score = $zeitlosScore.' : '.$opponentScore;
 @endphp
 
-<div class="grid gap-6 lg:grid-cols-2">
+<div class="grid gap-6 lg:grid-cols-2" wire:poll="5s">
     <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</p>
         <p class="mt-1 text-2xl font-semibold text-gray-950 dark:text-white">{{ $statusLabel }}</p>

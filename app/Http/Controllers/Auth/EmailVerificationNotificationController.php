@@ -14,7 +14,9 @@ class EmailVerificationNotificationController extends Controller
     public function store(Request $request): RedirectResponse
     {
         if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended($request->user()->preferredHomeUrl());
+            return $request->user()->isAdmin()
+                ? redirect('/admin')
+                : redirect()->intended($request->user()->preferredHomeUrl());
         }
 
         $request->user()->sendEmailVerificationNotification();

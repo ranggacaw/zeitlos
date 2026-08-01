@@ -33,6 +33,10 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        if ($request->user()->isAdmin()) {
+            return redirect('/admin');
+        }
+
         return redirect()->intended($request->user()->preferredHomeUrl());
     }
 

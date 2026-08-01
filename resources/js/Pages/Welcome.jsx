@@ -1,7 +1,8 @@
+import MatchDetailsDialog from '@/Components/MatchDetailsDialog';
 import PublicRoster from '@/Components/PublicRoster';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, Link, router } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 function ActionRow({ href, children }) {
     return (
@@ -24,7 +25,7 @@ function StatPill({ label, value }) {
     );
 }
 
-function MatchCommandCenter({ match }) {
+function MatchCommandCenter({ match, onShowDetails }) {
     const isActive = ['starting', 'live'].includes(match?.status);
     const rosterCount = match?.roster
         ? Object.values(match.roster).reduce((total, group) => total + group.length, 0)
@@ -32,8 +33,37 @@ function MatchCommandCenter({ match }) {
     const mapHref = match?.maps_url || (match?.venue ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(match.venue)}` : null);
     const score = `${match?.zeitlos_score ?? 0} : ${match?.opponent_score ?? 0}`;
 
+    const clickable = Boolean(match && onShowDetails);
+
+    const openDetails = () => {
+        if (clickable) {
+            onShowDetails(match);
+        }
+    };
+
+    const handleClick = (event) => {
+        if (event.target.closest('a, button')) {
+            return;
+        }
+        openDetails();
+    };
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openDetails();
+        }
+    };
+
     return (
-        <section className="rounded-[1.75rem] border border-border bg-card p-5 text-card-foreground sm:p-6 lg:p-7">
+        <section
+            onClick={clickable ? handleClick : undefined}
+            onKeyDown={clickable ? handleKeyDown : undefined}
+            role={clickable ? 'button' : undefined}
+            tabIndex={clickable ? 0 : undefined}
+            aria-label={clickable ? `View details for Zeitlos vs ${match.opponent}` : undefined}
+            className={`rounded-[1.75rem] border border-border bg-card p-5 text-card-foreground transition sm:p-6 lg:p-7 ${clickable ? 'cursor-pointer hover:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary' : ''}`}
+        >
             <div className="flex flex-col gap-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
@@ -79,6 +109,9 @@ function MatchCommandCenter({ match }) {
                     <StatPill label="Venue" value={match?.venue ?? 'TBD'} />
                 </div>
             </div>
+            {clickable && (
+                <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-primary">Tap for details</p>
+            )}
         </section>
     );
 }
@@ -174,6 +207,7 @@ function LeaderboardPreview({ leaders }) {
 
 export default function Welcome({ activeMatch, upcomingMatch, players = [], leaders = [] }) {
     const featuredMatch = activeMatch ?? upcomingMatch;
+    const [selectedMatch, setSelectedMatch] = useState(null);
 
     useEffect(() => {
         const interval = window.setInterval(() => {
@@ -188,7 +222,7 @@ export default function Welcome({ activeMatch, upcomingMatch, players = [], lead
             <Head title="Zeitlos Team Hub" />
 
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.75fr)]">
-                <MatchCommandCenter match={featuredMatch} />
+                <MatchCommandCenter match={featuredMatch} onShowDetails={setSelectedMatch} />
 
                 <aside className="grid gap-5">
                     <TeamSnapshot players={players} leaders={leaders} />
@@ -198,6 +232,8 @@ export default function Welcome({ activeMatch, upcomingMatch, players = [], lead
                 <RosterPreview players={players} />
                 <LeaderboardPreview leaders={leaders} />
             </div>
+
+            <MatchDetailsDialog match={selectedMatch} onClose={() => setSelectedMatch(null)} />
         </PublicLayout>
     );
 }

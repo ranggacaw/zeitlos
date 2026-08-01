@@ -5,14 +5,14 @@ const knownPositions = [
     'Goalkeeper', 'GK',
     'Defender', 'DF', 'CB', 'Center Back', 'Full Back', 'Right Back', 'Left Back',
     'Midfielder', 'MF', 'CM', 'Central Midfield', 'Attacking Midfield', 'Defensive Midfield',
-    'Forward', 'Striker', 'FW', 'ST', 'CF', 'Winger', 'Left Winger', 'Right Winger',
+    'Forward', 'Striker', 'FW', 'ST', 'CF', 'SS', 'Winger', 'Left Winger', 'Right Winger', 'LMF', 'RMF', 'LWF', 'RWF',
 ];
 
 const rosterGroups = (players) => [
     { title: 'Goalkeepers', items: players.filter((p) => ['Goalkeeper', 'GK'].includes(p.position)) },
     { title: 'Defenders', items: players.filter((p) => ['Defender', 'DF', 'CB', 'Center Back', 'Full Back', 'Right Back', 'Left Back'].includes(p.position)) },
     { title: 'Midfielders', items: players.filter((p) => ['Midfielder', 'MF', 'CM', 'Central Midfield', 'Attacking Midfield', 'Defensive Midfield'].includes(p.position)) },
-    { title: 'Forwards', items: players.filter((p) => ['Forward', 'Striker', 'FW', 'ST', 'CF', 'Winger', 'Left Winger', 'Right Winger'].includes(p.position)) },
+    { title: 'Forwards', items: players.filter((p) => ['Forward', 'Striker', 'FW', 'ST', 'CF', 'SS', 'Winger', 'Left Winger', 'Right Winger', 'LMF', 'RMF', 'LWF', 'RWF'].includes(p.position)) },
     { title: 'Other', items: players.filter((p) => !knownPositions.includes(p.position)) },
 ].filter((group) => group.items.length > 0);
 

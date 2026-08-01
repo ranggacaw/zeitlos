@@ -43,6 +43,20 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect('/admin');
     }
 
+    public function test_admin_login_ignores_stored_intended_url(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $response = $this->withSession(['url.intended' => '/'])
+            ->post('/login', [
+                'email' => $admin->email,
+                'password' => 'password',
+            ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect('/admin');
+    }
+
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {
         $user = User::factory()->create();

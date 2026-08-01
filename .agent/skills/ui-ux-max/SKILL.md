@@ -1,11 +1,11 @@
 ---
-name: ui-ux-pro
-description: Design and revise UI/UX like a senior designer. Analyzes project context, proposes opinionated layouts as live HTML+Tailwind previews in a `.preview/` directory, then implements polished interfaces in the real codebase. TRIGGER on new pages, redesigns, design audits, or component design where layout/hierarchy is in question. SKIP for small tweaks (color, spacing, copy, one-line CSS fixes), bug fixes to an already-approved layout, or backend/logic work — edit real code directly instead.
+name: ui-ux-max
+description: "Design and revise UI/UX like a senior designer, enforced by the anti-slop `design-taste-frontend` ruleset. Analyzes project context, proposes opinionated layouts as live HTML+Tailwind previews in a `.preview/` directory, then implements polished interfaces in the real codebase — with a Design Read, taste dials, AI-tell bans, and a final pre-flight check applied throughout. Supports a `--parallel` flag for large multi-page builds: fan out one subagent per page (orchestrator/worker pattern) so previews build concurrently instead of serially. SUPERSEDES `ui-ux-pro`: when both skills are available, always use `ui-ux-max`; fall back to `ui-ux-pro` only when the `design-taste-frontend` ruleset cannot be located. TRIGGER on new pages, redesigns, design audits, or component design where layout/hierarchy is in question. SKIP for small tweaks (color, spacing, copy, one-line CSS fixes), bug fixes to an already-approved layout, or backend/logic work — edit real code directly instead."
 ---
 
-# UI UX Pro
+# UI UX Max
 
-Act as a senior UI/UX designer. Make opinionated design decisions based on project context. Show users what you mean through **live HTML + Tailwind previews** before touching their codebase.
+Act as a senior UI/UX designer. Make opinionated design decisions based on project context. Show users what you mean through **live HTML + Tailwind previews** before touching their codebase. Every visual decision in this skill is governed by the **`design-taste-frontend`** skill's anti-slop ruleset (see "Harnessing the `design-taste-frontend` Skill" in Step 3) — load it before producing any visual output.
 
 ---
 
@@ -23,8 +23,10 @@ The failure modes to internalize — full context lives in the Workflow section 
 8. **Mobile, tablet, desktop from Pass 1.** A layout that breaks on mobile is not done.
 9. **If invoked from an active proposal, updating that proposal is the finish line — do NOT implement.** Once the preview is approved, ask the user whether to update the originating `prompter/changes/<id>/` proposal to reference the generated UI — then yield. Never edit the proposal silently. After the proposal is updated (or the user declines), **stop and hand back**; the implementation happens later via the `apply` flow, not in this run (see Step 4a).
 10. **Every proposal this skill creates or updates MUST reference the approved previews.** A proposal without a `## Design Reference` section pointing at the `.preview/<feature>/` files is incomplete — the implementer would re-derive the UI from scratch, defeating the whole preview flow. This applies to Route B (new proposals) exactly as it does to Step 4a (existing proposals): after the proposal is drafted, verify the reference is present and add it yourself if missing.
-11. **If a UI map exists (`prompter/project/ui.md` or `prompter/features/<slug>/ui.md`), it is the page inventory and navigation contract.** Build the pages it lists (scoped to the phase/increment at hand) and make every action it specifies actually work in the preview — links navigate to sibling preview pages, modals/drawers open in-page, toasts appear (see "Honoring a UI map's navigation contract" in Step 3).
-12. **If the design serves a planned feature/project roadmap, recording the previews in that roadmap is the finish line — do NOT implement.** When a `prompter/features/<slug>/roadmap.md` (feature-planner) or `prompter/project/roadmap.md` (project-orchestrator) covers the screens you designed, offer to add a **UI Design References** section mapping each page to its increment/phase — then yield. That section is what makes every later `continue` scaffold its proposal with the approved UI attached (see Step 4b).
+11. **Load the `design-taste-frontend` ruleset before any visual output.** State its Design Read + dial values at discovery (for dashboards and dense product UI outside the ruleset's scope, still state the Design Read but treat dials as advisory — default to low variance, low motion, higher density), hold low-fi to its layout discipline, high-fi to its design directives and AI-tell bans, and run its Final Pre-Flight Check before calling an implementation done (see "Harnessing the `design-taste-frontend` Skill" in Step 3).
+12. **If a UI map exists (`prompter/project/ui.md` or `prompter/features/<slug>/ui.md`), it is the page inventory and navigation contract.** Build the pages it lists (scoped to the phase/increment at hand) and make every action it specifies actually work in the preview — links navigate to sibling preview pages, modals/drawers open in-page, toasts appear (see "Honoring a UI map's navigation contract" in Step 3).
+13. **`--parallel` changes who types, not who decides.** When the user passes `--parallel` (accept the `--paralel` misspelling too), or accepts the fan-out offer at 4+ pages, build each pass with the orchestrator/worker protocol in "Parallel build" (Step 3): you make every design decision and write the shared shell/brief first; subagents only render pages from them. All approval gates stay exactly where they are. If the host cannot spawn subagents, warn and build serially.
+14. **If the design serves a planned feature/project roadmap, recording the previews in that roadmap is the finish line — do NOT implement.** When a `prompter/features/<slug>/roadmap.md` (feature-planner) or `prompter/project/roadmap.md` (project-orchestrator) covers the screens you designed, offer to add a **UI Design References** section mapping each page to its increment/phase — then yield. That section is what makes every later `continue` scaffold its proposal with the approved UI attached (see Step 4b).
 
 ---
 
@@ -78,7 +80,7 @@ Apps, dashboards, admin panels, onboarding flows, and any request phrased as "a 
 3. Confirm in one line: *"I'll build these under `<feature>/` as separate pages: Dashboard, Settings, Profile. Add or drop any?"* — then yield.
 4. Each confirmed screen becomes its **own** `<page>/` folder inside `.preview/<feature>/` (Step 3). More than one screen = multi-page = one folder per page. There is no single-file shortcut.
 
-Scale-aware: **2–5 pages** → build them all each pass. **6+ pages** → use the high-fi propagation note in Step 3 to lock the visual language once instead of per page.
+Scale-aware: **2–5 pages** → build them all each pass. **4+ pages** → if the user didn't already pass `--parallel`, offer the fan-out in the same confirmation line — e.g. *"That's 8 pages — want me to build them in parallel with subagents? It's much faster."* (see "Parallel build" in Step 3). **6+ pages** → use the high-fi propagation note in Step 3 to lock the visual language once instead of per page.
 
 ### New designs
 Ask one combined question: *"What is this for — page/feature, audience, and goal? Any vibe or reference is optional."*
@@ -163,10 +165,27 @@ When Step 0 found a UI map, the previews must make its navigation **actually wor
 - **Modals and drawers** (`open modal:` / `open drawer:`): build the overlay markup in the same file, hidden by default, toggled by the trigger. Minimal inline JS for open/close (and toast show/hide) is allowed and expected — this is in-page UI, not the banned "fake separate pages with JS show/hide" pattern, which remains forbidden for distinct screens. Include every modal/drawer button's outcome per the map (e.g. Cancel closes; Delete closes, shows the toast, then follows its `→ /route`).
 - **Toasts** (`toast: "<msg>"`): render an actual toast on trigger, using the map's exact copy, auto-dismissing; when the action chains to a route, navigate after a short delay so the toast is visible.
 - **In-page actions** (`expand/collapse`, filters, pagination): demonstrate the toggle where cheap; a static representative state is fine when it isn't.
-- Applies from **Pass 1 (low-fi)** onward — clickable flow is layout, not polish. Keep the wiring in high-fi.
+- Applies from **Pass 1 (low-fi)** onward — clickable flow is layout, not polish. Keep the wiring in high-fi, and style the modal/drawer/toast surfaces to the `design-taste-frontend` directives like any other component.
 
 ### CSS in previews
 Always use Tailwind CDN (`<script src="https://cdn.tailwindcss.com"></script>`), even if the project uses shadcn/Material. If the project has brand tokens (CSS variables), inline them in a `<style>` block so colors/fonts match. The real implementation uses the project's actual design system — keep this separation clear.
+
+### Parallel build (`--parallel`)
+
+Serial building is the default. When the user passes `--parallel` (or accepts the 4+ page offer from Step 2), build each pass with an orchestrator/worker fan-out instead — same files, same approval gates, a fraction of the wall-clock. Requires a host that can spawn subagents (a Task/Agent tool); if none is available, warn and build serially. With fewer than 3 pages the setup outweighs the win — say so and build serially.
+
+**Protocol:**
+
+1. **Orchestrator (you) does all shared work first — decisions are never delegated.** Complete Step 2 (inventory + confirmation), the Design Read + dials, then write two files inside the feature folder:
+   - `.preview/<feature>/_shared/shell.html` — the exact nav/sidebar/header markup every page copies verbatim, wrapped in `<!-- Shell:Start -->` … `<!-- Shell:End -->` markers (keep the markers in every copy — they make the consistency check mechanical). Links use `../` paths as resolved from a `<page>/` folder and point at the **current pass** filename (`lowfi.html` during Pass 1).
+   - `.preview/<feature>/_shared/brief.md` — brand tokens, dial values, the layout constraints distilled from the `design-taste-frontend` ruleset (workers must NOT re-read the full ruleset), the link map (every page → `../<page>/<pass>.html` — the current pass's filename), section-naming conventions, and each page's spec (its UI-map Elements & Navigation row or your inventory notes)
+2. **Fan out one subagent per page — all launched in a single message** so they run concurrently. Each worker's prompt names: its page, the two `_shared/` file paths (read both; copy the shell verbatim), the pass to build, and its output path `.preview/<feature>/<page>/lowfi.html`. Workers write the file and return ONLY their `<!-- Section: Name -->` list — never the HTML (keeps the orchestrator's context lean).
+3. **Orchestrator closes the pass:** write the hub `index.html`, then run a consistency check — the `Shell:Start`…`Shell:End` region byte-identical across pages (`diff` the extracted region), every `href` resolving to an existing file. A missing or empty page file means its worker failed — re-dispatch that page before presenting. Fix small violations yourself; re-dispatch a worker only for a page that drifted structurally. Then present for approval as usual.
+4. **High-fi wave:** build ONE representative page's `hifi.html` yourself (this sets the visual language — see the propagation note in Pass 2), get the user's approval, then regenerate `_shared/shell.html` with links pointing at `hifi.html` and fan out a parallel propagation wave: each worker gets the approved representative `hifi.html` path as the style reference plus its own page's `lowfi.html`, copies the regenerated shell, and applies the same visual language to its page — hifi pages link to hifi siblings with no post-hoc edits. Each worker also retargets every in-body `lowfi.html` href in its page to `hifi.html` — the shell handles nav links, but UI-map body links (cards, CTAs, chained routes) come from the lowfi file and must move to the new pass too. The orchestrator only rewrites the hub. Re-run the consistency check.
+
+Rules: approval gates do not move (low-fi approval before any high-fi; representative approval before the propagation wave). Workers share no context — anything a worker must know goes in `_shared/brief.md`, not in your head. `_shared/` lives inside the feature folder and stays with the gallery (it doubles as the design record).
+
+Iteration in parallel mode: cross-cutting feedback ("denser everywhere", "sidebar instead of top nav") is a brief/shell change — update `_shared/brief.md` (and `shell.html` if the shell changed) FIRST, then re-dispatch only the affected pages as a new worker wave, each prompt naming the specific revision. Feedback scoped to one or two pages: edit those files yourself — no wave. Never serially hand-edit every page; that reintroduces the slowness the fan-out exists to remove.
 
 ### Pass 1: Low-fi (grayscale, structural)
 - Grays and neutrals only — no brand colors
@@ -185,10 +204,18 @@ Present, wait for layout approval before proceeding.
 - **If a generated design system was found in Step 0**, draw these from `prompter/design-system/tokens/` and the per-component contracts (`components/<name>.md`) rather than inventing new values — the high-fi preview should already look like the documented system. Inline the token values in the preview's `<style>` block (Tailwind CDN previews stay standalone). Flag any place the requested design conflicts with the documented system.
 - Add hover/focus states, responsive breakpoints
 - Files: `.preview/<feature>/hifi.html` (single page), or `.preview/<feature>/<page>/hifi.html` per screen (multi-page); update the feature hub and every cross-link to point at them
-- **Many pages? Propagate, don't rebuild blind.** For 6+ pages, take one representative page to high-fi first (`<feature>/<page>/hifi.html`), get the user to approve the visual language, *then* apply that same language across the remaining pages. This locks the look once instead of re-litigating it per page.
+- **Many pages? Propagate, don't rebuild blind.** For 6+ pages, take one representative page to high-fi first (`<feature>/<page>/hifi.html`), get the user to approve the visual language, *then* apply that same language across the remaining pages. This locks the look once instead of re-litigating it per page. In `--parallel` mode, the remaining pages are applied as a concurrent worker wave (see "Parallel build" step 4).
 
-### Delegating to `frontend-design` Skill
-If the `frontend-design` skill is available in the session, delegate the actual HTML markup construction to it — pass your layout decisions, section structure, and brand tokens, let it produce the markup. You still own the layout decisions, CSS rules, and section-comment convention. If not available, build the markup yourself.
+### Harnessing the `design-taste-frontend` Skill
+This skill's visual quality engine is `design-taste-frontend` (anti-slop ruleset: Design Read, taste dials, design-system map, AI-tell bans, pre-flight check). It is not a markup builder you hand off to — it is a rulebook you apply at every visual step. The file is large (~1,200 lines) — read it in targeted slices, not whole: Sections 0–1 at discovery, Section 4.7 before low-fi, Sections 4 + 9 before high-fi, Sections 2–3 before Route A implementation, and Section 14 fresh before declaring implementation done. Locate it early:
+
+- **Locate it:** if available as a session skill, invoke it; otherwise read its `SKILL.md` from the sibling skill directory (`../design-taste-frontend/SKILL.md` relative to this skill). If it cannot be found at all, WARN the user explicitly — "The design-taste-frontend ruleset is not installed; this run will fall back to the bundled references/design-principles.md, without the Design Read, dials, AI-tell bans, or pre-flight check" — and ask whether to proceed in degraded mode or stop so they can install it. In degraded mode, Critical Rule 11's ruleset obligations are waived. Section numbers below reflect the ruleset as of this writing; if its numbering has drifted, the quoted section names ("Layout Discipline", "AI Tells", "Final Pre-Flight Check") are authoritative — match on names.
+- **Step 2 (Discovery):** perform its **Design Read** (Section 0) — one line stating page kind, audience, vibe, and aesthetic family — and set the **three dials** (Section 1). State both in your discovery message; they govern every pass that follows.
+- **Pass 1 (low-fi):** its **Layout Discipline** rules (Section 4.7 — hero fits viewport, section-layout-repetition ban, zigzag cap, eyebrow restraint, nav single-line) apply even in grayscale. A low-fi that violates them is not approvable.
+- **Pass 2 (high-fi):** apply its **Design Engineering Directives** (Section 4 — typography, color calibration and palette bans, materiality, states, content density) and check the output against its **AI Tells** list (Section 9). Previews stay Tailwind-CDN standalone files — apply the rules, not its React/Next stack conventions.
+- **Precedence on conflict:** the ruleset's bans target unprompted LLM *defaults*, not documented brand choices. Tokens and fonts from `prompter/design-system.md`, brand assets, or an explicit brief always override a design-taste-frontend default ban (e.g. a brand that documents Inter or a beige palette keeps it). Flag the tension in one line and follow the brand — never "fix" a documented design system to satisfy the ruleset.
+- **Implementation (Step 4, Route A):** apply its architecture conventions (Sections 2–3: real design-system packages when the brief calls for one, Motion, icon policy, RSC safety) where they fit the project's actual stack — the project's existing stack and design system always win on conflict. Before declaring done, run its **Final Pre-Flight Check** (Section 14) including the copy self-audit.
+- **Scope note:** `design-taste-frontend` targets landing pages, portfolios, and redesigns. For dashboards and dense product UI, apply only its universal rules (typography discipline, color/shape consistency locks, interactive states, contrast checks, AI-tell bans) and skip the landing-specific ones (hero stack rules, marquee, bento rhythm).
 
 ### Variations (style options for ONE page)
 A variation is an alternative visual style for a single page — **not** another page (those are separate folders, see File structure). Default to one. Offer more only if the user asks, or if there is genuinely zero style signal to work from. Max 3 per page. When building multiple style variants of a page, create a `<feature>/<page>/variations.html` hub (or `<feature>/variations.html` for a single-page design) that links or iframes them side-by-side — this is separate from the multi-page feature hub `index.html`. Always mark one as **Recommended ⭐** with a one-line reason.
@@ -254,7 +281,7 @@ it when scaffolded? I'll add a **UI Design References** section mapping:
 
   ```markdown
   ## UI Design References
-  > Written by the `ui-ux-pro` skill after previews were approved. When `continue` scaffolds an
+  > Written by the `ui-ux-max` skill after previews were approved. When `continue` scaffolds an
   > increment's proposal, it copies that increment's rows into the proposal's Design Reference
   > section. Previews live in `.preview/` (often gitignored — a local design gallery).
 

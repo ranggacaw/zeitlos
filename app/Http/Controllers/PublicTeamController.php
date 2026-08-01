@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FootballMatch;
 use App\Models\Player;
 use App\Team\PublicMatchPresenter;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
@@ -72,10 +73,13 @@ class PublicTeamController extends Controller
         ]);
     }
 
-    public function leaderboard(): Response
+    public function leaderboard(Request $request): Response
     {
+        $selectedStat = $request->query('stat') === 'assists' ? 'assists' : 'goals';
+
         return Inertia::render('Public/Leaderboard', [
-            'leaders' => $this->leaderboardPlayers()->values(),
+            'leaders' => $this->leaderboardPlayers($selectedStat)->values(),
+            'selectedStat' => $selectedStat,
         ]);
     }
 
@@ -134,11 +138,17 @@ class PublicTeamController extends Controller
             ->get();
     }
 
-    private function leaderboardPlayers(): Collection
+    private function leaderboardPlayers(string $selectedStat = 'goals'): Collection
     {
+        $secondaryStat = $selectedStat === 'assists' ? 'goals' : 'assists';
+
         return $this->activePlayers()
             ->map(fn (Player $player) => $this->serializeLeaderboardPlayer($player))
-            ->sortByDesc(fn (array $player) => [$player['goals'], $player['assists'], $player['name']])
+            ->sort(function (array $a, array $b) use ($selectedStat, $secondaryStat): int {
+                return $b[$selectedStat] <=> $a[$selectedStat]
+                    ?: $b[$secondaryStat] <=> $a[$secondaryStat]
+                    ?: $a['name'] <=> $b['name'];
+            })
             ->values();
     }
 

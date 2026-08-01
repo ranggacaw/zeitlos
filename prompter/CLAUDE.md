@@ -203,8 +203,18 @@ If multiple capabilities are affected, create multiple delta files under `change
 - [ ] 1.4 Write tests
 
 ## Post-Implementation
-- [ ] Update AGENTS.md in the project root for new changes in this specs
+- [ ] Update the project wiki for structural changes (new route, export, component, schema): edit the affected page(s) under `prompter/project-wiki/` and append a line to `prompter/project-wiki/log.md`
+- [ ] [Any other follow-up this change requires — e.g. roadmap status flips, docs surfaces, AGENTS.md notes]
 ```
+
+Post-Implementation holds every follow-up the change needs, not just the wiki. Add whatever applies
+(roadmap/feature status updates, documentation surfaces, migration notes) — those items are
+unconditional and always belong here.
+
+**Only the wiki task is conditional.** Before writing it, check whether the project has a wiki:
+- `prompter/project-wiki/index.md` missing → **omit that one task** (keep the rest of the section; drop the `## Post-Implementation` heading only if nothing else remains). Do not write a task that can never be completed, and do not generate a wiki as part of this change — the `project-wiki` skill runs only when the user asks for it.
+- Wiki present at another path (e.g. `docs/project-wiki/`) → use the path referenced in the Project Wiki block of AGENTS.md / CLAUDE.md.
+- Wiki present but deleted before the change is applied → mark the task `- [x]` with `(skipped — no project wiki)` so the checklist can still close.
 
 5. **Create design.md when needed:**
 Create `design.md` if any of the following apply; otherwise omit it:
