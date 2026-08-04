@@ -18,6 +18,10 @@ The system SHALL provide a public read-only dashboard that summarizes Zeitlos te
 - **WHEN** a match is starting or live
 - **THEN** the dashboard highlights that match and provides a live score entry point
 
+#### Scenario: Dashboard shows team jersey
+- **WHEN** a visitor opens the public dashboard route
+- **THEN** the page provides a Quick Actions entry for the 2025/2026 Jersey section and shows the player and goalkeeper jerseys
+
 ### Requirement: Public Player Details
 The system SHALL provide a public read-only player detail page for active players with roster identity and derived stat totals.
 
@@ -64,7 +68,7 @@ The system SHALL provide a public read-only roster page that lists active player
 
 #### Scenario: Visitor views active roster
 - **WHEN** a visitor opens the roster route
-- **THEN** the page lists active players with jersey number, position, optional photo fallback, and stat totals
+- **THEN** the page lists active players with jersey number, position, optional photo fallback, stat totals, and the 2025/2026 player and goalkeeper jerseys
 
 #### Scenario: Visitor views match roster groups
 - **WHEN** a match has roster entries

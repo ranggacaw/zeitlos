@@ -1,14 +1,26 @@
 import MatchDetailsDialog from '@/Components/MatchDetailsDialog';
+import PublicJerseySection from '@/Components/PublicJerseySection';
 import PublicRoster from '@/Components/PublicRoster';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
 function ActionRow({ href, children }) {
+    const className = 'group flex items-center justify-between rounded-2xl border border-border bg-card px-4 py-3 text-sm font-bold text-card-foreground transition hover:border-primary/40 hover:bg-background';
+
+    if (href.startsWith('#')) {
+        return (
+            <a href={href} className={className}>
+                <span>{children}</span>
+                <span className="text-primary transition group-hover:translate-x-0.5" aria-hidden="true">-&gt;</span>
+            </a>
+        );
+    }
+
     return (
         <Link
             href={href}
-            className="group flex items-center justify-between rounded-2xl border border-border bg-card px-4 py-3 text-sm font-bold text-card-foreground transition hover:border-primary/40 hover:bg-background"
+            className={className}
         >
             <span>{children}</span>
             <span className="text-primary transition group-hover:translate-x-0.5" aria-hidden="true">-&gt;</span>
@@ -136,6 +148,7 @@ function QuickActions() {
             <h2 className="text-lg font-black tracking-tight text-foreground">Quick actions</h2>
             <div className="mt-4 grid gap-3">
                 <ActionRow href={route('public.roster')}>Full roster</ActionRow>
+                <ActionRow href="#jersey">Jersey</ActionRow>
                 <ActionRow href={route('public.schedule')}>Match schedule</ActionRow>
                 <ActionRow href={route('public.leaderboard')}>Leaderboard</ActionRow>
             </div>
@@ -228,6 +241,7 @@ export default function Welcome({ activeMatch, upcomingMatch, players = [], lead
                     <QuickActions />
                 </aside>
 
+                <PublicJerseySection className="lg:col-span-2" />
                 <RosterPreview players={players} />
                 <LeaderboardPreview leaders={leaders} />
             </div>
