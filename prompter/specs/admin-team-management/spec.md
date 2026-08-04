@@ -159,7 +159,7 @@ The system SHALL retire the temporary Inertia admin CMS surface so Filament `/ad
 - **THEN** the system renders the Filament CMS panel for admin team management
 
 ### Requirement: Admin Authentication Entry Usability
-The system SHALL provide a show/hide password control on both the Breeze login page and the Filament admin login page.
+The system SHALL provide a show/hide password control on both the Breeze login page and the Filament admin login page, and the Filament admin login page SHALL show Zeitlos logo branding.
 
 #### Scenario: Admin toggles password visibility on Breeze login
 - **WHEN** an admin clicks the password visibility toggle on the Breeze `/login` page
@@ -169,3 +169,6 @@ The system SHALL provide a show/hide password control on both the Breeze login p
 - **WHEN** an admin clicks the password visibility toggle on the Filament `/admin/login` page
 - **THEN** the password field reveals or hides the entered password
 
+#### Scenario: Admin sees Zeitlos branding on Filament login
+- **WHEN** a guest opens the Filament `/admin/login` page
+- **THEN** the page shows the Zeitlos logo branding for the CMS

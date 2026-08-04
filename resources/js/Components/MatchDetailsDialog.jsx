@@ -88,7 +88,7 @@ export default function MatchDetailsDialog({ match, onClose }) {
     return (
         <div className="fixed inset-0 z-50 flex items-end bg-foreground/40 px-3 pb-safe-bottom pt-safe-top sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true" aria-labelledby="match-details-title">
             <button type="button" className="absolute inset-0 cursor-default" aria-label="Close match details" onClick={onClose} />
-            <section className="relative max-h-[88vh] w-full overflow-y-auto rounded-t-[2rem] border border-border bg-card p-5 text-card-foreground shadow-2xl sm:max-w-2xl sm:rounded-[2rem] sm:p-6">
+            <section className="relative max-h-[88vh] w-full overflow-y-auto rounded-t-4xl border border-border bg-card p-5 text-card-foreground shadow-2xl sm:max-w-2xl sm:p-6">
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <p className="text-xs font-black uppercase tracking-[0.22em] text-primary">Match details</p>

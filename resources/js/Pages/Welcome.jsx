@@ -116,16 +116,15 @@ function MatchCommandCenter({ match, onShowDetails }) {
     );
 }
 
-function TeamSnapshot({ players, leaders }) {
+function TeamSnapshot({ players }) {
     return (
         <section className="rounded-[1.75rem] border border-border bg-card p-5 text-card-foreground sm:p-6">
             <div className="flex items-center justify-between gap-3">
                 <h2 className="text-lg font-black tracking-tight text-foreground">Team snapshot</h2>
                 <span className="rounded-full border border-border bg-background px-3 py-1 text-[0.65rem] font-black uppercase tracking-wider text-muted-foreground">Public</span>
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="mt-4 grid gap-3">
                 <StatPill label="Squad" value={players.length} />
-                <StatPill label="Leaders" value={leaders.length} />
             </div>
         </section>
     );
@@ -225,7 +224,7 @@ export default function Welcome({ activeMatch, upcomingMatch, players = [], lead
                 <MatchCommandCenter match={featuredMatch} onShowDetails={setSelectedMatch} />
 
                 <aside className="grid gap-5">
-                    <TeamSnapshot players={players} leaders={leaders} />
+                    {/* <TeamSnapshot players={players} /> */}
                     <QuickActions />
                 </aside>
 

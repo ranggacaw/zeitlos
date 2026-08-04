@@ -39,6 +39,14 @@ class AdminTeamManagementTest extends TestCase
         $this->get('/admin')->assertRedirect('/admin/login');
     }
 
+    public function test_filament_admin_login_uses_zeitlos_branding(): void
+    {
+        $this->get('/admin/login')
+            ->assertOk()
+            ->assertSee('Zeitlos CMS')
+            ->assertSee('zeitlos_logo.png', false);
+    }
+
     public function test_non_admin_user_is_denied_admin_management(): void
     {
         $user = User::factory()->create();

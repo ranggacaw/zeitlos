@@ -1,13 +1,17 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
 import ThemeToggle from '@/Components/ThemeToggle';
 import { Link } from '@inertiajs/react';
+import zeitlosLogo from '../../assets/zeitlos_logo.png';
 
 export default function GuestLayout({ children }) {
     return (
         <div className="flex min-h-screen flex-col items-center bg-background pt-6 text-foreground sm:justify-center sm:pt-0">
             <div>
                 <Link href="/">
-                    <ApplicationLogo className="h-20 w-20 fill-current text-primary" />
+                    <img
+                        src={zeitlosLogo}
+                        alt="FC Zeitlos logo"
+                        className="h-24 w-24 object-contain"
+                    />
                 </Link>
             </div>
 
