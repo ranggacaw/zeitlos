@@ -21,6 +21,7 @@ class Player extends Model
         'joined_at',
         'goals_adjustment',
         'assists_adjustment',
+        'appearances_adjustment',
     ];
 
     protected function casts(): array
@@ -30,6 +31,7 @@ class Player extends Model
             'joined_at' => 'date',
             'goals_adjustment' => 'integer',
             'assists_adjustment' => 'integer',
+            'appearances_adjustment' => 'integer',
         ];
     }
 
@@ -62,5 +64,10 @@ class Player extends Model
             ->where('event_type', MatchEvent::TYPE_GOAL)
             ->where('team', MatchEvent::TEAM_ZEITLOS)
             ->count() + $this->assists_adjustment;
+    }
+
+    public function appearancesCount(): int
+    {
+        return $this->rosterEntries()->count() + $this->appearances_adjustment;
     }
 }

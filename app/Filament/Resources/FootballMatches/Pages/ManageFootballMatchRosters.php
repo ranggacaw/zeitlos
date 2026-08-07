@@ -10,7 +10,6 @@ use App\Team\WhatsAppMatchTemplateImport;
 use App\Team\WhatsAppRosterText;
 use BackedEnum;
 use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -73,9 +72,12 @@ class ManageFootballMatchRosters extends Page implements HasTable
                     ->formatStateUsing(fn (string $state): string => $state === MatchRoster::ROLE_GOALKEEPER ? 'Goalkeeper' : 'Player'),
             ])
             ->recordActions([
-                DeleteAction::make()
+                Action::make('delete')
+                    ->label('Delete')
+                    ->icon(Heroicon::OutlinedTrash)
+                    ->color('danger')
+                    ->requiresConfirmation()
                     ->visible(fn (): bool => $this->getRecord()->status !== FootballMatch::STATUS_FINISHED)
-                    ->successRedirectUrl(fn (): string => $this->getResourceUrl('rosters'))
                     ->action(fn (MatchRoster $record) => $record->delete()),
             ]);
     }
@@ -135,6 +137,7 @@ class ManageFootballMatchRosters extends Page implements HasTable
                         ->label('Player')
                         ->options(Player::query()->orderBy('name')->pluck('name', 'id'))
                         ->searchable()
+                        ->live()
                         ->helperText('Choose either an existing player or a guest name.')
                         ->rule(function (Get $get) {
                             return function (string $attribute, mixed $value, \Closure $fail) use ($get) {
@@ -146,6 +149,7 @@ class ManageFootballMatchRosters extends Page implements HasTable
                     TextInput::make('guest_name')
                         ->label('Guest name')
                         ->maxLength(255)
+                        ->live()
                         ->required(fn (Get $get): bool => blank($get('player_id')))
                         ->validationMessages([
                             'required' => 'Select a player or enter a guest name.',

@@ -54,13 +54,17 @@ class PlayerForm
                         DatePicker::make('joined_at'),
                     ]),
                 Section::make('Stat corrections')
-                    ->columns(2)
+                    ->columns(3)
                     ->schema([
                         TextInput::make('goals_adjustment')
                             ->required()
                             ->numeric()
                             ->default(0),
                         TextInput::make('assists_adjustment')
+                            ->required()
+                            ->numeric()
+                            ->default(0),
+                        TextInput::make('appearances_adjustment')
                             ->required()
                             ->numeric()
                             ->default(0),

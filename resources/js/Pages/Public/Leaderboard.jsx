@@ -1,8 +1,9 @@
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head, Link } from '@inertiajs/react';
 
-export default function Leaderboard({ leaders = [], selectedStat = 'goals' }) {
+export default function Leaderboard({ leaders = [], selectedStat = 'appearances' }) {
     const filters = [
+        { value: 'appearances', label: 'Appearance' },
         { value: 'goals', label: 'Goals' },
         { value: 'assists', label: 'Assists' },
     ];
@@ -54,7 +55,9 @@ export default function Leaderboard({ leaders = [], selectedStat = 'goals' }) {
                                     </p>
                                 </div>
                                 <p className="text-right text-xs font-bold leading-tight text-chart-2 sm:text-sm">
-                                    {player.goals} goals<br />{player.assists} assists
+                                    Appearance: {player.appearances}
+                                    <br />
+                                    Assist: {player.assists} . Goal: {player.goals}
                                 </p>
                             </Link>
                         ))

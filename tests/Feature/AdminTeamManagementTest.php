@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Filament\Pages\Leaderboard;
-use App\Filament\Resources\FootballMatches\FootballMatchResource;
 use App\Filament\Resources\FootballMatches\Pages\CreateFootballMatch;
 use App\Filament\Resources\FootballMatches\Pages\EditFootballMatch;
 use App\Filament\Resources\FootballMatches\Pages\ListFootballMatches;
@@ -105,6 +104,7 @@ class AdminTeamManagementTest extends TestCase
                 'joined_at' => '2026-02-01',
                 'goals_adjustment' => 2,
                 'assists_adjustment' => 3,
+                'appearances_adjustment' => 1,
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -123,6 +123,7 @@ class AdminTeamManagementTest extends TestCase
                 'joined_at' => '2026-02-01',
                 'goals_adjustment' => 4,
                 'assists_adjustment' => 5,
+                'appearances_adjustment' => 6,
             ])
             ->call('save')
             ->assertHasNoFormErrors();
@@ -132,6 +133,7 @@ class AdminTeamManagementTest extends TestCase
         $this->assertSame(9, $player->jersey_number);
         $this->assertFalse($player->is_active);
         $this->assertSame('https://example.com/updated.jpg', $player->photo_path);
+        $this->assertSame(6, $player->appearances_adjustment);
     }
 
     public function test_admin_can_create_and_update_a_match_through_filament(): void
@@ -238,6 +240,89 @@ TEXT;
         ]);
     }
 
+    public function test_admin_can_create_a_match_from_whatsapp_template_on_create_page(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $player = Player::factory()->create(['name' => 'Rafly']);
+
+        $template = <<<'TEXT'
+!!MAY THE WINS BE WITH YOU!!
+
+🥅 : Epic Sports
+⏰ : 06:00 sd 08:00 WIB
+📅 : Minggu , 23 Agustus 2026
+💵 : 80K
+👔 : JERSEY ZEITLOS
+
+Include: Lap, Wasit, FG
+_________
+_________
+NOTE: SEGERA BERGABUNG & BAYAR DP SECEPATNYA AGAR TIDAK KEHABISAN SLOT, KARENA SLOT TERBATAS
+__________________
+PEMBAYARAN DP:
+DANA: 085156292210 an Rafly Fandiansyah
+BCA: 7391837345 an Rafly Fandiansyah
+
+DP Mininal 20K ✅
+Bukti TF kirim ke: 085156292210
+
+Maps :
+https://maps.app.goo.gl/aPYeTHZaRocgCCE39?g_st=ic
+
+LIST KIPER
+1. Gilang
+2. Sutan
+
+LIST PLAYER
+   1. Rafly
+2. Rangga
+3.
+4.
+5.
+6.
+7.
+8.
+9.
+10.
+11.
+12.
+13.
+14. why I cannot create from whatsapp template?
+TEXT;
+
+        Livewire::actingAs($admin)
+            ->test(CreateFootballMatch::class)
+            ->callAction('importWhatsAppTemplate', [
+                'opponent' => 'Internal Game',
+                'template' => $template,
+            ])
+            ->assertHasNoActionErrors();
+
+        $match = FootballMatch::where('venue', 'Epic Sports')->firstOrFail();
+
+        $this->assertSame('2026-08-23', $match->match_date->toDateString());
+        $this->assertStringStartsWith('06:00', $match->match_time);
+        $this->assertSame('https://maps.app.goo.gl/aPYeTHZaRocgCCE39?g_st=ic', $match->maps_url);
+        $this->assertEquals(80000, $match->ticket_price);
+        $this->assertEquals(20000, $match->payment_amount);
+        $this->assertDatabaseHas('match_rosters', [
+            'match_id' => $match->id,
+            'player_id' => $player->id,
+            'guest_name' => null,
+            'role' => MatchRoster::ROLE_PLAYER,
+        ]);
+        $this->assertDatabaseHas('match_rosters', [
+            'match_id' => $match->id,
+            'guest_name' => 'Rangga',
+            'role' => MatchRoster::ROLE_PLAYER,
+        ]);
+        $this->assertDatabaseMissing('match_rosters', [
+            'match_id' => $match->id,
+            'guest_name' => 'why I cannot create from whatsapp template?',
+        ]);
+        $this->assertSame(4, MatchRoster::where('match_id', $match->id)->count());
+    }
+
     public function test_admin_can_open_and_update_filament_leaderboard_corrections(): void
     {
         $admin = User::factory()->admin()->create();
@@ -246,6 +331,7 @@ TEXT;
             'name' => 'Filament Correction Player',
             'goals_adjustment' => 0,
             'assists_adjustment' => 0,
+            'appearances_adjustment' => 0,
             'is_active' => true,
         ]);
         $assist = Player::factory()->create([
@@ -259,6 +345,11 @@ TEXT;
             'assist_player_id' => $assist->id,
             'event_type' => MatchEvent::TYPE_GOAL,
         ]);
+        MatchRoster::create([
+            'match_id' => $match->id,
+            'player_id' => $player->id,
+            'role' => MatchRoster::ROLE_PLAYER,
+        ]);
 
         $this->actingAs($admin)
             ->get('/admin/leaderboard')
@@ -266,7 +357,8 @@ TEXT;
             ->assertSee('Leaderboard corrections')
             ->assertSee('Filament Correction Player')
             ->assertSee('Event goals')
-            ->assertSee('Event assists');
+            ->assertSee('Event assists')
+            ->assertSee('Roster apps');
 
         Livewire::actingAs($admin)
             ->test(Leaderboard::class)
@@ -275,12 +367,14 @@ TEXT;
             ->callTableAction('editAdjustments', $player->getKey(), [
                 'goals_adjustment' => 3,
                 'assists_adjustment' => 2,
+                'appearances_adjustment' => 4,
             ])
             ->assertHasNoTableActionErrors();
 
         $player->refresh();
         $this->assertSame(3, $player->goals_adjustment);
         $this->assertSame(2, $player->assists_adjustment);
+        $this->assertSame(4, $player->appearances_adjustment);
 
         $this->get(route('public.leaderboard'))
             ->assertOk()
@@ -288,6 +382,7 @@ TEXT;
                 ->where('leaders.0.name', 'Filament Correction Player')
                 ->where('leaders.0.goals', 4)
                 ->where('leaders.0.assists', 2)
+                ->where('leaders.0.appearances', 5)
                 ->where('leaders.1.name', 'Filament Assist Player')
                 ->where('leaders.1.goals', 0)
                 ->where('leaders.1.assists', 1)
@@ -565,7 +660,7 @@ TEXT;
             ->test(ManageFootballMatchRosters::class, ['record' => $match->getRouteKey()])
             ->callTableAction('delete', $roster->getKey())
             ->assertHasNoTableActionErrors()
-            ->assertRedirect(FootballMatchResource::getUrl('rosters', ['record' => $match]));
+            ->assertNoRedirect();
 
         $this->assertDatabaseMissing('match_rosters', [
             'id' => $roster->getKey(),

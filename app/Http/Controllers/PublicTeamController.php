@@ -80,7 +80,9 @@ class PublicTeamController extends Controller
 
     public function leaderboard(Request $request): Response
     {
-        $selectedStat = $request->query('stat') === 'assists' ? 'assists' : 'goals';
+        $selectedStat = in_array($request->query('stat'), ['goals', 'assists', 'appearances'], true)
+            ? $request->query('stat')
+            : 'appearances';
 
         return Inertia::render('Public/Leaderboard', [
             'leaders' => $this->leaderboardPlayers($selectedStat)->values(),
@@ -143,15 +145,20 @@ class PublicTeamController extends Controller
             ->get();
     }
 
-    private function leaderboardPlayers(string $selectedStat = 'goals'): Collection
+    private function leaderboardPlayers(string $selectedStat = 'appearances'): Collection
     {
-        $secondaryStat = $selectedStat === 'assists' ? 'goals' : 'assists';
+        $secondaryStats = match ($selectedStat) {
+            'assists' => ['goals', 'appearances'],
+            'appearances' => ['goals', 'assists'],
+            default => ['assists', 'appearances'],
+        };
 
         return $this->activePlayers()
             ->map(fn (Player $player) => $this->serializeLeaderboardPlayer($player))
-            ->sort(function (array $a, array $b) use ($selectedStat, $secondaryStat): int {
+            ->sort(function (array $a, array $b) use ($selectedStat, $secondaryStats): int {
                 return $b[$selectedStat] <=> $a[$selectedStat]
-                    ?: $b[$secondaryStat] <=> $a[$secondaryStat]
+                    ?: $b[$secondaryStats[0]] <=> $a[$secondaryStats[0]]
+                    ?: $b[$secondaryStats[1]] <=> $a[$secondaryStats[1]]
                     ?: $a['name'] <=> $b['name'];
             })
             ->values();
@@ -166,6 +173,7 @@ class PublicTeamController extends Controller
             'position' => $player->position,
             'goals' => $player->goalsCount(),
             'assists' => $player->assistsCount(),
+            'appearances' => $player->appearancesCount(),
         ];
 
         if ($player->photo_path) {
@@ -184,6 +192,7 @@ class PublicTeamController extends Controller
             'position' => $player->position,
             'goals' => $player->goalsCount(),
             'assists' => $player->assistsCount(),
+            'appearances' => $player->appearancesCount(),
         ];
     }
 
@@ -198,6 +207,7 @@ class PublicTeamController extends Controller
             'joined_at' => $player->joined_at?->toDateString(),
             'goals' => $player->goalsCount(),
             'assists' => $player->assistsCount(),
+            'appearances' => $player->appearancesCount(),
         ];
     }
 

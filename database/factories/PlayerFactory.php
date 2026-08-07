@@ -21,6 +21,7 @@ class PlayerFactory extends Factory
             'joined_at' => fake()->dateTimeBetween('-5 years', 'now'),
             'goals_adjustment' => 0,
             'assists_adjustment' => 0,
+            'appearances_adjustment' => 0,
         ];
     }
 }

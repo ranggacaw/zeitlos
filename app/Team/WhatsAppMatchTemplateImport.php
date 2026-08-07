@@ -235,11 +235,11 @@ class WhatsAppMatchTemplateImport
             return [];
         }
 
-        preg_match_all('/^\s*\d+\.\s*(.+?)\s*$/m', $matches[1], $names);
+        preg_match_all('/^[^\S\r\n]*\d+\.[^\S\r\n]*(.+?)[^\S\r\n]*$/m', $matches[1], $names);
 
         return collect($names[1] ?? [])
             ->map(fn (string $name): string => trim($name))
-            ->filter()
+            ->filter(fn (string $name): bool => filled($name) && ! Str::contains($name, '?'))
             ->map(fn (string $name): array => [
                 'name' => $name,
                 'role' => $role,

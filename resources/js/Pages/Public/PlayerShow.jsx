@@ -27,6 +27,7 @@ export default function PlayerShow({ player, matches = [] }) {
                         <div className="mt-4 flex flex-wrap gap-2 text-sm font-bold sm:gap-3">
                             <span className="rounded-full bg-chart-2 px-4 py-2 text-background">{player.goals} goals</span>
                             <span className="rounded-full bg-primary px-4 py-2 text-primary-foreground">{player.assists} assists</span>
+                            <span className="rounded-full bg-secondary px-4 py-2 text-secondary-foreground">{player.appearances} apps</span>
                             <span className="rounded-full bg-muted px-4 py-2 text-muted-foreground">
                                 Joined {player.joined_at || 'TBD'}
                             </span>

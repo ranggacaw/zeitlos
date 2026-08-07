@@ -49,6 +49,7 @@ class Leaderboard extends Page implements HasTable
             ->query(fn () => Player::query()
                 ->withCount(['scoredEvents as event_goals' => fn ($query) => $query->where('event_type', MatchEvent::TYPE_GOAL)])
                 ->withCount(['assistedEvents as event_assists' => fn ($query) => $query->where('event_type', MatchEvent::TYPE_GOAL)])
+                ->withCount(['rosterEntries as roster_appearances'])
                 ->orderByDesc('is_active')
                 ->orderByRaw('jersey_number is null')
                 ->orderBy('jersey_number')
@@ -90,6 +91,16 @@ class Leaderboard extends Page implements HasTable
                     ->label('Assists')
                     ->state(fn (Player $record): int => (int) $record->event_assists + (int) $record->assists_adjustment)
                     ->numeric(),
+                TextColumn::make('roster_appearances')
+                    ->label('Roster apps')
+                    ->numeric(),
+                TextColumn::make('appearances_adjustment')
+                    ->label('Apps adj.')
+                    ->numeric(),
+                TextColumn::make('adjusted_appearances')
+                    ->label('Appearances')
+                    ->state(fn (Player $record): int => (int) $record->roster_appearances + (int) $record->appearances_adjustment)
+                    ->numeric(),
             ])
             ->recordActions([
                 Action::make('editAdjustments')
@@ -98,6 +109,7 @@ class Leaderboard extends Page implements HasTable
                     ->fillForm(fn (Player $record): array => [
                         'goals_adjustment' => $record->goals_adjustment,
                         'assists_adjustment' => $record->assists_adjustment,
+                        'appearances_adjustment' => $record->appearances_adjustment,
                     ])
                     ->schema([
                         TextInput::make('goals_adjustment')
@@ -108,11 +120,16 @@ class Leaderboard extends Page implements HasTable
                             ->label('Assists adjustment')
                             ->required()
                             ->integer(),
+                        TextInput::make('appearances_adjustment')
+                            ->label('Appearances adjustment')
+                            ->required()
+                            ->integer(),
                     ])
                     ->action(function (array $data, Player $record): void {
                         $record->update([
                             'goals_adjustment' => $data['goals_adjustment'],
                             'assists_adjustment' => $data['assists_adjustment'],
+                            'appearances_adjustment' => $data['appearances_adjustment'],
                         ]);
 
                         Notification::make()

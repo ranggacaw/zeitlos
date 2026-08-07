@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\FootballMatch;
 use App\Models\MatchEvent;
+use App\Models\MatchRoster;
 use App\Models\Player;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -55,5 +56,23 @@ class PlayerStatsTest extends TestCase
 
         $this->assertSame(2, $player->goalsCount());
         $this->assertSame(4, $player->assistsCount());
+    }
+
+    public function test_player_appearance_totals_are_derived_from_roster_entries_and_adjustments(): void
+    {
+        $player = Player::factory()->create(['appearances_adjustment' => 1]);
+        $match = FootballMatch::factory()->create();
+        $otherMatch = FootballMatch::factory()->create();
+
+        MatchRoster::factory()->create([
+            'match_id' => $match->id,
+            'player_id' => $player->id,
+        ]);
+        MatchRoster::factory()->create([
+            'match_id' => $otherMatch->id,
+            'player_id' => $player->id,
+        ]);
+
+        $this->assertSame(3, $player->appearancesCount());
     }
 }

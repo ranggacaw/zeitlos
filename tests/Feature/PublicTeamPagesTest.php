@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\FootballMatch;
 use App\Models\MatchEvent;
+use App\Models\MatchRoster;
 use App\Models\Player;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
@@ -103,29 +104,36 @@ class PublicTeamPagesTest extends TestCase
                 ->where('leaders.0.name', 'Dennis')
                 ->where('leaders.0.goals', 2)
                 ->where('leaders.0.assists', 0)
+                ->where('leaders.0.appearances', 2)
             );
     }
 
-    public function test_public_leaderboard_defaults_to_goals_ordering(): void
+    public function test_public_leaderboard_defaults_to_appearances_ordering(): void
     {
         Player::factory()->create([
             'name' => 'Goal Leader',
             'goals_adjustment' => 4,
             'assists_adjustment' => 1,
         ]);
-        Player::factory()->create([
+        $appearanceLeader = Player::factory()->create([
             'name' => 'Assist Leader',
             'goals_adjustment' => 1,
             'assists_adjustment' => 5,
+        ]);
+        $match = FootballMatch::factory()->create();
+
+        MatchRoster::factory()->create([
+            'match_id' => $match->id,
+            'player_id' => $appearanceLeader->id,
         ]);
 
         $this->get(route('public.leaderboard'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Public/Leaderboard')
-                ->where('selectedStat', 'goals')
-                ->where('leaders.0.name', 'Goal Leader')
-                ->where('leaders.1.name', 'Assist Leader')
+                ->where('selectedStat', 'appearances')
+                ->where('leaders.0.name', 'Assist Leader')
+                ->where('leaders.1.name', 'Goal Leader')
             );
     }
 
@@ -152,6 +160,46 @@ class PublicTeamPagesTest extends TestCase
             );
     }
 
+    public function test_public_leaderboard_can_order_by_appearances(): void
+    {
+        $appearanceLeader = Player::factory()->create([
+            'name' => 'Appearance Leader',
+            'goals_adjustment' => 1,
+            'assists_adjustment' => 0,
+        ]);
+        $goalLeader = Player::factory()->create([
+            'name' => 'Goal Leader',
+            'goals_adjustment' => 5,
+            'assists_adjustment' => 0,
+        ]);
+        $match = FootballMatch::factory()->create();
+        $otherMatch = FootballMatch::factory()->create();
+
+        MatchRoster::factory()->create([
+            'match_id' => $match->id,
+            'player_id' => $appearanceLeader->id,
+        ]);
+        MatchRoster::factory()->create([
+            'match_id' => $otherMatch->id,
+            'player_id' => $appearanceLeader->id,
+        ]);
+        MatchRoster::factory()->create([
+            'match_id' => $match->id,
+            'player_id' => $goalLeader->id,
+        ]);
+
+        $this->get(route('public.leaderboard', ['stat' => 'appearances']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Public/Leaderboard')
+                ->where('selectedStat', 'appearances')
+                ->where('leaders.0.name', 'Appearance Leader')
+                ->where('leaders.0.appearances', 2)
+                ->where('leaders.1.name', 'Goal Leader')
+                ->where('leaders.1.appearances', 1)
+            );
+    }
+
     public function test_public_leaderboard_ignores_invalid_stat_filter(): void
     {
         Player::factory()->create([
@@ -169,7 +217,7 @@ class PublicTeamPagesTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Public/Leaderboard')
-                ->where('selectedStat', 'goals')
+                ->where('selectedStat', 'appearances')
                 ->where('leaders.0.name', 'Goal Leader')
                 ->where('leaders.1.name', 'Assist Leader')
             );

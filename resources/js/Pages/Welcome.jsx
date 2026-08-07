@@ -207,7 +207,7 @@ function LeaderboardPreview({ leaders }) {
                                 <p className="text-xs font-semibold text-muted-foreground sm:text-sm">{player.position}</p>
                             </div>
                             <p className={`shrink-0 text-xs font-black uppercase tracking-widest sm:text-sm ${index === 0 ? 'text-primary' : 'text-foreground'}`}>
-                                {player.goals}G · {player.assists}A
+                                {player.goals}G · {player.assists}A · {player.appearances}Apps
                             </p>
                         </div>
                     ))
