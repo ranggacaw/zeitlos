@@ -77,6 +77,10 @@
     color: var(--card-foreground);
 }
 
+.fi-simple-main {
+    background-color: oklch(1 0 0);
+}
+
 .fi-sidebar,
 .fi-topbar,
 .fi-section,

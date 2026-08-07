@@ -4,7 +4,18 @@ import zeitlosLogo from '../../assets/zeitlos_logo.png';
 
 export default function GuestLayout({ children }) {
     return (
-        <div className="flex min-h-screen flex-col items-center bg-background pt-6 text-foreground sm:justify-center sm:pt-0">
+        <div
+            className="flex min-h-screen flex-col items-center bg-background pt-6 text-foreground sm:justify-center sm:pt-0"
+            style={{
+                '--background': 'oklch(1 0 0)',
+                '--foreground': 'oklch(0.1884 0.0128 248.5103)',
+                '--card': 'oklch(1 0 0)',
+                '--card-foreground': 'oklch(0.1884 0.0128 248.5103)',
+                '--muted-foreground': 'oklch(0.1884 0.0128 248.5103)',
+                '--border': 'oklch(0.9317 0.0118 231.6594)',
+                '--input': 'oklch(0.9809 0.0025 228.7836)',
+            }}
+        >
             <div>
                 <Link href="/">
                     <img

@@ -76,19 +76,19 @@ export default function PublicLayout({ children }) {
                             </Link>
                         ))}
                         {auth?.user ? (
-                            <Link
+                            <a
                                 href="/admin"
                                 className="rounded-full bg-secondary px-4 py-2 text-secondary-foreground transition hover:bg-secondary"
                             >
                                 Admin
-                            </Link>
+                            </a>
                         ) : (
-                            <Link
-                                href={route('login')}
+                            <a
+                                href="/admin/login"
                                 className="rounded-full border border-border px-4 py-2 text-foreground transition hover:bg-accent"
                             >
                                 Log in
-                            </Link>
+                            </a>
                         )}
                         <ThemeToggle className="rounded-full border border-border px-4 py-2" />
                     </nav>
@@ -96,19 +96,19 @@ export default function PublicLayout({ children }) {
                     <div className="flex items-center gap-3 sm:hidden">
                         <ThemeToggle />
                         {auth?.user ? (
-                            <Link
+                            <a
                                 href="/admin"
                                 className="rounded-full bg-secondary px-4 py-2 text-xs font-bold text-secondary-foreground"
                             >
                                 Admin
-                            </Link>
+                            </a>
                         ) : (
-                            <Link
-                                href={route('login')}
+                            <a
+                                href="/admin/login"
                                 className="rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground"
                             >
                                 Log in
-                            </Link>
+                            </a>
                         )}
                     </div>
                 </header>
@@ -141,7 +141,7 @@ export default function PublicLayout({ children }) {
                 </div>
             </nav>
 
-            <InstallPrompt />
+            {auth?.user?.is_admin ? null : <InstallPrompt />}
         </div>
     );
 }

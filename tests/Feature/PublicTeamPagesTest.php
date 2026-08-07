@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\FootballMatch;
 use App\Models\MatchEvent;
 use App\Models\Player;
+use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,24 @@ class PublicTeamPagesTest extends TestCase
                     ->etc()
                 )
             );
+    }
+
+    public function test_admins_opening_public_home_are_redirected_to_admin(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->get(route('public.home'))
+            ->assertRedirect('/admin');
+    }
+
+    public function test_public_top_bar_login_links_to_filament_admin_login(): void
+    {
+        $layout = file_get_contents(resource_path('js/Layouts/PublicLayout.jsx'));
+
+        $this->assertStringContainsString('<a', $layout);
+        $this->assertStringContainsString('href="/admin/login"', $layout);
+        $this->assertStringNotContainsString("href={route('login')}", $layout);
     }
 
     public function test_public_schedule_renders_upcoming_and_finished_matches(): void

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FootballMatch;
 use App\Models\Player;
 use App\Team\PublicMatchPresenter;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
@@ -15,8 +16,12 @@ class PublicTeamController extends Controller
 {
     public function __construct(private readonly PublicMatchPresenter $matches) {}
 
-    public function dashboard(): Response
+    public function dashboard(Request $request): Response|RedirectResponse
     {
+        if ($request->user()?->isAdmin()) {
+            return redirect('/admin');
+        }
+
         return Inertia::render('Welcome', [
             'activeMatch' => $this->serializeMatch($this->activeMatches()->first(), true),
             'upcomingMatch' => $this->serializeMatch($this->upcomingMatches()->first(), true),
