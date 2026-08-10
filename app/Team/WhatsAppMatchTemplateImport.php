@@ -231,7 +231,9 @@ class WhatsAppMatchTemplateImport
 
     private function parseRosterSection(string $text, string $heading, string $role): array
     {
-        if (! preg_match('/'.preg_quote($heading, '/').'\s*(.+?)(?=\n\s*LIST\s+[A-Z]+|\z)/is', $text, $matches)) {
+        $headingPattern = '\*?[^\S\r\n]*'.preg_quote($heading, '/').'[^\S\r\n]*\*?';
+
+        if (! preg_match('/^[^\S\r\n]*'.$headingPattern.'[^\S\r\n]*\R(.+?)(?=^[^\S\r\n]*\*?[^\S\r\n]*LIST[^\S\r\n]+[A-Z]+[^\S\r\n]*\*?[^\S\r\n]*$|\z)/ims', $text, $matches)) {
             return [];
         }
 

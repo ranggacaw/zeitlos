@@ -433,6 +433,60 @@ TEXT;
         $this->assertStringContainsString('Guest Sub', $text);
     }
 
+    public function test_whatsapp_roster_text_reuses_imported_template_roster_sections(): void
+    {
+        $match = FootballMatch::factory()->create([
+            'opponent' => 'PGC FC',
+            'whatsapp_announcement' => <<<'TEXT'
+*!!MAY THE WINS BE WITH YOU!!*
+
+*🥅 : Epic Sports*
+*⏰ : 06:00 sd 08:00 WIB*
+*📅 : Minggu , 23 Agustus 2026*
+*💵 : 80K*
+*👔 : JERSEY ZEITLOS*
+
+*LIST KIPER*
+1. Old Keeper
+
+*LIST PLAYER*
+1. Old Player
+2.
+TEXT,
+        ]);
+
+        $goalkeeper = Player::factory()->create(['name' => 'Gilang']);
+        $squadPlayer = Player::factory()->create(['name' => 'Rafly']);
+
+        $roster = collect([
+            MatchRoster::create([
+                'match_id' => $match->id,
+                'player_id' => $goalkeeper->id,
+                'role' => MatchRoster::ROLE_GOALKEEPER,
+            ]),
+            MatchRoster::create([
+                'match_id' => $match->id,
+                'player_id' => $squadPlayer->id,
+                'role' => MatchRoster::ROLE_PLAYER,
+            ]),
+            MatchRoster::create([
+                'match_id' => $match->id,
+                'guest_name' => 'Rangga',
+                'role' => MatchRoster::ROLE_PLAYER,
+            ]),
+        ]);
+
+        $text = app(WhatsAppRosterText::class)->build($match, $roster);
+
+        $this->assertStringContainsString('*!!MAY THE WINS BE WITH YOU!!*', $text);
+        $this->assertStringContainsString("*LIST KIPER*\n1. Gilang", $text);
+        $this->assertStringContainsString("*LIST PLAYER*\n1. Rafly\n2. Rangga", $text);
+        $this->assertStringNotContainsString('Old Keeper', $text);
+        $this->assertStringNotContainsString('Old Player', $text);
+        $this->assertStringNotContainsString('*Goalkeepers*', $text);
+        $this->assertStringNotContainsString('*Squad*', $text);
+    }
+
     public function test_filament_roster_page_can_add_an_existing_player_entry(): void
     {
         $admin = User::factory()->admin()->create();
@@ -497,11 +551,11 @@ Bukti TF kirim ke: 085156292210
 Maps :
 https://maps.app.goo.gl/HadXRxcpugrjtTRCA?g_st=ac
 
-LIST KIPER
+*LIST KIPER*
 1. Gilang
 2. Sutan
 
-LIST PLAYER
+*LIST PLAYER*
 1. Hendry
 2. Rangga
 3. Mifta
@@ -556,6 +610,11 @@ TEXT;
             'match_id' => $match->id,
             'player_id' => null,
             'guest_name' => 'Sutan',
+            'role' => MatchRoster::ROLE_GOALKEEPER,
+        ]);
+        $this->assertDatabaseMissing('match_rosters', [
+            'match_id' => $match->id,
+            'player_id' => $squadPlayer->id,
             'role' => MatchRoster::ROLE_GOALKEEPER,
         ]);
         $this->assertDatabaseMissing('match_rosters', [

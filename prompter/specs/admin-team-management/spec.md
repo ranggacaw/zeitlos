@@ -84,11 +84,15 @@ The system SHALL provide a Filament-native workflow for admins to manage roster 
 - **THEN** the roster entry is deleted and no longer appears in that match's grouped roster list
 
 ### Requirement: Filament WhatsApp Roster Text
-The system SHALL show copyable WhatsApp roster text in the Filament match roster workflow using the existing server-side roster text generator.
+The system SHALL show copyable WhatsApp roster text in the Filament match roster workflow using the existing server-side roster text generator. When a match stores an imported WhatsApp template containing `LIST KIPER` or `LIST PLAYER` roster sections, the generated text SHALL preserve that template and refresh those Indonesian roster sections from the current goalkeeper and player roster entries instead of appending a second English roster block.
 
 #### Scenario: Admin views Filament WhatsApp roster text
 - **WHEN** an admin opens the Filament roster management page for a match with roster entries
 - **THEN** the page includes WhatsApp roster text containing match details and grouped roster names
+
+#### Scenario: Admin views imported-template WhatsApp roster text
+- **WHEN** an admin opens the Filament roster management page for a match with an imported WhatsApp template and current roster entries
+- **THEN** the copyable text keeps the imported template, lists goalkeeper entries under `LIST KIPER`, lists player entries under `LIST PLAYER`, and does not append separate `Goalkeepers` or `Squad` sections
 
 ### Requirement: Filament Live Scoring Workflow
 The system SHALL provide a Filament-native workflow for admins to manage live scoring for a specific match using the existing match status, score, and goal event models.
