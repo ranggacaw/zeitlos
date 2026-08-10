@@ -43,7 +43,10 @@ class AdminTeamManagementTest extends TestCase
         $this->get('/admin/login')
             ->assertOk()
             ->assertSee('Zeitlos CMS')
-            ->assertSee('zeitlos_logo.png', false);
+            ->assertSee('zeitlos_logo.png', false)
+            ->assertSee('href="/"', false)
+            ->assertSee('Dashboard')
+            ->assertDontSee('Back to public dashboard');
     }
 
     public function test_non_admin_user_is_denied_admin_management(): void
