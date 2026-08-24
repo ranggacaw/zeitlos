@@ -92,14 +92,14 @@ class FootballMatchesTable
                     ->icon(Heroicon::OutlinedUserGroup)
                     ->iconButton()
                     ->tooltip('Manage roster')
-                    ->visible(fn (FootballMatch $record): bool => $record->status !== FootballMatch::STATUS_FINISHED)
+                    ->visible(fn (FootballMatch $record): bool => $record->status !== FootballMatch::STATUS_FINISHED || auth()->user()?->isSuperAdmin())
                     ->url(fn (FootballMatch $record): string => FootballMatchResource::getUrl('rosters', ['record' => $record], shouldGuessMissingParameters: true)),
                 Action::make('liveScoring')
                     ->label('Live scoring')
                     ->icon(Heroicon::OutlinedBolt)
                     ->iconButton()
                     ->tooltip('Live scoring')
-                    ->visible(fn (FootballMatch $record): bool => $record->status !== FootballMatch::STATUS_FINISHED)
+                    ->visible(fn (FootballMatch $record): bool => $record->status !== FootballMatch::STATUS_FINISHED || auth()->user()?->isSuperAdmin())
                     ->url(fn (FootballMatch $record): string => FootballMatchResource::getUrl('live-scoring', ['record' => $record], shouldGuessMissingParameters: true)),
             ])
             ->toolbarActions([

@@ -105,6 +105,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Match roster management is a Filament page at `/admin/football-matches/{record}/rosters` (`ManageFootballMatchRosters`) that groups roster entries by role and shows copyable WhatsApp text.
 - Match live scoring is a Filament page at `/admin/football-matches/{record}/live-scoring` (`ManageFootballMatchLiveScoring`) that can mark matches `starting`, start them `live`, record/delete Zeitlos or opponent goals, finalize scores, and dispatch public match update events. Opponent goals do not store a player scorer name; public timelines label them as `Enemy team`.
 - Leaderboard corrections are managed in Filament at `/admin/leaderboard` (`App\Filament\Pages\Leaderboard`) using existing `Player` stat adjustment fields.
+- SuperAdmin role (`User::ROLE_SUPERADMIN = 'superadmin'`) inherits standard admin capabilities and provides override privileges: editing rosters, recording/deleting goals, and re-finalizing scores on finished matches, as well as deleting any match.
+- User management is a Filament resource at `/admin/users` (`App\Filament\Resources\Users\UserResource`) restricted strictly to SuperAdmins for creating, editing (with role selection `user`, `admin`, `superadmin`), and deleting users with self-deletion protection.
 - Player photos (`PlayerForm`) support either an image upload or a pasted URL: a `FileUpload` writes a `players/` storage path while a dehydrated `photo_url` text field writes an absolute URL — both persist into the single `photo_path` column. The public frontend (`rosterPhotos.js`) passes `http(s)://` values through unchanged and prefixes other paths with `/storage/`.
 
 ## Public Live Updates

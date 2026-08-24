@@ -77,7 +77,7 @@ class ManageFootballMatchRosters extends Page implements HasTable
                     ->icon(Heroicon::OutlinedTrash)
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->visible(fn (): bool => $this->getRecord()->status !== FootballMatch::STATUS_FINISHED)
+                    ->visible(fn (): bool => $this->getRecord()->status !== FootballMatch::STATUS_FINISHED || auth()->user()?->isSuperAdmin())
                     ->action(fn (MatchRoster $record) => $record->delete()),
             ]);
     }
@@ -114,7 +114,7 @@ class ManageFootballMatchRosters extends Page implements HasTable
         ]);
 
         if ($match->status === FootballMatch::STATUS_FINISHED) {
-            $parts[] = 'Finalized · read-only';
+            $parts[] = auth()->user()?->isSuperAdmin() ? 'Finalized · SuperAdmin edit mode' : 'Finalized · read-only';
         }
 
         return filled($parts) ? implode(' · ', $parts) : null;
@@ -131,7 +131,7 @@ class ManageFootballMatchRosters extends Page implements HasTable
             Action::make('addRosterEntry')
                 ->label('Add roster entry')
                 ->icon(Heroicon::OutlinedPlus)
-                ->visible(fn (): bool => $this->getRecord()->status !== FootballMatch::STATUS_FINISHED)
+                ->visible(fn (): bool => $this->getRecord()->status !== FootballMatch::STATUS_FINISHED || auth()->user()?->isSuperAdmin())
                 ->schema([
                     Select::make('player_id')
                         ->label('Player')
@@ -185,7 +185,7 @@ class ManageFootballMatchRosters extends Page implements HasTable
                 }),
             Action::make('importWhatsAppTemplate')
                 ->label('Import WhatsApp template')
-                ->visible(fn (): bool => $this->getRecord()->status !== FootballMatch::STATUS_FINISHED)
+                ->visible(fn (): bool => $this->getRecord()->status !== FootballMatch::STATUS_FINISHED || auth()->user()?->isSuperAdmin())
                 ->schema([
                     Textarea::make('template')
                         ->label('WhatsApp template')

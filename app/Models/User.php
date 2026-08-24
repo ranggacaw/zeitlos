@@ -27,6 +27,8 @@ class User extends Authenticatable implements FilamentUser
         'role',
     ];
 
+    public const ROLE_SUPERADMIN = 'superadmin';
+
     public const ROLE_ADMIN = 'admin';
 
     public const ROLE_USER = 'user';
@@ -56,7 +58,12 @@ class User extends Authenticatable implements FilamentUser
 
     public function isAdmin(): bool
     {
-        return $this->role === self::ROLE_ADMIN;
+        return $this->role === self::ROLE_ADMIN || $this->role === self::ROLE_SUPERADMIN;
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === self::ROLE_SUPERADMIN;
     }
 
     public function preferredHomeUrl(): string
