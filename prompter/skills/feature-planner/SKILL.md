@@ -1,6 +1,6 @@
 ---
 name: feature-planner
-description: "Plan feature development on existing projects. Interview users about what they want to build, analyze the codebase to understand tech stack, patterns, and affected areas, then produce a structured implementation plan with phased tasks. For features too large to ship in one pass, splits the work into an ordered roadmap of independently-shippable increments, each becoming its own Prompter proposal. When a feature introduces new pages or screens, also generates a feature UI map (`prompter/features/<slug>/ui.md`) — every new page with the navigation wiring of each button and link (target page, modal, drawer, toast) — ready for the `ui-ux-pro`/`ui-ux-max` skills to turn into clickable previews; backend-only features and tweaks to existing UI skip it. Also resumes an existing feature: `feature-planner <slug> status` shows roadmap progress, `feature-planner <slug> continue` scaffolds the next increment's proposal, and `feature-planner <slug> run` auto-runs all remaining increments end-to-end — each implemented by a fresh sub-agent, verified, and archived (`run --checkpoint` pauses for confirmation before each archive; `run --yolo` never pauses — it auto-ticks `(manual)` tasks with a logged warning; `run --review` adds an independent proposal-review gate before each archive and composes with either mode). Once every increment is archived, offers to generate a feature-level manual testing guide. Use when a user wants to add a feature, make a change, plan a large multi-increment feature, resume or check the status of a planned feature, or plan development work on a project that already exists."
+description: "Plan feature development on existing projects. Interview users about what they want to build, analyze the codebase to understand tech stack, patterns, and affected areas, then produce a structured implementation plan with phased tasks. For features too large to ship in one pass, splits the work into an ordered roadmap of independently-shippable increments, each becoming its own Prompter proposal. When a feature introduces new pages or screens, also generates a feature UI map (`prompter/features/<slug>/ui.md`) — every new page with the navigation wiring of each button and link (target page, modal, drawer, toast) — ready for the `ui-ux-pro`/`ui-ux-max` skills to turn into clickable previews; backend-only features and tweaks to existing UI skip it. Also resumes an existing feature: `feature-planner <slug> status` shows roadmap progress, `feature-planner <slug> continue` scaffolds the next increment's proposal, and `feature-planner <slug> run` auto-runs all remaining increments end-to-end; the slug can be omitted (`feature-planner run`) — it auto-resolves to the single active feature under prompter/features/, asking which one if several are active — each implemented by a fresh sub-agent, verified, and archived (`run --checkpoint` pauses for confirmation before each archive; `run --yolo` never pauses — it auto-ticks `(manual)` tasks with a logged warning; `run --review` adds an independent proposal-review gate before each archive and composes with either mode). Once every increment is archived, offers to generate a feature-level manual testing guide, then moves the feature folder to prompter/features/archive/ so prompter/features/ holds only active features. Use when a user wants to add a feature, make a change, plan a large multi-increment feature, resume or check the status of a planned feature, or plan development work on a project that already exists."
 ---
 
 # Feature Developer
@@ -34,14 +34,20 @@ feature-planner <slug> run         → Resume Mode, intent = run (semi-auto)
 feature-planner <slug> run --checkpoint → Resume Mode, intent = run (checkpoint mode)
 feature-planner <slug> run --yolo  → Resume Mode, intent = run (yolo mode)
 feature-planner <slug> run --review → Resume Mode, intent = run (semi-auto + review gate)
+feature-planner status|continue|run [flags] → Resume Mode, slug auto-resolved from active features
 feature-planner <new-feature-name> → New Feature Mode (no matching folder)
 feature-planner                    → New Feature Mode (no args)
 ```
 
 1. Take the first argument token as a candidate **slug** and the second (if any) as the **intent** (`status`, `continue`, or `run`; `run` may carry `--checkpoint` or `--yolo`, plus the orthogonal `--review` flag — `run --review`, `run --checkpoint --review`, and `run --yolo --review` are all valid).
+   - **Bare intent (no slug):** if the first token is itself an intent word (`status`, `continue`, or `run`) and no `prompter/features/<token>/` folder exists (a literal folder always wins), auto-resolve the slug from the **active features**: Glob `prompter/features/*/roadmap.md`, excluding `prompter/features/archive/`.
+     - **No active feature →** report "No active features under prompter/features/" (mention any under `archive/` for context) and stop.
+     - **Exactly one →** use it as the slug, say which one you resolved (e.g. `Resuming active feature: webhook-delivery-retries`), and proceed with the given intent.
+     - **Several →** for `continue`/`run`, ask which feature to target with `AskUserQuestion` (one option per active feature, its next-to-run increment in the description), then proceed. For `status`, print the dashboard for **every** active feature — no question needed.
 2. Check whether `prompter/features/<slug>/` exists (Glob).
    - **Folder exists →** enter **Resume Mode** (jump to the "Resume Mode" section below; skip the interview entirely).
-   - **Folder does not exist →** enter **New Feature Mode** (the interview, Steps 1–8). If a name was given, use its kebab-case slug so a later multi-increment resume can find its folder.
+   - **Folder doesn't exist but `prompter/features/archive/<slug>/` does →** the feature is complete and was archived. Report that with the archived path, and if `guide.md` is missing there, offer to generate it (see "Feature Guide" — write it into the archived folder). `continue` and `run` have nothing to do. If the user wants to reopen the feature, they move the folder back to `prompter/features/<slug>/`.
+   - **Neither exists →** enter **New Feature Mode** (the interview, Steps 1–8). If a name was given, use its kebab-case slug so a later multi-increment resume can find its folder.
 3. If no intent word was given in Resume Mode, default to "show status, then ask".
 
 > **Only multi-increment features have a folder.** Single-proposal features never create `prompter/features/<slug>/` (see Step 5), so they always route to New Feature Mode and are resumed through Prompter's own tooling, not `feature-planner <slug>`. Resume Mode is therefore a multi-increment-only path.
@@ -87,26 +93,28 @@ If the roadmap has a `## UI Design References` section, add one line under the d
 
 ### When every increment is `archived` (feature complete)
 
-If reconciliation shows **all** roadmap increments are `archived`, the feature is fully shipped — there is nothing left to scaffold. In this state, for **every** intent (`status`, `continue`, and default), after printing the dashboard, offer to generate a **feature-level manual testing guide**:
+If reconciliation shows **all** roadmap increments are `archived`, the feature is fully shipped — there is nothing left to scaffold, and its folder should leave the active area. In this state, for **every** intent (`status`, `continue`, `run`, and default), after printing the dashboard, offer the **feature-level manual testing guide**, then **archive the feature folder**:
 
 ```json
 {
   "questions": [
     {
-      "question": "All increments are complete. Want me to generate a manual testing guide for this feature?",
+      "question": "All increments are complete. I'll move this feature to prompter/features/archive/ so features/ holds only active work. Generate a manual testing guide first?",
       "header": "Feature Guide",
       "multiSelect": false,
       "options": [
-        { "label": "Generate guide", "description": "Write a hand-testable guide covering the whole feature end-to-end" },
-        { "label": "No thanks", "description": "I'm done — just wanted the status" }
+        { "label": "Generate guide", "description": "Write a hand-testable guide covering the whole feature end-to-end, then archive the folder" },
+        { "label": "Just archive", "description": "Skip the guide and move the feature folder to prompter/features/archive/" }
       ]
     }
   ]
 }
 ```
 
-- **"Generate guide" →** produce it per "Feature Guide" below.
-- **"No thanks" →** stop.
+- **"Generate guide" →** produce it per "Feature Guide" below, then archive the folder.
+- **"Just archive" →** archive the folder now.
+
+**Archiving the folder:** move `prompter/features/<slug>/` to `prompter/features/archive/<slug>/` (create `prompter/features/archive/` if needed), so `prompter/features/` contains only active features. Report the new path. If `prompter/features/archive/<slug>/` already exists, stop and ask the user instead of overwriting.
 
 If `prompter/features/<slug>/guide.md` already exists, add a note to the question that generating will overwrite it.
 
@@ -121,7 +129,7 @@ Generate a single manual testing guide covering the whole feature end-to-end —
 - **Note required setup** (env vars, seed data, accounts, commands to start the app) so the tester can reproduce from a clean state.
 - **Order scenarios by the roadmap's dependency order** so the guide reads as one feature, not disjoint per-increment tests.
 
-After writing, tell the user the path (`prompter/features/<slug>/guide.md`) and stop.
+After writing, tell the user the path, then continue with the folder archiving from "When every increment is `archived`" (the guide moves with the folder, ending up at `prompter/features/archive/<slug>/guide.md`). Exception: if the feature was already archived (invoked via the `prompter/features/archive/<slug>/` detection path), write the guide directly into the archived folder and stop.
 
 ### Intent: `status`
 
@@ -134,8 +142,20 @@ Advance the roadmap by exactly **one** increment — never more, since later inc
 1. Find the **next eligible increment**: the first roadmap row with status `not created` whose dependencies are all `archived`.
    - If the next row's dependency is not yet `archived`, **stop** and report: "Increment N is blocked — Increment N-1 must be implemented and archived first (run `/apply` then `/archive`)."
    - If every increment is already `archived`, report "All increments complete", then follow "When every increment is `archived`" above to offer the feature guide.
-2. **Scaffold that increment's proposal** following Step 5's "Create proposal" branch (read `prompter/skills/proposal` and `prompter/AGENTS.md`, derive the proposal from the roadmap row's scope + `change-id`, run `prompter validate <change-id> --strict --no-interactive`). When deriving `tasks.md`, tag any task only a human can verify (visual checks, on-device tests, UX judgments) with a trailing `(manual)` marker — e.g. `- [ ] 4.2 Verify layout on mobile (manual)` — so automated runs know to pause on them instead of failing.
+2. **Delegate scaffolding to a FRESH sub-agent** — one new sub-agent per increment, never reused (scaffolding is the largest disposable-context operation in the loop; keeping it out of this session is what holds orchestrator context roughly constant across a long roadmap). **If the host provides an `anvil-draft` sub-agent type, use it** — it already encodes the rules below, so its prompt need only carry: the `change-id`, the roadmap row's scope line and capabilities, the **previous increment's `change-id`** (or "this is the first increment"), and this increment's `## UI Design References` rows verbatim if any. Otherwise spawn a generic sub-agent and spell the rules out. Either way, the sub-agent must:
+   - Follow Step 5's "Create proposal" branch: read `prompter/skills/proposal` and `prompter/AGENTS.md`, then derive the proposal from the roadmap row's scope + `change-id`.
+   - **Read the previous increment's archived change** under `prompter/changes/archive/*<prev-change-id>*/` before drafting deltas. The roadmap row's scope line was written before that increment existed, so what it names is a prediction; **what shipped is truth.** Draft against reality and report any divergence.
+   - When deriving `tasks.md`, tag any task only a human can verify (visual checks, on-device tests, UX judgments) with a trailing `(manual)` marker — e.g. `- [ ] 4.2 Verify layout on mobile (manual)` — so automated runs know to pause on them instead of failing.
    - **Carry the UI reference into the proposal.** If the roadmap has a `## UI Design References` section with rows for this increment, add a `## Design Reference` section to the scaffolded `proposal.md` listing the design hub and each of this increment's approved preview paths (plus the row's Notes), and add one task per page to `tasks.md`: `- [ ] Implement UI per approved preview .preview/<feature>/<page>/hifi.html`. This is how UI designed up front via `ui-ux-pro` flows into each increment's proposal automatically — the implementer follows the approved preview instead of re-deriving the UI. If the referenced preview file no longer exists on disk, still add the reference but flag it to the user.
+   - Run `prompter validate <change-id> --strict --no-interactive` and fix any issues before reporting.
+   - **Treat the roadmap scope line as the decision, not a suggestion** — scaffold that increment, not the one it would have drawn. Warranted divergence goes in its report, not back as a question. **STOP and return one question** only when the scope line is genuinely under-determined.
+   - **Never implement, never `/apply`, never `prompter archive`, and never touch `roadmap.md` or any Status column** — the orchestrator owns those.
+
+   *Fallback ladder:* `anvil-draft` → a generic sub-agent with the rules above spelled out → if the current tool has no sub-agent capability at all, scaffold the increment inline in this session following the same rules.
+
+   **Verify from disk, never from the sub-agent's summary:** confirm `prompter/changes/<change-id>/` exists and run `prompter validate <change-id> --strict --no-interactive` yourself. If it fails, stop and report — do not bump the Status.
+
+   **If the sub-agent bounced a question**, relay it to the user immediately with `AskUserQuestion` (plain text if open-ended), then resume the same sub-agent with the decision (`SendMessage` where provided); if the host cannot resume it, spawn a replacement with the decision in its prompt.
 3. **Bump the roadmap Status** for that row: `not created` → `scaffolded`. Preserve the `## UI Design References` section untouched.
 4. **Stop and hand off** — do not run `/apply`, do not implement tasks:
 
@@ -171,21 +191,23 @@ Repeat until no eligible increment remains:
    - A row `scaffolded` or `in progress` whose change dir exists and is not archived → resume it at step 4 (its proposal already exists; a previous run may have stopped mid-implementation).
    - Otherwise the first `not created` row whose dependencies are all `archived` → scaffold it (step 3).
    - Otherwise: if **all** rows are `archived`, report the run complete and follow "When every increment is `archived`" above. If unarchived rows remain but none is eligible, **stop** and report the blockage.
-3. **Scaffold the proposal** exactly as Intent: `continue` step 2 — including the `(manual)` task tagging and the UI Design References carry-over. Bump the roadmap Status to `scaffolded`.
-4. **Delegate implementation to a FRESH sub-agent** — one new sub-agent per increment, never reused across increments (clean context prevents drift). Set the roadmap Status to `in progress`. The sub-agent prompt must instruct it to:
+3. **Scaffold the proposal** exactly as Intent: `continue` step 2 — including the `anvil-draft` delegation, the previous increment's `change-id`, the `(manual)` task tagging, and the UI Design References carry-over. Bump the roadmap Status to `scaffolded` only after the validate check in that step passes.
+4. **Delegate implementation to a FRESH sub-agent** — one new sub-agent per increment, never reused across increments (clean context prevents drift). Set the roadmap Status to `in progress`. **If the host provides an `anvil-forge` sub-agent type, use it** — it already encodes the rules below, so its prompt need only carry the `<change-id>` plus any decision relayed from step 5. Otherwise spawn a generic sub-agent and spell the rules out. Either way, the sub-agent must:
    - Follow Prompter's Stage 2 workflow for `<change-id>`: read `proposal.md`, `design.md` (if present), and `tasks.md`, implement the tasks sequentially, and tick each task `[x]` in `tasks.md` as it completes.
    - **Skip tasks tagged `(manual)`** — leave them unticked and list them in its report under "manual checks".
    - **STOP on ambiguity — never guess.** If a task is ambiguous or needs a decision, stop immediately and return the question instead of picking an answer (sub-agents cannot ask the user directly).
    - Report back concisely: tasks completed, tests run and their results, the manual-checks list, or the question it stopped on.
 
-   *Inline fallback:* if the current tool has no sub-agent capability, implement the increment inline in this session following the same rules, then continue the loop.
-5. **Handle a bounced question**: if the sub-agent stopped on a question, relay it to the user with `AskUserQuestion` (plain text if open-ended). Then spawn a **new** sub-agent resuming from the first unticked task, with the user's decision included in its prompt. Repeat as needed.
+   *Fallback ladder:* `anvil-forge` → a generic sub-agent with the rules above spelled out → if the current tool has no sub-agent capability at all, implement the increment inline in this session following the same rules, then continue the loop.
+
+   **Context rotation (large changes):** anvil-forge may return `STATUS: handoff` — it finished a task section, wrote working notes to `prompter/changes/<change-id>/handoff.md`, and stopped cleanly rather than degrade in one oversized session. This is normal progress, not a failure: spawn a **fresh** anvil-forge on the same `<change-id>` (it resumes from the first unticked task and reads `handoff.md`) and repeat until the change reports complete, a question, or a block — safe precisely because tasks are ticked in real time. If a handoff round ticks zero new tasks, stop the run and report it instead of looping.
+5. **Handle a bounced question**: if the sub-agent stopped on a question, relay it to the user with `AskUserQuestion` (plain text if open-ended). Then **resume the same sub-agent with the decision** — it still holds this increment's context, so continuing costs far less than making a replacement re-read `proposal.md` and re-explore the same code. Use the host's continuation mechanism (`SendMessage` where provided). *Fallback:* if the host cannot resume a sub-agent, spawn a new one starting from the first unticked task in `tasks.md` with the decision in its prompt — safe precisely because tasks are ticked in real time. Repeat as needed. **This does not loosen the freshness rule at increment boundaries**: resumption applies only *within* the increment the worker is already implementing; the next increment always gets a brand-new sub-agent.
 6. **Verify gate** — run by the orchestrator before archiving; never trust the sub-agent's own report:
    - Read `tasks.md` from disk: every task must be `[x]`, except tasks tagged `(manual)` (handled in step 8).
    - Run the project's test suite (if one exists); it must pass.
    - Run `prompter validate <change-id> --strict --no-interactive`; it must be clean.
    - **Any failure → STOP the whole run.** Report exactly what failed and leave the change un-archived; a later re-run resumes at this increment.
-7. **Review gate** (only with `--review`): after the verify gate passes, delegate the review to a **fresh sub-agent** — never the implementer from step 4, so the work gets independent eyes. Its prompt must instruct it to follow the `proposal-review` skill (`skills/proposal-review/SKILL.md`) for `<change-id>` in **report-only mode**: run that skill's Steps 0–6 (load artifacts, verification matrix, targeted bug hunt, declared validations, write the report to `prompter/changes/<change-id>/proposal-review.md`) and skip its Step 7 fix gate — the orchestrator owns the fix decision. When it returns, read the report's machine-readable status block **from disk** (never trust the sub-agent's own summary):
+7. **Review gate** (only with `--review`): after the verify gate passes, delegate the review to a **fresh sub-agent** — never the implementer from step 4, so the work gets independent eyes. **If the host provides an `anvil-audit` sub-agent type, use it** — it already encodes the report-only review rules, so its prompt need only carry the `<change-id>`. Otherwise spawn a generic sub-agent whose prompt instructs it to follow the `proposal-review` skill (`skills/proposal-review/SKILL.md`) for `<change-id>` in **report-only mode**: run that skill's Steps 0–6 (load artifacts, verification matrix, targeted bug hunt, declared validations, write the report to `prompter/changes/<change-id>/proposal-review.md`) and skip its Step 7 fix gate — the orchestrator owns the fix decision. *Fallback ladder:* `anvil-audit` → a generic sub-agent with the rules above spelled out → if the host has no sub-agent capability at all, run the review inline in this session, report-only. When the reviewer returns, read the report's machine-readable status block **from disk** (never trust the sub-agent's own summary):
    - `ready_to_archive: true` → proceed to the next step; note the clean review in the increment's report line.
    - `ready_to_archive: false` → blocking findings exist:
      - **Semi-auto `run` / `--checkpoint`:** summarize the blocking findings and ask via `AskUserQuestion` — "Fix findings" (spawn a fresh fix sub-agent to execute the report's TODO list, then re-run step 6 and this gate; after **2** failed fix rounds, stop the run) / "Archive anyway" (log the waiver and proceed) / "Stop here".
@@ -453,6 +475,7 @@ Prompter already supports many tasks and multiple spec deltas inside one proposa
 - **One increment = one independently shippable proposal** — implement → review → archive as a unit before the next.
 - **A big-but-coherent feature that ships together = ONE proposal** with phased tasks (Step 4), not multiple increments.
 - **Split into increments only when each slice ships and reviews on its own** and later slices depend on earlier ones being merged.
+- **Size each increment to one implementor session.** A single fresh sub-agent implements the whole increment, and implementation quality degrades hard once its session balloons (hours of grinding, hundreds of thousands of tokens of context). If an increment's plan would produce a `tasks.md` much beyond ~15–20 tasks or touch a very large file surface, it is not one shippable slice — split it.
 
 ### Confirm the roadmap
 
@@ -552,6 +575,7 @@ prompter/features/{feature}/
 - `implementation-plan.md` — the detailed plan for the current increment only (regenerated/overwritten each increment).
 - `ui.md` — optional feature UI map (Step 4.5; only when the feature adds new pages). Consumed by `ui-ux-pro`/`ui-ux-max` as the page inventory when designing previews.
 - Create the folder if it doesn't exist (the path is relative to the project root, e.g. `prompter/features/webhook-delivery-retries/`).
+- **`prompter/features/` holds active features only.** When Resume Mode later finds every increment `archived`, it moves the whole folder to `prompter/features/archive/{feature}/` (see "When every increment is `archived`").
 
 **Single-proposal features do not create this folder and are not saved as a standalone plan file.** The plan feeds directly into a Prompter proposal or into implementation. Because there is no folder, single-proposal features are not resumable via `feature-planner <slug>` — resume them through Prompter's own tooling (`/apply`, the change under `prompter/changes/<change-id>/`).
 

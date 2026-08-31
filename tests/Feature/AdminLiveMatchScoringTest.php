@@ -10,6 +10,7 @@ use App\Models\MatchRoster;
 use App\Models\Player;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -23,6 +24,13 @@ class AdminLiveMatchScoringTest extends TestCase
         parent::setUp();
 
         $this->withoutVite();
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+
+        parent::tearDown();
     }
 
     public function test_guest_is_redirected_from_scoring_console(): void
@@ -88,8 +96,12 @@ class AdminLiveMatchScoringTest extends TestCase
 
     public function test_admin_can_record_a_goal_event(): void
     {
+        Carbon::setTestNow('2026-08-31 20:42:00');
+
         $admin = User::factory()->admin()->create();
-        $match = FootballMatch::factory()->create();
+        $match = FootballMatch::factory()->live()->create([
+            'live_started_at' => now()->subMinutes(42),
+        ]);
         $scorer = Player::factory()->create();
         $assistant = Player::factory()->create();
 
@@ -98,7 +110,6 @@ class AdminLiveMatchScoringTest extends TestCase
             ->callAction('recordGoal', [
                 'scorer_id' => $scorer->id,
                 'assist_player_id' => $assistant->id,
-                'minute' => 42,
             ])
             ->assertHasNoActionErrors();
 
@@ -115,17 +126,18 @@ class AdminLiveMatchScoringTest extends TestCase
 
     public function test_admin_can_record_an_opponent_goal_without_a_scorer_name(): void
     {
+        Carbon::setTestNow('2026-08-31 20:31:00');
+
         $admin = User::factory()->admin()->create();
         $match = FootballMatch::factory()->live()->create([
             'zeitlos_score' => 0,
             'opponent_score' => 0,
+            'live_started_at' => now()->subMinutes(31),
         ]);
 
         Livewire::actingAs($admin)
             ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
-            ->callAction('recordOpponentGoal', [
-                'minute' => 31,
-            ])
+            ->callAction('recordOpponentGoal')
             ->assertHasNoActionErrors();
 
         $match->refresh();
@@ -190,6 +202,8 @@ class AdminLiveMatchScoringTest extends TestCase
 
     public function test_admin_can_mark_a_match_live(): void
     {
+        Carbon::setTestNow('2026-08-31 20:00:00');
+
         $admin = User::factory()->admin()->create();
         $match = FootballMatch::factory()->create([
             'status' => FootballMatch::STATUS_SCHEDULED,
@@ -202,8 +216,27 @@ class AdminLiveMatchScoringTest extends TestCase
 
         $match->refresh();
         $this->assertSame(FootballMatch::STATUS_LIVE, $match->status);
+        $this->assertTrue($match->live_started_at->equalTo(now()));
         $this->assertNull($match->zeitlos_score);
         $this->assertNull($match->opponent_score);
+    }
+
+    public function test_starting_a_live_match_preserves_its_existing_clock_start(): void
+    {
+        Carbon::setTestNow('2026-08-31 20:00:00');
+
+        $admin = User::factory()->admin()->create();
+        $clockStart = now()->subMinutes(5);
+        $match = FootballMatch::factory()->starting()->create([
+            'live_started_at' => $clockStart,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('markLive')
+            ->assertHasNoActionErrors();
+
+        $this->assertTrue($match->fresh()->live_started_at->equalTo($clockStart));
     }
 
     public function test_admin_can_mark_a_match_starting(): void
@@ -219,6 +252,7 @@ class AdminLiveMatchScoringTest extends TestCase
             ->assertHasNoActionErrors();
 
         $this->assertSame(FootballMatch::STATUS_STARTING, $match->fresh()->status);
+        $this->assertNull($match->fresh()->live_started_at);
     }
 
     public function test_live_scoring_changes_dispatch_public_match_updates(): void
@@ -232,25 +266,42 @@ class AdminLiveMatchScoringTest extends TestCase
         Livewire::actingAs($admin)
             ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
             ->callAction('markStarting')
+            ->callAction('markLive')
             ->callAction('recordGoal', [
                 'scorer_id' => $scorer->id,
-                'minute' => 7,
             ])
             ->assertHasNoActionErrors();
 
-        Event::assertDispatched(PublicMatchUpdated::class, 2);
+        Event::assertDispatched(PublicMatchUpdated::class, 3);
+    }
+
+    public function test_recording_a_goal_requires_a_started_live_clock(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->create();
+        $scorer = Player::factory()->create();
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('recordGoal', [
+                'scorer_id' => $scorer->id,
+            ])
+            ->assertHasActionErrors();
+
+        $this->assertDatabaseCount('match_events', 0);
     }
 
     public function test_recording_a_goal_requires_a_valid_scorer(): void
     {
         $admin = User::factory()->admin()->create();
-        $match = FootballMatch::factory()->create();
+        $match = FootballMatch::factory()->live()->create([
+            'live_started_at' => now(),
+        ]);
 
         Livewire::actingAs($admin)
             ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
             ->callAction('recordGoal', [
                 'scorer_id' => 999,
-                'minute' => 10,
             ])
             ->assertHasActionErrors(['scorer_id']);
 
@@ -281,6 +332,8 @@ class AdminLiveMatchScoringTest extends TestCase
 
     public function test_admin_can_finalize_match_score(): void
     {
+        Carbon::setTestNow('2026-08-31 21:30:00');
+
         $admin = User::factory()->admin()->create();
         $match = FootballMatch::factory()->create();
 
@@ -294,6 +347,7 @@ class AdminLiveMatchScoringTest extends TestCase
 
         $match->refresh();
         $this->assertSame(FootballMatch::STATUS_FINISHED, $match->status);
+        $this->assertTrue($match->live_finished_at->equalTo(now()));
         $this->assertSame(2, $match->zeitlos_score);
         $this->assertSame(1, $match->opponent_score);
     }
@@ -389,5 +443,49 @@ class AdminLiveMatchScoringTest extends TestCase
             ->assertActionHidden('recordOpponentGoal')
             ->assertActionHidden('finalizeMatch')
             ->assertTableActionHidden('delete', $event->getKey());
+    }
+
+    public function test_superadmin_goal_correction_uses_the_frozen_clock(): void
+    {
+        Carbon::setTestNow('2026-08-31 22:00:00');
+
+        $superadmin = User::factory()->superadmin()->create();
+        $match = FootballMatch::factory()->finished()->create([
+            'live_started_at' => now()->subHours(2),
+            'live_finished_at' => now()->subMinutes(75),
+        ]);
+
+        Livewire::actingAs($superadmin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('recordOpponentGoal')
+            ->assertHasNoActionErrors();
+
+        $this->assertDatabaseHas('match_events', [
+            'match_id' => $match->id,
+            'team' => MatchEvent::TEAM_OPPONENT,
+            'minute' => 45,
+        ]);
+    }
+
+    public function test_superadmin_refinalization_preserves_the_original_clock_finish(): void
+    {
+        Carbon::setTestNow('2026-08-31 22:00:00');
+
+        $superadmin = User::factory()->superadmin()->create();
+        $clockFinish = now()->subMinutes(75);
+        $match = FootballMatch::factory()->finished()->create([
+            'live_started_at' => now()->subHours(2),
+            'live_finished_at' => $clockFinish,
+        ]);
+
+        Livewire::actingAs($superadmin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('finalizeMatch', [
+                'zeitlos_score' => 4,
+                'opponent_score' => 2,
+            ])
+            ->assertHasNoActionErrors();
+
+        $this->assertTrue($match->fresh()->live_finished_at->equalTo($clockFinish));
     }
 }

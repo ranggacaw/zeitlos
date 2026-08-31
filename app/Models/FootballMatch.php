@@ -39,6 +39,8 @@ class FootballMatch extends Model
         'payment_instructions',
         'whatsapp_announcement',
         'status',
+        'live_started_at',
+        'live_finished_at',
         'zeitlos_score',
         'opponent_score',
     ];
@@ -48,6 +50,8 @@ class FootballMatch extends Model
         return [
             'match_date' => 'date',
             'payment_due_at' => 'datetime',
+            'live_started_at' => 'datetime',
+            'live_finished_at' => 'datetime',
             'ticket_price' => 'decimal:2',
             'payment_amount' => 'decimal:2',
             'zeitlos_score' => 'integer',
@@ -123,5 +127,16 @@ class FootballMatch extends Model
             'zeitlos_score' => $this->liveZeitlosScore(),
             'opponent_score' => $this->liveOpponentScore(),
         ])->save();
+    }
+
+    public function liveElapsedMinute(): ?int
+    {
+        if ($this->live_started_at === null) {
+            return null;
+        }
+
+        $clockEnd = $this->live_finished_at ?? now();
+
+        return max(1, (int) $this->live_started_at->diffInMinutes($clockEnd));
     }
 }

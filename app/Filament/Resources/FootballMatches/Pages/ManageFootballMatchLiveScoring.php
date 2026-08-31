@@ -25,6 +25,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 
 class ManageFootballMatchLiveScoring extends Page implements HasTable
 {
@@ -136,11 +137,14 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
                 ->icon(Heroicon::OutlinedBolt)
                 ->visible(fn (): bool => in_array($this->match()->status, [FootballMatch::STATUS_SCHEDULED, FootballMatch::STATUS_STARTING], true))
                 ->action(function (): void {
-                    $this->match()->update([
+                    $match = $this->match();
+
+                    $match->update([
                         'status' => FootballMatch::STATUS_LIVE,
+                        'live_started_at' => $match->live_started_at ?? now(),
                     ]);
 
-                    PublicMatchUpdated::dispatch($this->match());
+                    PublicMatchUpdated::dispatch($match);
 
                     Notification::make()
                         ->success()
@@ -178,21 +182,19 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
                         ->label('Assist')
                         ->options(fn (): array => $this->scoringPlayerOptions())
                         ->searchable(),
-                    TextInput::make('minute')
-                        ->numeric()
-                        ->minValue(0),
                 ])
                 ->action(function (array $data): void {
+                    $match = $this->match();
+
                     MatchEvent::create([
-                        'match_id' => $this->match()->getKey(),
+                        'match_id' => $match->getKey(),
                         'scorer_id' => $data['scorer_id'],
                         'assist_player_id' => $data['assist_player_id'] ?? null,
                         'event_type' => MatchEvent::TYPE_GOAL,
                         'team' => MatchEvent::TEAM_ZEITLOS,
-                        'minute' => $data['minute'] ?? null,
+                        'minute' => $this->liveElapsedMinute($match),
                     ]);
 
-                    $match = $this->match();
                     $match->recalculateLiveScore();
                     PublicMatchUpdated::dispatch($match);
 
@@ -206,22 +208,18 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
                 ->icon(Heroicon::OutlinedMinusCircle)
                 ->color('danger')
                 ->visible(fn (): bool => $this->match()->status !== FootballMatch::STATUS_FINISHED || auth()->user()?->isSuperAdmin())
-                ->schema([
-                    TextInput::make('minute')
-                        ->numeric()
-                        ->minValue(0),
-                ])
-                ->action(function (array $data): void {
+                ->action(function (): void {
+                    $match = $this->match();
+
                     MatchEvent::create([
-                        'match_id' => $this->match()->getKey(),
+                        'match_id' => $match->getKey(),
                         'scorer_id' => null,
                         'assist_player_id' => null,
                         'event_type' => MatchEvent::TYPE_GOAL,
                         'team' => MatchEvent::TEAM_OPPONENT,
-                        'minute' => $data['minute'] ?? null,
+                        'minute' => $this->liveElapsedMinute($match),
                     ]);
 
-                    $match = $this->match();
                     $match->recalculateLiveScore();
                     PublicMatchUpdated::dispatch($match);
 
@@ -250,13 +248,16 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
                         ->default(fn (): ?int => $this->match()->opponent_score),
                 ])
                 ->action(function (array $data): void {
-                    $this->match()->update([
+                    $match = $this->match();
+
+                    $match->update([
                         'status' => FootballMatch::STATUS_FINISHED,
                         'zeitlos_score' => $data['zeitlos_score'],
                         'opponent_score' => $data['opponent_score'],
+                        'live_finished_at' => $match->live_finished_at ?? now(),
                     ]);
 
-                    PublicMatchUpdated::dispatch($this->match());
+                    PublicMatchUpdated::dispatch($match);
 
                     Notification::make()
                         ->success()
@@ -299,5 +300,18 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
         return $this->scoringPlayers()
             ->pluck('name', 'id')
             ->all();
+    }
+
+    private function liveElapsedMinute(FootballMatch $match): int
+    {
+        $minute = $match->liveElapsedMinute();
+
+        if ($minute === null) {
+            throw ValidationException::withMessages([
+                'live_clock' => 'The live match clock has not started.',
+            ]);
+        }
+
+        return $minute;
     }
 }
