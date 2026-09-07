@@ -80,13 +80,15 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
                 TextColumn::make('minute')
                     ->placeholder('No minute')
                     ->formatStateUsing(fn (?int $state): ?string => $state !== null ? $state."'" : null),
-                TextColumn::make('scorer.name')
-                    ->label('Scorer'),
+                TextColumn::make('scorer_name')
+                    ->label('Scorer')
+                    ->state(fn (MatchEvent $record): ?string => $record->scorer?->name ?? $record->guest_scorer_name),
                 TextColumn::make('team')
                     ->formatStateUsing(fn (string $state): string => $state === MatchEvent::TEAM_OPPONENT ? 'Enemy team' : 'Zeitlos')
                     ->badge(),
-                TextColumn::make('assistPlayer.name')
+                TextColumn::make('assist_name')
                     ->label('Assist')
+                    ->state(fn (MatchEvent $record): ?string => $record->assistPlayer?->name ?? $record->guest_assist_name)
                     ->placeholder('None'),
             ])
             ->recordActions([
@@ -175,21 +177,25 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
                 ->schema([
                     Select::make('scorer_id')
                         ->label('Scorer')
-                        ->options(fn (): array => $this->scoringPlayerOptions())
+                        ->options(fn (): array => $this->scoringParticipantOptions())
                         ->searchable()
                         ->required(),
                     Select::make('assist_player_id')
                         ->label('Assist')
-                        ->options(fn (): array => $this->scoringPlayerOptions())
+                        ->options(fn (): array => $this->scoringParticipantOptions())
                         ->searchable(),
                 ])
                 ->action(function (array $data): void {
                     $match = $this->match();
+                    $scorer = $this->goalParticipantAttributes($data['scorer_id'], 'scorer_id');
+                    $assistant = isset($data['assist_player_id'])
+                        ? $this->goalParticipantAttributes($data['assist_player_id'], 'assist_player_id')
+                        : [];
 
                     MatchEvent::create([
                         'match_id' => $match->getKey(),
-                        'scorer_id' => $data['scorer_id'],
-                        'assist_player_id' => $data['assist_player_id'] ?? null,
+                        ...$scorer,
+                        ...$assistant,
                         'event_type' => MatchEvent::TYPE_GOAL,
                         'team' => MatchEvent::TEAM_ZEITLOS,
                         'minute' => $this->liveElapsedMinute($match),
@@ -295,11 +301,49 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
             ->values();
     }
 
-    private function scoringPlayerOptions(): array
+    private function scoringParticipantOptions(): array
     {
-        return $this->scoringPlayers()
+        $playerOptions = $this->scoringPlayers()
             ->pluck('name', 'id')
             ->all();
+
+        $guestOptions = $this->match()->rosterEntries
+            ->filter(fn ($entry) => filled($entry->guest_name))
+            ->mapWithKeys(fn ($entry): array => ['guest:'.$entry->getKey() => $entry->guest_name])
+            ->all();
+
+        return $playerOptions + $guestOptions;
+    }
+
+    private function goalParticipantAttributes(int|string $selection, string $field): array
+    {
+        if (str_starts_with((string) $selection, 'guest:')) {
+            $guestId = (int) substr((string) $selection, strlen('guest:'));
+            $guest = $this->match()->rosterEntries
+                ->first(fn ($entry): bool => $entry->getKey() === $guestId && filled($entry->guest_name));
+
+            if ($guest === null) {
+                throw ValidationException::withMessages([
+                    $field => 'Select a player or guest from this match roster.',
+                ]);
+            }
+
+            return $field === 'scorer_id'
+                ? ['scorer_id' => null, 'guest_scorer_name' => $guest->guest_name]
+                : ['assist_player_id' => null, 'guest_assist_name' => $guest->guest_name];
+        }
+
+        $player = $this->scoringPlayers()->firstWhere('id', (int) $selection);
+
+        if ($player === null) {
+            throw ValidationException::withMessages([
+                $field => 'Select a player or guest from this match roster.',
+            ]);
+        }
+
+        return $field === 'scorer_id'
+            ? ['scorer_id' => $player->getKey(), 'guest_scorer_name' => null]
+            : ['assist_player_id' => $player->getKey(), 'guest_assist_name' => null];
     }
 
     private function liveElapsedMinute(FootballMatch $match): int

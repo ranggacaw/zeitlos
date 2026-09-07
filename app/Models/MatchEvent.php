@@ -21,7 +21,9 @@ class MatchEvent extends Model
     protected $fillable = [
         'match_id',
         'scorer_id',
+        'guest_scorer_name',
         'assist_player_id',
+        'guest_assist_name',
         'event_type',
         'team',
         'minute',

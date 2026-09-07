@@ -47,8 +47,8 @@ class PublicMatchPresenter
                     'minute' => $event->minute,
                     'event_type' => $event->event_type,
                     'team' => $event->team,
-                    'scorer' => $event->team === MatchEvent::TEAM_OPPONENT ? 'Enemy team' : $event->scorer?->name,
-                    'assist' => $event->assistPlayer?->name,
+                    'scorer' => $event->team === MatchEvent::TEAM_OPPONENT ? 'Enemy team' : ($event->scorer?->name ?? $event->guest_scorer_name),
+                    'assist' => $event->assistPlayer?->name ?? $event->guest_assist_name,
                 ])
                 ->values(),
         ];

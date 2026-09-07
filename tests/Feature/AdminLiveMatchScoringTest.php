@@ -124,6 +124,52 @@ class AdminLiveMatchScoringTest extends TestCase
         $this->assertSame(1, $match->fresh()->zeitlos_score);
     }
 
+    public function test_admin_can_record_a_goal_and_assist_for_guest_roster_players(): void
+    {
+        Carbon::setTestNow('2026-08-31 20:42:00');
+
+        $admin = User::factory()->admin()->create();
+        $match = FootballMatch::factory()->live()->create([
+            'live_started_at' => now()->subMinutes(42),
+        ]);
+        $scorer = MatchRoster::factory()->create([
+            'match_id' => $match->id,
+            'player_id' => null,
+            'guest_name' => 'Guest Scorer',
+        ]);
+        $assistant = MatchRoster::factory()->create([
+            'match_id' => $match->id,
+            'player_id' => null,
+            'guest_name' => 'Guest Assistant',
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ManageFootballMatchLiveScoring::class, ['record' => $match->getRouteKey()])
+            ->callAction('recordGoal', [
+                'scorer_id' => 'guest:'.$scorer->id,
+                'assist_player_id' => 'guest:'.$assistant->id,
+            ])
+            ->assertHasNoActionErrors();
+
+        $this->assertDatabaseHas('match_events', [
+            'match_id' => $match->id,
+            'scorer_id' => null,
+            'guest_scorer_name' => 'Guest Scorer',
+            'assist_player_id' => null,
+            'guest_assist_name' => 'Guest Assistant',
+            'event_type' => MatchEvent::TYPE_GOAL,
+            'team' => MatchEvent::TEAM_ZEITLOS,
+            'minute' => 42,
+        ]);
+
+        $this->get(route('public.matches.live', $match))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('match.events.0.scorer', 'Guest Scorer')
+                ->where('match.events.0.assist', 'Guest Assistant')
+            );
+    }
+
     public function test_admin_can_record_an_opponent_goal_without_a_scorer_name(): void
     {
         Carbon::setTestNow('2026-08-31 20:31:00');
