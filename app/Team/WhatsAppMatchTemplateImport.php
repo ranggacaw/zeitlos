@@ -62,15 +62,12 @@ class WhatsAppMatchTemplateImport
         $created = 0;
 
         foreach ($parsed['roster'] as $entry) {
-            $player = $this->players->resolve(
-                $entry['name'],
-                $entry['role'] === MatchRoster::ROLE_GOALKEEPER ? 'Goalkeeper' : 'Player',
-            );
+            $player = $this->players->find($entry['name']);
 
             MatchRoster::query()->firstOrCreate([
                 'match_id' => $match->getKey(),
-                'player_id' => $player->getKey(),
-                'guest_name' => null,
+                'player_id' => $player?->getKey(),
+                'guest_name' => $player ? null : $entry['name'],
                 'role' => $entry['role'],
             ]);
             $created++;

@@ -10,6 +10,7 @@ use App\Filament\Resources\FootballMatches\Pages\ManageFootballMatchLiveScoring;
 use App\Filament\Resources\FootballMatches\Pages\ManageFootballMatchRosters;
 use App\Filament\Resources\Players\Pages\CreatePlayer;
 use App\Filament\Resources\Players\Pages\EditPlayer;
+use App\Filament\Resources\Players\Pages\ListPlayers;
 use App\Models\FootballMatch;
 use App\Models\MatchEvent;
 use App\Models\MatchRoster;
@@ -139,6 +140,37 @@ class AdminTeamManagementTest extends TestCase
         $this->assertSame(6, $player->appearances_adjustment);
     }
 
+    public function test_admin_can_restore_selected_guest_recovery_candidates(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $guest = Player::factory()->create([
+            'name' => 'Accidental Guest',
+            'jersey_number' => null,
+            'photo_path' => null,
+            'joined_at' => null,
+        ]);
+        $zeitlosPlayer = Player::factory()->create();
+        $match = FootballMatch::factory()->create();
+        $roster = MatchRoster::factory()->create([
+            'match_id' => $match->id,
+            'player_id' => $guest->id,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ListPlayers::class)
+            ->assertTableFilterExists('guest_recovery_candidates')
+            ->assertTableBulkActionExists('restoreGuests')
+            ->callTableBulkAction('restoreGuests', [$guest])
+            ->assertHasNoTableBulkActionErrors();
+
+        $roster->refresh();
+
+        $this->assertNull($roster->player_id);
+        $this->assertSame('Accidental Guest', $roster->guest_name);
+        $this->assertDatabaseMissing('players', ['id' => $guest->id]);
+        $this->assertDatabaseHas('players', ['id' => $zeitlosPlayer->id]);
+    }
+
     public function test_admin_can_create_and_update_a_match_through_filament(): void
     {
         $admin = User::factory()->admin()->create();
@@ -233,8 +265,8 @@ TEXT;
         $this->assertSame('https://maps.app.goo.gl/HadXRxcpugrjtTRCA?g_st=ac', $match->maps_url);
         $this->assertDatabaseHas('match_rosters', [
             'match_id' => $match->id,
-            'player_id' => Player::where('name', 'Gilang')->value('id'),
-            'guest_name' => null,
+            'player_id' => null,
+            'guest_name' => 'Gilang',
             'role' => MatchRoster::ROLE_GOALKEEPER,
         ]);
         $this->assertDatabaseHas('match_rosters', [
@@ -243,7 +275,7 @@ TEXT;
             'guest_name' => null,
             'role' => MatchRoster::ROLE_PLAYER,
         ]);
-        $this->assertSame('Goalkeeper', Player::where('name', 'Gilang')->value('position'));
+        $this->assertDatabaseMissing('players', ['name' => 'Gilang']);
         $this->assertSame('Forward', $player->fresh()->position);
     }
 
@@ -320,13 +352,25 @@ TEXT;
         ]);
         $this->assertDatabaseHas('match_rosters', [
             'match_id' => $match->id,
-            'player_id' => Player::where('name', 'Rangga')->value('id'),
-            'guest_name' => null,
+            'player_id' => null,
+            'guest_name' => 'Rangga',
             'role' => MatchRoster::ROLE_PLAYER,
         ]);
-        $this->assertSame('Goalkeeper', Player::where('name', 'Gilang')->value('position'));
-        $this->assertSame('Goalkeeper', Player::where('name', 'Sutan')->value('position'));
-        $this->assertSame('Player', Player::where('name', 'Rangga')->value('position'));
+        $this->assertDatabaseHas('match_rosters', [
+            'match_id' => $match->id,
+            'player_id' => null,
+            'guest_name' => 'Gilang',
+            'role' => MatchRoster::ROLE_GOALKEEPER,
+        ]);
+        $this->assertDatabaseHas('match_rosters', [
+            'match_id' => $match->id,
+            'player_id' => null,
+            'guest_name' => 'Sutan',
+            'role' => MatchRoster::ROLE_GOALKEEPER,
+        ]);
+        $this->assertDatabaseMissing('players', ['name' => 'Gilang']);
+        $this->assertDatabaseMissing('players', ['name' => 'Sutan']);
+        $this->assertDatabaseMissing('players', ['name' => 'Rangga']);
         $this->assertDatabaseMissing('match_rosters', [
             'match_id' => $match->id,
             'guest_name' => 'why I cannot create from whatsapp template?',
@@ -619,8 +663,8 @@ TEXT;
         ]);
         $this->assertDatabaseHas('match_rosters', [
             'match_id' => $match->id,
-            'player_id' => Player::where('name', 'Sutan')->value('id'),
-            'guest_name' => null,
+            'player_id' => null,
+            'guest_name' => 'Sutan',
             'role' => MatchRoster::ROLE_GOALKEEPER,
         ]);
         $this->assertDatabaseMissing('match_rosters', [
@@ -633,6 +677,7 @@ TEXT;
             'player_id' => $oldPlayer->id,
         ]);
         $this->assertSame(16, MatchRoster::where('match_id', $match->id)->count());
+        $this->assertDatabaseMissing('players', ['name' => 'Sutan']);
     }
 
     public function test_filament_roster_page_can_add_a_guest_entry_and_rejects_invalid_identity(): void
