@@ -1,0 +1,637 @@
+<!doctype html>
+<!--
+  USER GUIDE TEMPLATE — copy this file, then replace every {{PLACEHOLDER}} and the
+  example sections with real content grounded in the project's UI/features.
+
+  ── DESIGN TOKENS ──────────────────────────────────────────────────────────────
+  Every visual is driven by the `--ug-*` custom properties in :root. They are the
+  SINGLE SOURCE OF TRUTH. The defaults below are intentionally BRAND-NEUTRAL.
+
+  To match a project's design system: read `prompter/design-system.md` (or the
+  project's own design-system.md) and OVERRIDE the `--ug-*` values per
+  references/design-system-mapping.md. Override only the tokens you can map; leave
+  the rest at their neutral default. If no design system exists, keep these
+  defaults unchanged (neutral fallback).
+
+  ── HOW TO USE ─────────────────────────────────────────────────────────────────
+  - Duplicate <button class="sidebar-link"> per guide section and one matching
+    <section class="guide-section"> per section. The data-tab value must match the
+    section id. The first section keeps the "active" class on both link and section.
+  - Use the component blocks (flow-step timeline, module-card, callout, stat-card,
+    badge, page-ref, figure, table) shown in the example sections below. See
+    references/html-components.md.
+  - THEME TOGGLE is built in (light/dark, persisted). To remove it, delete the
+    .theme-toggle buttons and the THEME block in the script.
+  - MERMAID is OPTIONAL: keep the <script type="module"> block only if you include
+    at least one .mermaid diagram; otherwise delete it.
+-->
+<html lang="{{LANG}}" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{GUIDE_TITLE}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ============================================================
+         DESIGN TOKENS — neutral fallback (override from design system)
+         ============================================================ */
+      :root {
+        /* Default fallback = "Modern Minimal" (shadcn OKLCH, blue-primary).
+           Source: references/default-design-system.md. Override from the project
+           design system per references/design-system-mapping.md. */
+
+        /* Brand / primary */
+        --ug-primary: #3b82f6;          /* ds-primary */
+        --ug-primary-foreground: #ffffff;
+        --ug-primary-hover: #2563eb;    /* ds-chart-2 (darker blue) */
+        --ug-ring: #3b82f6;
+        --ug-accent: #e0f2fe;           /* ds-accent — soft highlight surface */
+        --ug-accent-foreground: #1e3a8a;
+
+        /* Surfaces & text (light) */
+        --ug-bg: #ffffff;               /* ds-background */
+        --ug-surface: #ffffff;          /* ds-card */
+        --ug-surface-soft: #f9fafb;     /* ds-muted */
+        --ug-muted: #f3f4f6;            /* ds-secondary */
+        --ug-text: #333333;             /* ds-foreground */
+        --ug-text-secondary: #4b5563;   /* ds-secondary-foreground */
+        --ug-text-muted: #6b7280;       /* ds-muted-foreground */
+        --ug-border: #e5e7eb;           /* ds-border */
+        --ug-border-strong: #d1d5db;
+
+        /* Status — Modern Minimal defines only `destructive`; success/warning/info added for callouts */
+        --ug-success: #16a34a;  --ug-success-subtle: #dcfce7;
+        --ug-warning: #d97706;  --ug-warning-subtle: #fef3c7;
+        --ug-info: #2563eb;     --ug-info-subtle: #dbeafe;
+        --ug-error: #ef4444;    --ug-error-subtle: #fee2e2;   /* ds-destructive */
+
+        /* Typography */
+        --ug-font-sans: "Inter", system-ui, -apple-system, sans-serif;
+        --ug-font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+        /* Radius — Modern Minimal scale (base 0.375rem) */
+        --ug-radius-sm: 2px;
+        --ug-radius-md: 4px;
+        --ug-radius-lg: 6px;
+        --ug-radius-xl: 10px;
+
+        /* Shadow — Modern Minimal elevation (black / 0.10) */
+        --ug-shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+        --ug-shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10);
+        --ug-shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
+
+        /* Motion */
+        --ug-fast: 120ms;
+        --ug-normal: 180ms;
+        --ug-ease: cubic-bezier(0.4, 0, 0.2, 1);
+        --ug-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+        /* Layout */
+        --sidebar-width: 280px;
+        --header-height: 56px;
+        --content-max-width: 880px;
+        color-scheme: light;
+      }
+
+      /* ---------- DARK MODE — Modern Minimal .dark (surfaces/text/border invert) ---------- */
+      [data-theme="dark"] {
+        --ug-bg: #171717;             /* ds-background */
+        --ug-surface: #262626;        /* ds-card */
+        --ug-surface-soft: #1f1f1f;   /* ds-muted */
+        --ug-muted: #1f1f1f;
+        --ug-text: #e5e5e5;           /* ds-foreground */
+        --ug-text-secondary: #c9c9c9;
+        --ug-text-muted: #a3a3a3;     /* ds-muted-foreground */
+        --ug-border: #404040;         /* ds-border */
+        --ug-border-strong: #525252;
+        --ug-accent: #1e3a8a;         /* ds-accent (dark) */
+        --ug-accent-foreground: #bfdbfe;
+        --ug-primary-hover: #60a5fa;  /* ds-chart-1 shifts lighter in dark */
+        --ug-success-subtle: #14321f;
+        --ug-warning-subtle: #3a2a0c;
+        --ug-info-subtle: #14233f;
+        --ug-error-subtle: #3a1414;
+        color-scheme: dark;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      }
+      body {
+        margin: 0;
+        font-family: var(--ug-font-sans);
+        color: var(--ug-text-secondary);
+        background-color: var(--ug-bg);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        transition: background-color var(--ug-normal) var(--ug-ease), color var(--ug-normal) var(--ug-ease);
+      }
+      a { color: inherit; text-decoration: none; }
+      :focus-visible { outline: 2px solid var(--ug-ring); outline-offset: 2px; border-radius: var(--ug-radius-sm); }
+      ::selection { background: var(--ug-accent); color: var(--ug-accent-foreground); }
+
+      /* TOPBAR (mobile only) */
+      .topbar {
+        display: none; position: sticky; top: 0; z-index: 60;
+        align-items: center; gap: 0.75rem; height: var(--header-height); padding: 0 1rem;
+        background: color-mix(in srgb, var(--ug-bg) 88%, transparent);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--ug-border);
+      }
+      .topbar-title { font-weight: 700; font-size: 0.95rem; color: var(--ug-text); }
+      .icon-btn {
+        display: inline-grid; place-items: center; width: 36px; height: 36px;
+        border: none; background: transparent; color: var(--ug-text); cursor: pointer;
+        border-radius: var(--ug-radius-md); transition: background var(--ug-fast) var(--ug-ease);
+      }
+      .icon-btn:hover { background: var(--ug-muted); }
+      .icon-btn svg { width: 20px; height: 20px; }
+
+      /* APP SHELL */
+      .app { display: grid; grid-template-columns: var(--sidebar-width) 1fr; min-height: 100vh; }
+
+      /* SIDEBAR */
+      .sidebar {
+        position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+        background: var(--ug-surface-soft); border-right: 1px solid var(--ug-border);
+        display: flex; flex-direction: column; z-index: 50;
+      }
+      .sidebar-brand { display: flex; align-items: center; gap: 0.7rem; padding: 1.25rem 1.25rem 0.75rem; }
+      .brand-mark {
+        width: 36px; height: 36px; border-radius: var(--ug-radius-md); flex-shrink: 0;
+        display: grid; place-items: center; color: #fff;
+        background: linear-gradient(135deg, var(--ug-primary), var(--ug-primary-hover));
+        box-shadow: var(--ug-shadow-sm);
+      }
+      .brand-mark svg { width: 20px; height: 20px; }
+      .brand-name { font-weight: 700; font-size: 0.9rem; color: var(--ug-text); line-height: 1.15; letter-spacing: -0.01em; }
+      .brand-sub { font-size: 0.72rem; color: var(--ug-text-muted); }
+      .sidebar-search { padding: 0 1.25rem 0.75rem; }
+      .sidebar-search input {
+        width: 100%; font: inherit; font-size: 0.82rem; color: var(--ug-text);
+        padding: 0.45rem 0.7rem; border-radius: var(--ug-radius-md);
+        border: 1px solid var(--ug-border); background: var(--ug-surface);
+      }
+      .sidebar-search input::placeholder { color: var(--ug-text-muted); }
+      .sidebar-search input:focus { outline: none; border-color: var(--ug-ring); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ug-ring) 22%, transparent); }
+      .sidebar-nav { padding: 0.25rem 0.75rem 1.5rem; flex: 1; }
+      .sidebar-group-title {
+        font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
+        color: var(--ug-text-muted); padding: 0.65rem 0.75rem 0.3rem;
+      }
+      .sidebar-link {
+        display: flex; align-items: center; gap: 0.6rem; width: 100%; text-align: left;
+        padding: 0.45rem 0.75rem; border: none; background: transparent; border-radius: var(--ug-radius-md);
+        color: var(--ug-text-secondary); font-size: 0.86rem; font-weight: 500; font-family: inherit;
+        cursor: pointer; transition: background var(--ug-fast) var(--ug-ease), color var(--ug-fast) var(--ug-ease);
+      }
+      .sidebar-link svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; }
+      .sidebar-link:hover { background: var(--ug-muted); color: var(--ug-text); }
+      .sidebar-link.active { background: var(--ug-accent); color: var(--ug-accent-foreground); font-weight: 600; }
+      .sidebar-link.active svg { opacity: 1; }
+      .sidebar-foot {
+        padding: 0.9rem 1.25rem; border-top: 1px solid var(--ug-border);
+        display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+        font-size: 0.72rem; color: var(--ug-text-muted);
+      }
+      .theme-toggle { width: 32px; height: 32px; }
+
+      /* MAIN */
+      .main { min-width: 0; }
+      .content { max-width: var(--content-max-width); margin: 0 auto; padding: 3rem 2.5rem 6rem; }
+
+      /* PAGE HEADER */
+      .eyebrow {
+        display: inline-flex; align-items: center; color: var(--ug-primary);
+        font-family: var(--ug-font-mono); font-size: 0.78rem; font-weight: 500;
+        letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 1rem;
+      }
+      h1 { margin: 0 0 1rem; font-size: 2.4rem; font-weight: 700; color: var(--ug-text); line-height: 1.15; letter-spacing: -0.025em; }
+      .subtitle { font-size: 1.1rem; color: var(--ug-text-muted); line-height: 1.6; margin: 0 0 2.5rem; max-width: 65ch; }
+
+      /* SUMMARY PILLS */
+      .header-summary {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem; margin-bottom: 3rem; padding-bottom: 3rem; border-bottom: 1px solid var(--ug-border);
+      }
+      .summary-pill {
+        padding: 1.25rem; border: 1px solid var(--ug-border); border-radius: var(--ug-radius-lg);
+        background: var(--ug-surface); box-shadow: var(--ug-shadow-sm);
+      }
+      .summary-pill strong { display: block; color: var(--ug-text); font-size: 0.95rem; font-weight: 600; margin-bottom: 0.35rem; }
+      .summary-pill span { color: var(--ug-text-muted); font-size: 0.875rem; line-height: 1.5; }
+
+      /* SECTIONS */
+      .guide-section { display: none; animation: fadeIn 0.35s var(--ug-ease); }
+      .guide-section.active { display: block; }
+      .section-title { margin: 0 0 1rem; font-size: 1.8rem; font-weight: 700; color: var(--ug-text); letter-spacing: -0.02em; }
+      .section-lead { font-size: 1.05rem; color: var(--ug-text-secondary); margin-bottom: 2rem; max-width: 65ch; }
+      .section-title.sub { font-size: 1.2rem; margin-top: 2.5rem; }
+
+      /* STAT CARDS */
+      .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+      .stat-card { padding: 1.25rem; background: var(--ug-surface-soft); border: 1px solid var(--ug-border); border-radius: var(--ug-radius-lg); }
+      .stat-card span { display: block; color: var(--ug-text-muted); font-family: var(--ug-font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.3rem; }
+      .stat-card strong { color: var(--ug-text); font-size: 1.1rem; font-weight: 600; }
+
+      /* MODULE CARDS */
+      .modules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem; }
+      .module-card {
+        border: 1px solid var(--ug-border); border-radius: var(--ug-radius-lg); background: var(--ug-surface);
+        padding: 1.5rem; box-shadow: var(--ug-shadow-sm); transition: box-shadow var(--ug-normal) var(--ug-ease), border-color var(--ug-normal) var(--ug-ease), transform var(--ug-normal) var(--ug-ease);
+      }
+      .module-card:hover { box-shadow: var(--ug-shadow-md); border-color: var(--ug-border-strong); transform: translateY(-2px); }
+      .module-card h3 { margin: 0 0 0.5rem; font-size: 1.1rem; font-weight: 600; color: var(--ug-text); }
+      .module-card p { margin: 0 0 1rem; color: var(--ug-text-secondary); font-size: 0.9rem; }
+      .module-card ul { margin: 0; padding-left: 1.2rem; color: var(--ug-text-secondary); font-size: 0.9rem; }
+      .module-card li { margin-bottom: 0.25rem; }
+
+      /* BADGES */
+      .badge-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+      .badge {
+        padding: 0.18rem 0.55rem; border-radius: var(--ug-radius-sm); font-family: var(--ug-font-mono);
+        font-size: 0.7rem; font-weight: 500; background: var(--ug-muted); color: var(--ug-text-secondary);
+        border: 1px solid var(--ug-border);
+      }
+      .badge-module { background: color-mix(in srgb, var(--ug-primary) 14%, transparent); color: var(--ug-primary); border-color: transparent; }
+      .badge-status { background: var(--ug-muted); color: var(--ug-text-secondary); border-color: transparent; }
+      .badge-warning { background: var(--ug-warning-subtle); color: var(--ug-warning); border-color: transparent; }
+      .badge-error { background: var(--ug-error-subtle); color: var(--ug-error); border-color: transparent; }
+
+      /* CALLOUTS */
+      .callout {
+        display: flex; gap: 0.75rem; padding: 1rem 1.25rem; border-radius: var(--ug-radius-md);
+        border: 1px solid var(--ug-border); background: var(--ug-surface-soft); margin: 1.5rem 0; font-size: 0.92rem;
+      }
+      .callout .callout-icon { flex-shrink: 0; font-weight: 700; }
+      .callout strong { display: block; margin-bottom: 0.2rem; color: var(--ug-text); }
+      .callout p { margin: 0; color: var(--ug-text-secondary); }
+      .callout-note { border-left: 4px solid var(--ug-info); background: var(--ug-info-subtle); }
+      .callout-note .callout-icon { color: var(--ug-info); }
+      .callout-tip { border-left: 4px solid var(--ug-success); background: var(--ug-success-subtle); }
+      .callout-tip .callout-icon { color: var(--ug-success); }
+      .callout-warning { border-left: 4px solid var(--ug-warning); background: var(--ug-warning-subtle); }
+      .callout-warning .callout-icon { color: var(--ug-warning); }
+      .callout-danger { border-left: 4px solid var(--ug-error); background: var(--ug-error-subtle); }
+      .callout-danger .callout-icon { color: var(--ug-error); }
+
+      /* PAGE REFERENCE LINK */
+      .page-ref {
+        display: inline-flex; align-items: center; gap: 0.45rem; margin: 0 0 1.25rem;
+        padding: 0.4rem 0.8rem; border: 1px solid color-mix(in srgb, var(--ug-primary) 35%, transparent);
+        border-radius: var(--ug-radius-md); background: color-mix(in srgb, var(--ug-primary) 10%, transparent);
+        color: var(--ug-primary); font-size: 0.8rem; font-weight: 600; font-family: var(--ug-font-mono);
+        transition: background var(--ug-fast) var(--ug-ease), box-shadow var(--ug-fast) var(--ug-ease);
+      }
+      .page-ref:hover { background: color-mix(in srgb, var(--ug-primary) 18%, transparent); box-shadow: var(--ug-shadow-sm); }
+      .page-ref svg { flex-shrink: 0; width: 14px; height: 14px; }
+
+      /* SCREENSHOT FIGURE */
+      .guide-figure { margin: 1.5rem 0 2rem; }
+      .guide-figure img { display: block; width: 100%; height: auto; border: 1px solid var(--ug-border); border-radius: var(--ug-radius-lg); box-shadow: var(--ug-shadow-sm); }
+      .guide-figure figcaption { margin-top: 0.6rem; color: var(--ug-text-muted); font-size: 0.85rem; text-align: center; }
+
+      /* FLOW VIDEO */
+      .guide-video { margin: 1.5rem 0 2rem; }
+      .guide-video video { display: block; width: 100%; height: auto; border: 1px solid var(--ug-border); border-radius: var(--ug-radius-lg); box-shadow: var(--ug-shadow-sm); background: #000; }
+      .guide-video figcaption { margin-top: 0.6rem; color: var(--ug-text-muted); font-size: 0.85rem; text-align: center; }
+
+      /* TABLES */
+      .guide-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+      .guide-table th, .guide-table td { text-align: left; padding: 0.65rem 0.85rem; border: 1px solid var(--ug-border); }
+      .guide-table th { background: var(--ug-surface-soft); color: var(--ug-text); font-weight: 600; }
+      .guide-table tbody tr:hover { background: var(--ug-surface-soft); }
+      .guide-table code, .flow-step code, .module-card code {
+        font-family: var(--ug-font-mono); font-size: 0.8rem; background: var(--ug-muted);
+        color: var(--ug-text); padding: 0.05rem 0.3rem; border-radius: var(--ug-radius-sm);
+      }
+
+      /* STEP TIMELINE */
+      .flow-section { margin-top: 2.5rem; }
+      .flow-section > h3 { font-size: 1.2rem; font-weight: 600; color: var(--ug-text); margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--ug-border); }
+      .flow-grid { position: relative; display: flex; flex-direction: column; gap: 1.5rem; padding-left: 2rem; }
+      .flow-grid::before { content: ""; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 2px; background: var(--ug-border); border-radius: 2px; }
+      .flow-step { position: relative; border: 1px solid var(--ug-border); border-radius: var(--ug-radius-lg); background: var(--ug-surface); padding: 1.5rem; box-shadow: var(--ug-shadow-sm); }
+      .flow-step .dot {
+        position: absolute; left: -2.35rem; top: 1.7rem; width: 16px; height: 16px;
+        background: var(--ug-surface); border: 3px solid var(--ug-primary); border-radius: 50%;
+        z-index: 1; box-shadow: 0 0 0 4px var(--ug-bg);
+      }
+      .flow-step h4 { margin: 0 0 0.5rem; font-size: 1.02rem; font-weight: 600; color: var(--ug-text); }
+      .flow-step p { margin: 0 0 1rem; color: var(--ug-text-secondary); font-size: 0.9rem; }
+      .flow-step ul { margin: 0; padding-left: 1.2rem; color: var(--ug-text-secondary); font-size: 0.9rem; }
+      .flow-step li { margin-bottom: 0.25rem; }
+
+      /* OPTIONAL MERMAID */
+      .mermaid-container { margin: 2.5rem 0; border: 1px solid var(--ug-border); border-radius: var(--ug-radius-lg); background: var(--ug-surface); overflow: hidden; box-shadow: var(--ug-shadow-sm); }
+      .mermaid-container h3 { margin: 0; padding: 1.25rem 1.5rem 0.5rem; font-size: 1.1rem; font-weight: 600; color: var(--ug-text); }
+      .mermaid-caption { margin: 0; padding: 0 1.5rem 1.25rem; color: var(--ug-text-muted); font-size: 0.875rem; border-bottom: 1px solid var(--ug-border); }
+      .mermaid { padding: 1.5rem; background: var(--ug-surface-soft); overflow-x: auto; }
+
+      .footer-note { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--ug-border); color: var(--ug-text-muted); font-size: 0.875rem; }
+
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+      /* RESPONSIVE */
+      .scrim { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 45; opacity: 0; pointer-events: none; transition: opacity var(--ug-normal) var(--ug-ease); }
+      .scrim[data-open="true"] { opacity: 1; pointer-events: auto; }
+      @media (max-width: 1024px) {
+        .app { grid-template-columns: 1fr; }
+        .sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); transition: transform var(--ug-normal) var(--ug-ease); box-shadow: var(--ug-shadow-lg); width: 280px; }
+        .sidebar[data-open="true"] { transform: translateX(0); }
+        .topbar { display: flex; }
+        .content { padding: 1.75rem 1.25rem 5rem; }
+        h1 { font-size: 2rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Scrim for mobile sidebar -->
+    <div class="scrim" id="scrim"></div>
+
+    <div class="app">
+      <!-- ============================ SIDEBAR ============================ -->
+      <aside class="sidebar" id="sidebar" aria-label="Navigasi panduan">
+        <div class="sidebar-brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>
+          </span>
+          <div>
+            <div class="brand-name">{{PRODUCT_NAME}}</div>
+            <div class="brand-sub">{{GUIDE_LABEL}}</div>
+          </div>
+        </div>
+
+        <div class="sidebar-search">
+          <input type="search" id="navFilter" placeholder="Cari bagian…" aria-label="Filter navigasi" />
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Bagian panduan">
+          <div class="sidebar-group-title">{{GUIDE_LABEL}}</div>
+          <!-- one .sidebar-link per section; data-tab matches the section id -->
+          <button class="sidebar-link active" data-tab="introduction">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span>Pengenalan</span>
+          </button>
+          <button class="sidebar-link" data-tab="getting-started">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+            <span>Memulai</span>
+          </button>
+          <button class="sidebar-link" data-tab="feature-example">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+            <span>{{FEATURE_NAME}}</span>
+          </button>
+          <!-- duplicate sidebar-link per section -->
+        </nav>
+
+        <div class="sidebar-foot">
+          <span>{{FOOTER_LABEL}}</span>
+          <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Ganti mode gelap" title="Ganti tema">
+            <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          </button>
+        </div>
+      </aside>
+
+      <!-- ============================ MAIN ============================ -->
+      <div class="main">
+        <!-- Mobile topbar -->
+        <header class="topbar">
+          <button class="icon-btn" id="menuBtn" aria-label="Buka navigasi" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+          </button>
+          <span class="topbar-title" id="topbarCurrent">{{FIRST_SECTION_LABEL}}</span>
+          <button class="icon-btn theme-toggle" id="themeToggleTop" style="margin-left:auto" aria-label="Ganti mode gelap">
+            <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          </button>
+        </header>
+
+        <main class="content">
+          <!-- PAGE HEADER -->
+          <div class="page-header">
+            <div class="eyebrow">{{EYEBROW}}</div>
+            <h1>{{GUIDE_TITLE}}</h1>
+            <p class="subtitle">{{GUIDE_SUBTITLE}}</p>
+            <div class="header-summary">
+              <div class="summary-pill"><strong>{{PILL_1_TITLE}}</strong><span>{{PILL_1_DESC}}</span></div>
+              <div class="summary-pill"><strong>{{PILL_2_TITLE}}</strong><span>{{PILL_2_DESC}}</span></div>
+              <div class="summary-pill"><strong>{{PILL_3_TITLE}}</strong><span>{{PILL_3_DESC}}</span></div>
+            </div>
+          </div>
+
+          <!-- ============ SECTION: PENGENALAN ============ -->
+          <section class="guide-section active" id="introduction">
+            <h2 class="section-title">Pengenalan</h2>
+            <p class="section-lead">{{INTRO_LEAD}}</p>
+            <div class="modules-grid">
+              <article class="module-card">
+                <h3>{{FEATURE_NAME}}</h3>
+                <p>{{FEATURE_SHORT_DESC}}</p>
+                <div class="badge-row">
+                  <span class="badge badge-module">{{MODULE}}</span>
+                  <span class="badge badge-status">{{ROLE_OR_STATUS}}</span>
+                </div>
+                <ul>
+                  <li>{{KEY_CAPABILITY_1}}</li>
+                  <li>{{KEY_CAPABILITY_2}}</li>
+                </ul>
+              </article>
+            </div>
+          </section>
+
+          <!-- ============ SECTION: MEMULAI ============ -->
+          <section class="guide-section" id="getting-started">
+            <h2 class="section-title">Memulai</h2>
+            <p class="section-lead">{{GETTING_STARTED_LEAD}}</p>
+
+            <div class="stats-grid">
+              <article class="stat-card"><span>Prasyarat</span><strong>{{PREREQUISITE}}</strong></article>
+              <article class="stat-card"><span>Hak Akses</span><strong>{{ROLE}}</strong></article>
+              <article class="stat-card"><span>Titik Masuk</span><strong>{{ENTRY_ROUTE}}</strong></article>
+            </div>
+
+            <div class="callout callout-note">
+              <span class="callout-icon">i</span>
+              <div><strong>Catatan</strong><p>{{NOTE_TEXT}}</p></div>
+            </div>
+          </section>
+
+          <!-- ============ SECTION: PANDUAN FITUR (numbered steps) ============ -->
+          <section class="guide-section" id="feature-example">
+            <h2 class="section-title">{{FEATURE_NAME}}</h2>
+            <p class="section-lead">{{FEATURE_LEAD}}</p>
+
+            <!-- Page reference (only when page refs enabled; else delete this link) -->
+            <a class="page-ref" href="{{BASE_URL}}{{ROUTE}}" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              Buka halaman
+            </a>
+
+            <!-- Flow video (only when a flow video was recorded; else delete this figure) -->
+            <figure class="guide-video">
+              <video src="videos/{{FLOW_ID}}.mp4" controls preload="metadata" poster="images/{{SCREENSHOT_ID}}.png"></video>
+              <figcaption>{{VIDEO_CAPTION}}</figcaption>
+            </figure>
+
+            <!-- Screenshot (only when screenshots captured; else delete this figure) -->
+            <figure class="guide-figure">
+              <img src="images/{{SCREENSHOT_ID}}.png" alt="{{SCREENSHOT_ALT}}" loading="lazy" />
+              <figcaption>{{SCREENSHOT_CAPTION}}</figcaption>
+            </figure>
+
+            <div class="flow-section">
+              <h3>Langkah-langkah</h3>
+              <div class="flow-grid">
+                <article class="flow-step">
+                  <span class="dot"></span>
+                  <h4>1. {{STEP_1_TITLE}}</h4>
+                  <p>Halaman: <code>{{ROUTE}}</code><br />{{STEP_1_DESC}}</p>
+                  <ul>
+                    <li><strong>{{FIELD_NAME}}</strong> — {{FIELD_DESC}}</li>
+                  </ul>
+                </article>
+                <article class="flow-step">
+                  <span class="dot"></span>
+                  <h4>2. {{STEP_2_TITLE}}</h4>
+                  <p>{{STEP_2_DESC}}</p>
+                </article>
+              </div>
+            </div>
+
+            <div class="callout callout-tip">
+              <span class="callout-icon">!</span>
+              <div><strong>Tips</strong><p>{{TIP_TEXT}}</p></div>
+            </div>
+            <div class="callout callout-warning">
+              <span class="callout-icon">!</span>
+              <div><strong>Perhatian</strong><p>{{WARNING_TEXT}}</p></div>
+            </div>
+
+            <h3 class="section-title sub">Referensi Kolom</h3>
+            <table class="guide-table">
+              <thead><tr><th>Kolom</th><th>Wajib</th><th>Keterangan</th></tr></thead>
+              <tbody>
+                <tr><td><code>{{FIELD}}</code></td><td>{{REQUIRED}}</td><td>{{FIELD_NOTE}}</td></tr>
+              </tbody>
+            </table>
+
+            <p class="footer-note">{{FOOTER_NOTE}}</p>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- OPTIONAL: keep this script ONLY if you include .mermaid diagrams above -->
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      const isDark = () => document.documentElement.getAttribute("data-theme") === "dark";
+      const initMermaid = () => {
+        const css = getComputedStyle(document.documentElement);
+        const v = (n) => css.getPropertyValue(n).trim();
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "base",
+          themeVariables: {
+            darkMode: isDark(),
+            background: v("--ug-surface-soft"), mainBkg: v("--ug-surface"),
+            primaryColor: v("--ug-surface"), primaryTextColor: v("--ug-text"),
+            primaryBorderColor: v("--ug-primary"), lineColor: v("--ug-text-secondary"),
+            secondaryColor: v("--ug-muted"), tertiaryColor: v("--ug-muted"),
+            fontFamily: v("--ug-font-sans"), fontSize: "13px",
+            edgeLabelBackground: v("--ug-surface"), clusterBkg: v("--ug-surface-soft"), clusterBorder: v("--ug-border"),
+          },
+          flowchart: { useMaxWidth: true, htmlLabels: true, curve: "basis", padding: 24, wrappingWidth: 200 },
+        });
+      };
+      initMermaid();
+      const renderedTabs = new Set();
+      const renderTab = async (tabId) => {
+        if (renderedTabs.has(tabId)) return;
+        const container = document.getElementById(tabId);
+        if (!container) return;
+        const diagrams = container.querySelectorAll(".mermaid");
+        if (!diagrams.length) { renderedTabs.add(tabId); return; }
+        if (document.fonts?.ready) await document.fonts.ready;
+        await mermaid.run({ querySelector: `#${tabId} .mermaid` });
+        renderedTabs.add(tabId);
+      };
+      window.__renderTab = renderTab;
+      // Re-render diagrams when theme changes so colors follow the active theme.
+      window.__reinitMermaid = () => { renderedTabs.clear(); initMermaid(); const active = document.querySelector(".guide-section.active"); if (active) renderTab(active.id); };
+    </script>
+
+    <!-- Chrome script: theme toggle + tab switching + mobile drawer + nav filter (always required) -->
+    <script>
+      (function () {
+        const root = document.documentElement;
+
+        /* ---- THEME (persisted) ---- */
+        const applyTheme = (t) => {
+          root.setAttribute("data-theme", t);
+          try { localStorage.setItem("ug-theme", t); } catch (e) {}
+          document.querySelectorAll(".i-sun, .i-moon").forEach((el) => {
+            el.style.display = (el.classList.contains("i-sun") === (t === "dark")) ? "block" : "none";
+          });
+          if (window.__reinitMermaid) window.__reinitMermaid();
+        };
+        try {
+          const saved = localStorage.getItem("ug-theme");
+          if (saved) applyTheme(saved);
+          else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) applyTheme("dark");
+        } catch (e) {}
+        const toggleTheme = () => applyTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+        document.querySelectorAll("#themeToggle, #themeToggleTop").forEach((b) => b.addEventListener("click", toggleTheme));
+
+        /* ---- MOBILE DRAWER ---- */
+        const sidebar = document.getElementById("sidebar");
+        const scrim = document.getElementById("scrim");
+        const menuBtn = document.getElementById("menuBtn");
+        const openNav = () => { sidebar.setAttribute("data-open", "true"); scrim.setAttribute("data-open", "true"); menuBtn?.setAttribute("aria-expanded", "true"); };
+        const closeNav = () => { sidebar.removeAttribute("data-open"); scrim.removeAttribute("data-open"); menuBtn?.setAttribute("aria-expanded", "false"); };
+        menuBtn?.addEventListener("click", () => (sidebar.getAttribute("data-open") === "true" ? closeNav() : openNav()));
+        scrim.addEventListener("click", closeNav);
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeNav(); });
+
+        /* ---- TAB SWITCHING ---- */
+        const tabs = Array.from(document.querySelectorAll(".sidebar-link"));
+        const sections = Array.from(document.querySelectorAll(".guide-section"));
+        const topbarCurrent = document.getElementById("topbarCurrent");
+        const activate = async (tabId, label) => {
+          tabs.forEach((t) => t.classList.toggle("active", t.dataset.tab === tabId));
+          sections.forEach((s) => s.classList.toggle("active", s.id === tabId));
+          if (topbarCurrent && label) topbarCurrent.textContent = label;
+          window.scrollTo(0, 0);
+          if (window.innerWidth <= 1024) closeNav();
+          if (window.__renderTab) await window.__renderTab(tabId);
+        };
+        tabs.forEach((tab) => {
+          tab.addEventListener("click", () => {
+            const label = tab.querySelector("span")?.textContent || "";
+            activate(tab.dataset.tab, label);
+          });
+        });
+
+        /* ---- NAV FILTER ---- */
+        const navFilter = document.getElementById("navFilter");
+        navFilter?.addEventListener("input", (e) => {
+          const q = e.target.value.toLowerCase();
+          tabs.forEach((t) => { t.style.display = t.textContent.toLowerCase().includes(q) ? "" : "none"; });
+        });
+
+        /* ---- INITIAL RENDER ---- */
+        const first = tabs.find((t) => t.classList.contains("active"));
+        if (first && window.__renderTab) window.__renderTab(first.dataset.tab);
+      })();
+    </script>
+  </body>
+</html>

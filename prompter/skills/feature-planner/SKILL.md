@@ -39,14 +39,14 @@ feature-planner <new-feature-name> → New Feature Mode (no matching folder)
 feature-planner                    → New Feature Mode (no args)
 ```
 
-1. Take the first argument token as a candidate **slug** and the second (if any) as the **intent** (`status`, `continue`, or `run`; `run` may carry `--checkpoint` or `--yolo`, plus the orthogonal `--review` flag — `run --review`, `run --checkpoint --review`, and `run --yolo --review` are all valid).
+1. Take the first argument token as a candidate **slug** and the second (if any) as the **intent** (`status`, `continue`, or `run`; `run` may carry `--checkpoint` or `--yolo`, plus the orthogonal `--review` flag — `run --review`, `run --checkpoint --review`, and `run --yolo --review` are all valid). Any intent may also carry `--md` to write the completion-time testing guide as Markdown instead of HTML (see "Feature Guide (generating)").
    - **Bare intent (no slug):** if the first token is itself an intent word (`status`, `continue`, or `run`) and no `prompter/features/<token>/` folder exists (a literal folder always wins), auto-resolve the slug from the **active features**: Glob `prompter/features/*/roadmap.md`, excluding `prompter/features/archive/`.
      - **No active feature →** report "No active features under prompter/features/" (mention any under `archive/` for context) and stop.
      - **Exactly one →** use it as the slug, say which one you resolved (e.g. `Resuming active feature: webhook-delivery-retries`), and proceed with the given intent.
      - **Several →** for `continue`/`run`, ask which feature to target with `AskUserQuestion` (one option per active feature, its next-to-run increment in the description), then proceed. For `status`, print the dashboard for **every** active feature — no question needed.
 2. Check whether `prompter/features/<slug>/` exists (Glob).
    - **Folder exists →** enter **Resume Mode** (jump to the "Resume Mode" section below; skip the interview entirely).
-   - **Folder doesn't exist but `prompter/features/archive/<slug>/` does →** the feature is complete and was archived. Report that with the archived path, and if `guide.md` is missing there, offer to generate it (see "Feature Guide" — write it into the archived folder). `continue` and `run` have nothing to do. If the user wants to reopen the feature, they move the folder back to `prompter/features/<slug>/`.
+   - **Folder doesn't exist but `prompter/features/archive/<slug>/` does →** the feature is complete and was archived. Report that with the archived path, and if no guide (`guide.html` or `guide.md`) is there, offer to generate it (see "Feature Guide" — write it into the archived folder). `continue` and `run` have nothing to do. If the user wants to reopen the feature, they move the folder back to `prompter/features/<slug>/`.
    - **Neither exists →** enter **New Feature Mode** (the interview, Steps 1–8). If a name was given, use its kebab-case slug so a later multi-increment resume can find its folder.
 3. If no intent word was given in Resume Mode, default to "show status, then ask".
 
@@ -116,20 +116,27 @@ If reconciliation shows **all** roadmap increments are `archived`, the feature i
 
 **Archiving the folder:** move `prompter/features/<slug>/` to `prompter/features/archive/<slug>/` (create `prompter/features/archive/` if needed), so `prompter/features/` contains only active features. Report the new path. If `prompter/features/archive/<slug>/` already exists, stop and ask the user instead of overwriting.
 
-If `prompter/features/<slug>/guide.md` already exists, add a note to the question that generating will overwrite it.
+If `prompter/features/<slug>/guide.html` (or `guide.md`) already exists, add a note to the question that generating will overwrite it.
 
 ### Feature Guide (generating)
 
-Generate a single manual testing guide covering the whole feature end-to-end — modeled on Prompter `/apply`'s per-change guide, but at the feature level.
+Generate a single manual testing guide covering the whole feature end-to-end, written for a person clicking through the app — not for an engineer reading the code.
 
-- **Save it to** `prompter/features/<slug>/guide.md`.
-- **Source it from every archived increment — don't guess.** For each increment's `change-id`, read its archived change under `prompter/changes/archive/*<change-id>*/` (its `proposal.md`, `tasks.md`, and any per-change `guide.md`) to see what actually shipped and which files were touched. Aggregate these into one coherent feature walkthrough.
-- **Structure** as concrete, step-by-step scenarios a person can follow by hand, each with: preconditions/setup, the exact steps to perform, and the expected result to verify against.
-- **Cover** the primary happy path across increments plus any notable edge cases or error states the feature introduced.
-- **Note required setup** (env vars, seed data, accounts, commands to start the app) so the tester can reproduce from a clean state.
-- **Order scenarios by the roadmap's dependency order** so the guide reads as one feature, not disjoint per-increment tests.
+- **Save it to** `prompter/features/<slug>/guide.html` — one self-contained page made by copying `assets/guide-template.html` and filling it. Keep the template's layout, CSS, and JS untouched; replace only the `{{PLACEHOLDER}}`s and the example sections.
+- **Source it from every archived increment — don't guess.** For each increment's `change-id`, read its archived change under `prompter/changes/archive/*<change-id>*/` (its `proposal.md`, `tasks.md`, and any per-change `guide.html`/`guide.md`) to see what actually shipped: which routes, buttons, fields, and setup commands exist. Use that only to get the steps right; none of it goes into the guide as explanation.
+- **Sections** — one `.sidebar-link` plus one matching `.guide-section` each, the first pair `active`: `before-you-start`, then one section per scenario in roadmap dependency order. Delete the template's introduction / getting-started / feature-example sections and the Mermaid `<script type="module">` block.
+- **Page header**: eyebrow "Testing Guide", `<h1>` the feature name, a one-sentence subtitle, and 2–3 summary pills naming what the tester will verify.
+- **"Before you start"** is a `.flow-step` timeline, one step per setup action — migration, seed, `.env` keys, start command, which account to sign in as — each with the exact command or key in `<code>`. Only what the feature needs. No prose about why.
+- **Check how the project is actually run before writing a single command.** If the project root has a `docker-compose.yml` / `compose.yaml` / `docker-compose.*.yml`, a `Dockerfile`, or Docker targets in a `Makefile`, Docker is the main timeline: start with `<code>docker compose up -d</code>` (or the Makefile target), wrap every migration, seed, and CLI step as `<code>docker compose exec &lt;service&gt; &lt;command&gt;</code>`, and take the app URL from the compose port mapping. Read the compose file for the real service names and ports — never guess them. Then close the section with one `callout-tip` titled **Running without Docker** giving the equivalent host commands (install, migrate, seed, start). If the project has no Docker setup, the host commands are the timeline and there is no callout.
+- **Each scenario** is a `.flow-step` timeline whose `<h4>` is the numbered action: "1. Go to `<code>/route</code>`", "2. Click `<strong>Button</strong>`", "3. Fill `<strong>Field</strong>`: `<code>example value</code>`". Add the `<p>` only when the action needs one more line. Every field gets a literal example value. Close the section with exactly one `callout-tip` titled **Expected** stating what is visible on screen (`callout-warning` for error scenarios).
+- **Use only** these components: page header + summary pills, `.flow-step`, `.callout`, `<code>`. No stat cards, module cards, tables, badges, page-ref links, figures, videos, or Mermaid.
+- **Cover** the happy path across increments, then only the error states a real user would run into (empty required field, invalid input, permission denied). Skip edge cases that need a database edit or an API call to trigger.
+- **Design system**: if `prompter/design-system.md` exists and `skills/user-guide-generator/references/design-system-mapping.md` is available, override the template's `--ug-*` tokens per that mapping; otherwise keep the template defaults. Never invent a palette.
+- **Leave out**: file paths, architecture, internal mechanics, "why it works", diagnostics or "failure to watch for" notes, reference constants, coverage notes, known-bug workarounds unrelated to the feature. If a step does not tell the tester what to do or what to see, delete it.
+- **Size**: 3–7 scenarios, 3–8 steps each. Write in the language the feature was planned in (default English; set `<html lang>` to match).
+- **Markdown opt-out (`--md`)**: when the invocation carries `--md`, save `prompter/features/<slug>/guide.md` instead — copy `assets/guide-template.md` and fill it, following the rules in its trailing comment (then delete that comment). Same sourcing, sections, scenario order, Docker detection, and "leave out" list as above; the flow-step, callout, and design-system bullets apply only to HTML. HTML is the default; never write both formats.
 
-After writing, tell the user the path, then continue with the folder archiving from "When every increment is `archived`" (the guide moves with the folder, ending up at `prompter/features/archive/<slug>/guide.md`). Exception: if the feature was already archived (invoked via the `prompter/features/archive/<slug>/` detection path), write the guide directly into the archived folder and stop.
+After writing, tell the user the path, then continue with the folder archiving from "When every increment is `archived`" (the guide moves with the folder, ending up at `prompter/features/archive/<slug>/guide.html` — or `guide.md` with `--md`). Exception: if the feature was already archived (invoked via the `prompter/features/archive/<slug>/` detection path), write the guide directly into the archived folder and stop.
 
 ### Intent: `status`
 
@@ -670,3 +677,5 @@ Without Prompter there are no increments and no per-feature folder, so the plan 
 
 - **Implementation plan template**: [implementation-plan-template.md](assets/implementation-plan-template.md) -- Structured output format for the plan
 - **Feature UI map template**: [ui-template.md](assets/ui-template.md) -- Page inventory + navigation contract for new UI, written to `prompter/features/{feature}/ui.md` (Step 4.5); consumed by `ui-ux-pro`/`ui-ux-max` to build clickable previews
+- **Testing guide template**: [guide-template.html](assets/guide-template.html) -- Self-contained HTML scaffold (sidebar tabs, light/dark toggle, `--ug-*` design tokens, flow-step + callout components) copied and filled into `prompter/features/{feature}/guide.html` when every increment is archived ("Feature Guide (generating)"); open it only when generating the guide
+- **Testing guide template (Markdown)**: [guide-template.md](assets/guide-template.md) -- Plain-Markdown scaffold used instead of the HTML template only when the invocation carries `--md`; open it only when generating a Markdown guide
