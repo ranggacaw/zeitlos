@@ -189,7 +189,7 @@ class AdminTeamManagementTest extends TestCase
     public function test_admin_can_create_a_match_from_a_whatsapp_template(): void
     {
         $admin = User::factory()->admin()->create();
-        $player = Player::factory()->create(['name' => 'Rafly']);
+        $player = Player::factory()->create(['name' => '  rAfLy  ', 'position' => 'Forward']);
 
         $template = <<<'TEXT'
 !!MAY THE WINS BE WITH YOU!!
@@ -233,14 +233,18 @@ TEXT;
         $this->assertSame('https://maps.app.goo.gl/HadXRxcpugrjtTRCA?g_st=ac', $match->maps_url);
         $this->assertDatabaseHas('match_rosters', [
             'match_id' => $match->id,
-            'guest_name' => 'Gilang',
+            'player_id' => Player::where('name', 'Gilang')->value('id'),
+            'guest_name' => null,
             'role' => MatchRoster::ROLE_GOALKEEPER,
         ]);
         $this->assertDatabaseHas('match_rosters', [
             'match_id' => $match->id,
             'player_id' => $player->id,
+            'guest_name' => null,
             'role' => MatchRoster::ROLE_PLAYER,
         ]);
+        $this->assertSame('Goalkeeper', Player::where('name', 'Gilang')->value('position'));
+        $this->assertSame('Forward', $player->fresh()->position);
     }
 
     public function test_admin_can_create_a_match_from_whatsapp_template_on_create_page(): void
@@ -316,9 +320,13 @@ TEXT;
         ]);
         $this->assertDatabaseHas('match_rosters', [
             'match_id' => $match->id,
-            'guest_name' => 'Rangga',
+            'player_id' => Player::where('name', 'Rangga')->value('id'),
+            'guest_name' => null,
             'role' => MatchRoster::ROLE_PLAYER,
         ]);
+        $this->assertSame('Goalkeeper', Player::where('name', 'Gilang')->value('position'));
+        $this->assertSame('Goalkeeper', Player::where('name', 'Sutan')->value('position'));
+        $this->assertSame('Player', Player::where('name', 'Rangga')->value('position'));
         $this->assertDatabaseMissing('match_rosters', [
             'match_id' => $match->id,
             'guest_name' => 'why I cannot create from whatsapp template?',
@@ -611,8 +619,8 @@ TEXT;
         ]);
         $this->assertDatabaseHas('match_rosters', [
             'match_id' => $match->id,
-            'player_id' => null,
-            'guest_name' => 'Sutan',
+            'player_id' => Player::where('name', 'Sutan')->value('id'),
+            'guest_name' => null,
             'role' => MatchRoster::ROLE_GOALKEEPER,
         ]);
         $this->assertDatabaseMissing('match_rosters', [

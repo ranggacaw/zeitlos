@@ -239,6 +239,43 @@ class PublicTeamPagesTest extends TestCase
             );
     }
 
+    public function test_public_player_detail_serializes_appearance_statuses_and_links_only_live_eligible_matches(): void
+    {
+        $player = Player::factory()->create();
+
+        foreach ([
+            FootballMatch::factory()->starting()->create(),
+            FootballMatch::factory()->live()->create(),
+            FootballMatch::factory()->finished()->create(),
+            FootballMatch::factory()->create(),
+        ] as $match) {
+            MatchRoster::factory()->create([
+                'match_id' => $match->id,
+                'player_id' => $player->id,
+            ]);
+        }
+
+        $this->get(route('public.players.show', $player))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Public/PlayerShow')
+                ->has('matches', 4)
+                ->has('matches', fn (Assert $matches) => $matches
+                    ->where('0.status', FootballMatch::STATUS_SCHEDULED)
+                    ->where('1.status', FootballMatch::STATUS_FINISHED)
+                    ->where('2.status', FootballMatch::STATUS_LIVE)
+                    ->where('3.status', FootballMatch::STATUS_STARTING)
+                )
+            );
+
+        $page = file_get_contents(resource_path('js/Pages/Public/PlayerShow.jsx'));
+
+        $this->assertStringContainsString('<ul className=', $page);
+        $this->assertStringContainsString("['starting', 'live', 'finished'].includes(match.status)", $page);
+        $this->assertStringContainsString("route('public.matches.live', match.id)", $page);
+        $this->assertStringContainsString('<article className=', $page);
+    }
+
     public function test_public_pages_render_empty_props_without_domain_data(): void
     {
         $this->get(route('public.home'))

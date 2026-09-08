@@ -4,13 +4,14 @@ namespace App\Team;
 
 use App\Models\FootballMatch;
 use App\Models\MatchRoster;
-use App\Models\Player;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class WhatsAppMatchTemplateImport
 {
+    public function __construct(private readonly PlayerResolver $players) {}
+
     public function create(string $template, string $opponent = 'Internal Game'): FootballMatch
     {
         $parsed = $this->parse($template);
@@ -61,24 +62,17 @@ class WhatsAppMatchTemplateImport
         $created = 0;
 
         foreach ($parsed['roster'] as $entry) {
-            $player = Player::query()
-                ->whereRaw('LOWER(name) = ?', [Str::lower($entry['name'])])
-                ->first();
+            $player = $this->players->resolve(
+                $entry['name'],
+                $entry['role'] === MatchRoster::ROLE_GOALKEEPER ? 'Goalkeeper' : 'Player',
+            );
 
-            $attributes = [
+            MatchRoster::query()->firstOrCreate([
                 'match_id' => $match->getKey(),
+                'player_id' => $player->getKey(),
+                'guest_name' => null,
                 'role' => $entry['role'],
-            ];
-
-            if ($player) {
-                $attributes['player_id'] = $player->getKey();
-                $attributes['guest_name'] = null;
-            } else {
-                $attributes['player_id'] = null;
-                $attributes['guest_name'] = $entry['name'];
-            }
-
-            MatchRoster::query()->firstOrCreate($attributes);
+            ]);
             $created++;
         }
 

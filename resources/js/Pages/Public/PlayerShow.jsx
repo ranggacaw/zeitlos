@@ -1,6 +1,6 @@
 import PublicLayout from '@/Layouts/PublicLayout';
 import { rosterPhotoUrl } from '@/Utils/rosterPhotos';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 
 export default function PlayerShow({ player, matches = [] }) {
     const photoUrl = rosterPhotoUrl(player);
@@ -38,35 +38,52 @@ export default function PlayerShow({ player, matches = [] }) {
 
             <section className="mt-5 rounded-3xl border border-border bg-card p-5 text-card-foreground sm:mt-6 sm:p-6">
                 <h3 className="text-2xl font-black text-foreground sm:text-3xl">Match Appearances</h3>
-                <div className="mt-5 space-y-3 sm:space-y-4">
+                <ul className="mt-5 space-y-3 sm:space-y-4">
                     {matches.length === 0 ? (
-                        <p className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
+                        <li className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
                             No rostered matches yet.
-                        </p>
+                        </li>
                     ) : (
                         matches.map((match) => (
-                            <article key={match.id} className="rounded-3xl bg-muted p-4 sm:p-5">
-                                <div className="flex items-center justify-between gap-3">
-                                    <div className="min-w-0">
-                                        <p className="text-[0.65rem] font-bold uppercase tracking-[0.25em] text-muted-foreground">
-                                            {match.status}
-                                        </p>
-                                        <h4 className="mt-1 text-lg font-black leading-tight text-foreground sm:text-xl">
-                                            Zeitlos vs {match.opponent}
-                                        </h4>
-                                        <p className="mt-1 text-sm text-muted-foreground">{match.match_date} · {match.venue}</p>
-                                    </div>
-                                    {match.status === 'finished' && (
-                                        <p className="shrink-0 text-2xl font-black text-chart-2 sm:text-3xl">
-                                            {match.zeitlos_score}-{match.opponent_score}
-                                        </p>
-                                    )}
-                                </div>
-                            </article>
+                            <li key={match.id}>
+                                {['starting', 'live', 'finished'].includes(match.status) ? (
+                                    <Link
+                                        href={route('public.matches.live', match.id)}
+                                        className="block rounded-3xl bg-muted p-4 transition hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-5"
+                                    >
+                                        <Appearance match={match} />
+                                    </Link>
+                                ) : (
+                                    <article className="rounded-3xl bg-muted p-4 sm:p-5">
+                                        <Appearance match={match} />
+                                    </article>
+                                )}
+                            </li>
                         ))
                     )}
-                </div>
+                </ul>
             </section>
         </PublicLayout>
+    );
+}
+
+function Appearance({ match }) {
+    return (
+        <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+                <p className="text-[0.65rem] font-bold uppercase tracking-[0.25em] text-muted-foreground">
+                    {match.status}
+                </p>
+                <h4 className="mt-1 text-lg font-black leading-tight text-foreground sm:text-xl">
+                    Zeitlos vs {match.opponent}
+                </h4>
+                <p className="mt-1 text-sm text-muted-foreground">{match.match_date} · {match.venue}</p>
+            </div>
+            {match.status === 'finished' && (
+                <p className="shrink-0 text-2xl font-black text-chart-2 sm:text-3xl">
+                    {match.zeitlos_score}-{match.opponent_score}
+                </p>
+            )}
+        </div>
     );
 }
