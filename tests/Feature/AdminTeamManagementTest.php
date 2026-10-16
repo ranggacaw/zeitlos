@@ -16,6 +16,7 @@ use App\Models\MatchEvent;
 use App\Models\MatchRoster;
 use App\Models\Player;
 use App\Models\User;
+use App\Team\WhatsAppMatchTemplateImport;
 use App\Team\WhatsAppRosterText;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
@@ -376,6 +377,51 @@ TEXT;
             'guest_name' => 'why I cannot create from whatsapp template?',
         ]);
         $this->assertSame(4, MatchRoster::where('match_id', $match->id)->count());
+    }
+
+    public function test_whatsapp_template_without_date_or_venue_is_rejected_instead_of_failing(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $template = <<<'TEXT'
+!!MAY THE WINS BE WITH YOU!!
+
+Bukti TF kirim ke 085156292210
+
+LIST PLAYER
+1. Rafly
+TEXT;
+
+        Livewire::actingAs($admin)
+            ->test(CreateFootballMatch::class)
+            ->callAction('importWhatsAppTemplate', [
+                'opponent' => 'Internal Game',
+                'template' => $template,
+            ]);
+
+        $this->assertDatabaseCount('matches', 0);
+        $this->assertDatabaseCount('match_rosters', 0);
+    }
+
+    public function test_whatsapp_template_values_are_kept_within_column_limits(): void
+    {
+        $longVenue = str_repeat('Epic Sports Arena ', 30);
+
+        $template = <<<TEXT
+🥅 : {$longVenue}
+⏰ : 06:00 sd 08:00 WIB
+📅 : Minggu , 23 Agustus 2026
+💵 : 5000K
+👔 : JERSEY ZEITLOS
+
+DP Mininal 20K ✅
+TEXT;
+
+        $parsed = app(WhatsAppMatchTemplateImport::class)->parse($template);
+
+        $this->assertSame(255, mb_strlen($parsed['venue']));
+        $this->assertNull($parsed['ticket_price']);
+        $this->assertEquals(20000, $parsed['payment_amount']);
     }
 
     public function test_admin_can_open_and_update_filament_leaderboard_corrections(): void

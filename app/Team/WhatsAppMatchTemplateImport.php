@@ -10,11 +10,28 @@ use Illuminate\Support\Str;
 
 class WhatsAppMatchTemplateImport
 {
+    /** Width of the `matches` varchar columns this importer writes to. */
+    private const MAX_TEXT_LENGTH = 255;
+
+    /** Largest value the `decimal(8, 2)` money columns accept. */
+    private const MAX_AMOUNT = 999999.99;
+
     public function __construct(private readonly PlayerResolver $players) {}
 
     public function create(string $template, string $opponent = 'Internal Game'): FootballMatch
     {
         $parsed = $this->parse($template);
+
+        $missing = collect(['match_date' => 'match date', 'venue' => 'venue'])
+            ->reject(fn (string $label, string $key): bool => filled($parsed[$key]))
+            ->values()
+            ->all();
+
+        if ($missing !== []) {
+            throw new WhatsAppTemplateParseException(
+                'Could not read the '.implode(' and ', $missing).' from this template. Fix those lines or create the match manually.'
+            );
+        }
 
         $match = FootballMatch::create([
             'opponent' => $opponent,
@@ -85,17 +102,27 @@ class WhatsAppMatchTemplateImport
         return [
             'match_date' => $this->parseDate($this->lineValue($text, 'date')),
             'match_time' => $this->parseTime($this->lineValue($text, 'time')),
-            'venue' => $this->lineValue($text, 'venue'),
-            'maps_url' => $this->parseMapsUrl($text),
-            'ticket_price' => $this->parseAmount($this->lineValue($text, 'price')),
-            'dress_code' => $this->lineValue($text, 'dress'),
+            'venue' => $this->limitText($this->lineValue($text, 'venue')),
+            'maps_url' => $this->limitText($this->parseMapsUrl($text)),
+            'ticket_price' => $this->limitAmount($this->parseAmount($this->lineValue($text, 'price'))),
+            'dress_code' => $this->limitText($this->lineValue($text, 'dress')),
             'facilities' => $this->parseFacilities($text),
             'notes' => $this->parseNote($text),
-            'payment_amount' => $this->parsePaymentAmount($text),
+            'payment_amount' => $this->limitAmount($this->parsePaymentAmount($text)),
             'payment_instructions' => $this->parsePaymentInstructions($text),
             'whatsapp_announcement' => $text,
             'roster' => $this->parseRoster($text),
         ];
+    }
+
+    private function limitText(?string $value): ?string
+    {
+        return $value === null ? null : Str::substr($value, 0, self::MAX_TEXT_LENGTH);
+    }
+
+    private function limitAmount(?float $value): ?float
+    {
+        return $value !== null && $value <= self::MAX_AMOUNT ? $value : null;
     }
 
     private function lineValue(string $text, string $type): ?string

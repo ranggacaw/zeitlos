@@ -4,9 +4,14 @@
  * navigation requests. Application (Inertia) data is intentionally left
  * to the network so stale match data is never served.
  */
-const CACHE_VERSION = 'zeitlos-v3';
+const CACHE_VERSION = 'zeitlos-v4';
 const CACHE_NAME = `${CACHE_VERSION}-shell`;
 const OFFLINE_URL = '/offline.html';
+
+// The admin panel is Blade/Livewire and its requests must never be cached or
+// replaced by the offline shell, or a stale asset can desync the Livewire
+// snapshot the server validates.
+const BYPASS_PREFIXES = ['/admin', '/livewire'];
 
 const SHELL_ASSETS = [
     '/manifest.webmanifest',
@@ -52,6 +57,16 @@ self.addEventListener('fetch', (event) => {
     const url = new URL(request.url);
 
     if (url.origin !== self.location.origin) {
+        return;
+    }
+
+    if (
+        BYPASS_PREFIXES.some(
+            (prefix) =>
+                url.pathname === prefix ||
+                url.pathname.startsWith(`${prefix}/`),
+        )
+    ) {
         return;
     }
 

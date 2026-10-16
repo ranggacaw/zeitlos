@@ -4,6 +4,7 @@ namespace App\Filament\Resources\FootballMatches\Pages;
 
 use App\Filament\Resources\FootballMatches\FootballMatchResource;
 use App\Team\WhatsAppMatchTemplateImport;
+use App\Team\WhatsAppTemplateParseException;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -31,8 +32,18 @@ class CreateFootballMatch extends CreateRecord
                         ->required()
                         ->helperText('Paste the group message to create the match and roster automatically.'),
                 ])
-                ->action(function (array $data): void {
-                    $match = app(WhatsAppMatchTemplateImport::class)->create($data['template'], $data['opponent']);
+                ->action(function (array $data, Action $action): void {
+                    try {
+                        $match = app(WhatsAppMatchTemplateImport::class)->create($data['template'], $data['opponent']);
+                    } catch (WhatsAppTemplateParseException $exception) {
+                        Notification::make()
+                            ->danger()
+                            ->title('Could not read the WhatsApp template')
+                            ->body($exception->getMessage())
+                            ->send();
+
+                        $action->halt();
+                    }
 
                     Notification::make()
                         ->success()

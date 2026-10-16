@@ -44,8 +44,9 @@ class PwaAssetsTest extends TestCase
         $this->assertStringContainsString('activate', $contents);
         $this->assertStringContainsString('fetch', $contents);
         $this->assertStringContainsString('/offline.html', $contents);
-        $this->assertStringContainsString('zeitlos-v3', $contents);
+        $this->assertStringContainsString('zeitlos-v4', $contents);
         $this->assertStringContainsString("request.headers.has('X-Inertia')", $contents);
+        $this->assertStringContainsString("BYPASS_PREFIXES = ['/admin', '/livewire']", $contents);
     }
 
     public function test_offline_fallback_page_is_present(): void
