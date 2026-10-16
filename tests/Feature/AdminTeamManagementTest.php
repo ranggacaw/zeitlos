@@ -280,6 +280,25 @@ TEXT;
         $this->assertSame('Forward', $player->fresh()->position);
     }
 
+    public function test_whatsapp_template_parser_supports_bold_indonesian_date_and_time_lines(): void
+    {
+        $template = <<<'TEXT'
+*🥅 : Barata Vida Minisoccer*
+*⏰ : 18:00 sd 20:00 WIB*
+*📅 : Sabtu, 17 Oktober 2026*
+*💵 : 85K*
+*👔 : JERSEY ZEITLOS*
+TEXT;
+
+        $parsed = app(WhatsAppMatchTemplateImport::class)->parse($template);
+
+        $this->assertSame('2026-10-17', $parsed['match_date']);
+        $this->assertSame('18:00', $parsed['match_time']);
+        $this->assertSame('Barata Vida Minisoccer', $parsed['venue']);
+        $this->assertEquals(85000, $parsed['ticket_price']);
+        $this->assertSame('ZEITLOS', $parsed['dress_code']);
+    }
+
     public function test_admin_can_create_a_match_from_whatsapp_template_on_create_page(): void
     {
         $admin = User::factory()->admin()->create();

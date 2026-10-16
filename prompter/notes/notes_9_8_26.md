@@ -1,3 +1,0 @@
-- import whatsapp , polayer gak ke record
-- player details, match appereance ga bisa di klik
-- player details match appereach list should be list biar rapi kalo banyak

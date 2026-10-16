@@ -130,19 +130,22 @@ class WhatsAppMatchTemplateImport
         $patterns = [
             'venue' => '/^.*:\s*(.+)$/mi',
             'time' => '/^.*:\s*([0-9]{1,2}[:.][0-9]{2}[^\n]*)$/mi',
-            'date' => '/^.*:\s*([^\n]*\d{4})$/mi',
-            'price' => '/^.*:\s*([0-9]+\s*k?)\s*$/mi',
+            'date' => '/^.*:\s*([^\n]*\d{4})\*?\s*$/mi',
+            'price' => '/^.*:\s*([0-9]+\s*k?)\*?\s*$/mi',
             'dress' => '/^.*:\s*(?:jersey\s+)?(.+)$/mi',
         ];
 
         preg_match_all($patterns[$type], $text, $matches);
 
+        $values = collect($matches[1] ?? [])
+            ->map(fn (string $value): string => trim($value, " \t\n\r\0\x0B*"));
+
         return match ($type) {
-            'venue' => $matches[1][0] ?? null,
-            'time' => $matches[1][0] ?? null,
-            'date' => $matches[1][0] ?? null,
-            'price' => collect($matches[1] ?? [])->first(fn ($value) => Str::contains(Str::lower($value), 'k')),
-            'dress' => collect($matches[1] ?? [])->first(fn ($value) => Str::contains(Str::lower($value), 'zeitlos')),
+            'venue' => $values->first(),
+            'time' => $values->first(),
+            'date' => $values->first(),
+            'price' => $values->first(fn ($value) => Str::contains(Str::lower($value), 'k')),
+            'dress' => $values->first(fn ($value) => Str::contains(Str::lower($value), 'zeitlos')),
         };
     }
 
