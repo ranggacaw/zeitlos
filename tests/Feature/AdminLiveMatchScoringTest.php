@@ -111,7 +111,8 @@ class AdminLiveMatchScoringTest extends TestCase
                 'scorer_id' => $scorer->id,
                 'assist_player_id' => $assistant->id,
             ])
-            ->assertHasNoActionErrors();
+            ->assertHasNoActionErrors()
+            ->assertSee('Zeitlos 1 : 0');
 
         $this->assertDatabaseHas('match_events', [
             'match_id' => $match->id,

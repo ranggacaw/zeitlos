@@ -70,8 +70,12 @@ export default function MatchLive({ match }) {
 
     useEffect(() => {
         const interval = window.setInterval(() => {
-            router.reload({ only: ['match'], preserveScroll: true });
-        }, 10000);
+            router.reload({
+                only: ['match'],
+                preserveScroll: true,
+                onSuccess: (page) => setLiveMatch(page.props.match),
+            });
+        }, 5000);
 
         return () => window.clearInterval(interval);
     }, []);

@@ -47,15 +47,13 @@ class ManageFootballMatchLiveScoring extends Page implements HasTable
 
     public function content(Schema $schema): Schema
     {
-        $match = $this->match();
-
         return $schema
             ->components([
                 Section::make('Scoreboard')
                     ->description('Current match status and score context.')
                     ->schema([
-                        Html::make(view('filament.football-matches.pages.live-scoring.summary', [
-                            'match' => $match,
+                        Html::make(fn (): string => view('filament.football-matches.pages.live-scoring.summary', [
+                            'match' => $this->match(),
                             'scoringPlayers' => $this->scoringPlayers(),
                         ])->render()),
                     ]),
